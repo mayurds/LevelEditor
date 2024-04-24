@@ -31,11 +31,7 @@ namespace SweetSugar.Scripts.Items
 
             item1.destroying = true;
             var switchItemType = item2?.currentType ?? ItemsTypes.NONE;
-            if(!noMarmaladeLaunch && !destroyStarted)
-            {
-                destroyStarted = true;
-                CreateMarmaladeWithType(switchItemType);
-            }
+           
             if (switchItemType == ItemsTypes.MARMALADE)
                 item2.GetTopItemInterface().Destroy(item2, null);
             else if (switchItemType != ItemsTypes.NONE && (item2?.Combinable ?? false))
@@ -46,40 +42,9 @@ namespace SweetSugar.Scripts.Items
             GetParentItem().square.DestroyBlock();
         }
 
-        private void DestroySecond(Item item1, Item item2)
-        {
-            secondItem?.DestroySecond(item1, item2);
-            var switchItemType = item2?.currentType ?? ItemsTypes.NONE;
-            if(!noMarmaladeLaunch)
-            {
-                CreateMarmaladeWithType(switchItemType);
-            }
-        }
-
-        private void CreateMarmaladeWithType(ItemsTypes itemsType)
-        {
-            CreateMarmalade(itemsType);
  
-        }
 
-        private void CreateMarmalade(ItemsTypes itemsType)
-        {
-            foreach (var marmalade in marmalades)
-            {
-                marmalade.targets = GetParentItem().itemForEditor.TargetMarmaladePositions;
-                if (itemsType != ItemsTypes.MARMALADE && itemsType != ItemsTypes.MULTICOLOR && itemsType != ItemsTypes.INGREDIENT)
-                    marmalade.nextItemType = itemsType;
-                if (GetParentItem().square?.type == SquareTypes.JellyBlock || LevelManager.THIS.lastSwitchedItem?.square?.type == SquareTypes.JellyBlock)
-                    marmalade.setJelly = true;
-                if (UnityEngine.Random.value>=0.5f)
-                    marmalade.SetDirection(Vector2.left);
-                else
-                    marmalade.SetDirection(Vector2.right);
-                marmalade.StartFly();
-            }
-
-            StartCoroutine(WaitForReachTarget());
-        }
+    
 
         IEnumerator WaitForReachTarget()
         {

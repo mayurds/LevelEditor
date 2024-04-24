@@ -26,7 +26,6 @@ namespace SweetSugar.Scripts.TargetScripts
         public override void InitTarget()
         {
             description = "Spread the jelly everywhere";
-            subTargetContainers[0].count = LevelData.THIS.fields.Sum(x => x.levelSquares.WhereNotNull().Count(i => i.block == SquareTypes.JellyBlock));
 
             // Debug.Log(description);
         }

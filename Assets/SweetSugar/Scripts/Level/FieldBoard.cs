@@ -67,16 +67,12 @@ using Random = UnityEngine.Random;
              foreach (var i in squaresArray.ToList())
              { 
                  i.SetBorderDirection();
-                 i.SetTeleports();  
                  if(!i.IsNone())
                      i.SetOutline();
              }
-             foreach (var i in squaresArray.ToList())
-                 i.enterSquare = GetEnterPoint(i);
              enterPoints = squaresArray.Count(i => i.isEnterPoint);
              foreach (var i in squaresArray.ToList())
              {
-                 i.SetDirection(); 
                  // i.SetMask(); 
              }
              SetOrderInSequence();
@@ -245,14 +241,6 @@ using Random = UnityEngine.Random;
                      if (square.Item == null) //|| !falling && square.item?.currentType != ItemsTypes.SPIRAL)
                      {
                          var squareBlock = fieldData.levelSquares[square.row * fieldData.maxCols + square.col];
-                         if (!falling && (squareBlock.item.Texture != null || squareBlock.item.ItemType != ItemsTypes.NONE))
-                         {
-                             var item = square.GenItem(false, squareBlock.item.ItemType, squareBlock.item.Color);
-                             if (square.IsNone()) return;
-                             item.tutorialItem = true; // not destroy this on regen
-                             item.itemForEditor = squareBlock.item;
-                             square.Item = item;
-                         }
                          if (square.Item == null) 
                              GenSimpleItem(falling, square);
                      }
@@ -318,16 +306,7 @@ using Random = UnityEngine.Random;
 
          }
 
-         public Square GetEnterPoint(Square square)
-         {
-             var enterSquare = square.GetPreviousSquare();
-             if (enterSquare == null) return square;
-             if (!enterSquare.isEnterPoint)
-                 enterSquare = GetEnterPoint(enterSquare);
-             if (enterSquare.isEnterPoint && enterSquare.IsNone())
-                 enterSquare = GetEnterPoint(enterSquare);
-             return enterSquare;
-         }
+  
 
 
          /// <summary>
@@ -341,18 +320,7 @@ using Random = UnityEngine.Random;
              var l = listofSequences.SelectMany(i => i);
              var squaresNotJoinEnter = squaresArray.Where(i => !l.Contains(i));
              var topSquares = new List<Square>();
-             foreach (Square square in squaresNotJoinEnter)
-             {
-                 var sq = square;
-                 Square prevSquare;
-                 do
-                 {
-                     prevSquare = sq.GetPreviousSquare();
-                     if (prevSquare != null && prevSquare.IsNone()) prevSquare = null;
-                     if(prevSquare == null) topSquares.Add(sq);
-                     sq = prevSquare;
-                 } while (prevSquare != null);
-             }
+        
         
              listofSequences.AddRange( ListofSequences(topSquares));
              return listofSequences;
@@ -427,27 +395,6 @@ using Random = UnityEngine.Random;
              square.row = row;
              square.col = col;
              square.type = SquareTypes.EmptySquare;
-             square.direction = squareBlock.direction;
-             if (square.teleportOrigin == null)
-                 square.isEnterPoint = squareBlock.enterSquare;
-             square.teleportDestinationCoord = squareBlock.teleportCoordinatesLinked;
-             // square.AddComponent(Type.GetType(LevelData.target.ToString()));
-             if (squareBlock.block == SquareTypes.EmptySquare)
-             {
-                 square.SetType(squareBlock);
-             }
-             else if (squareBlock.block == SquareTypes.NONE)
-             {
-                 squareObject.GetComponent<SpriteRenderer>().enabled = false;
-                 square.type = SquareTypes.NONE;
-
-             }
-             else
-             {
-                 square.SetType(squareBlock);
-
-             }
-
 
          }
 

@@ -39,7 +39,6 @@ namespace SweetSugar.Scripts.Editor
         private int subLevelNumberTotal = 1;
 
         private SquareTypes squareType;
-        private ItemForEditor itemBrush;
         private string FileName = "1_1.txt";
         private Vector2 scrollViewVector;
         private bool update;
@@ -54,8 +53,6 @@ namespace SweetSugar.Scripts.Editor
         private bool failed_settings_show;
         private bool gems_shop_show;
         private bool target_description_show;
-        private IEnumerable<ItemForEditor>[] itemsForEditor;
-        private IEnumerable<ItemForEditor> itemsForEditorFull;
         string levelPath = "Assets/SweetSugar/Resources/Levels/";
 
         private bool enableGoogleAdsProcessing;
@@ -74,11 +71,7 @@ namespace SweetSugar.Scripts.Editor
             window.Show();
         }
      
-        public static void ShowHelp()
-        {
-            selected = 7;
-        }
-
+     
         public static void ShowWindow()
         {
             GetWindow(typeof(LevelMakerEditor));
@@ -115,16 +108,12 @@ namespace SweetSugar.Scripts.Editor
             arrows_enter[3] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_red_up.png",typeof(Texture));
 
 
-        
-
-            gotFocus = true;
         }
 
         private void OnLostFocus()
         {
             dirtyLevel = true;
             SaveLevel(levelNumber);
-            gotFocus = false;
         }
 
         private void Initialize()
@@ -142,17 +131,6 @@ namespace SweetSugar.Scripts.Editor
             target_description_show = true;
             var num = 0;
             var simpleItem = Resources.Load<GameObject>("Items/Item").GetComponent<ItemSimple>();
-            var simpleitems = simpleItem.GetComponent<IColorableComponent>().GetSprites(levelNumber)
-                .Select(i => new ItemForEditor
-                {
-                    Item = simpleItem.gameObject,
-                    ItemType = simpleItem.currentType,
-                    Texture = i.texture
-                }).ToList().ForEachY(i =>
-                {
-                    i.Color = num;
-                    num++;
-                });
             Resources.LoadAll("Items");
             if (levelData.target.prefabs.All(i => i.GetComponent<IColorableComponent>()))
             {
@@ -172,7 +150,6 @@ namespace SweetSugar.Scripts.Editor
             for (int i = 0; i < levelData.GetField(subLevelNumber - 1).levelSquares.Length; i++)
             {
                 SquareBlocks sqBlocks = new SquareBlocks();
-                sqBlocks.block = SquareTypes.EmptySquare;
                 sqBlocks.obstacle = SquareTypes.NONE;
 
                 levelData.GetField(subLevelNumber - 1).levelSquares[i] = sqBlocks;
@@ -235,11 +212,7 @@ namespace SweetSugar.Scripts.Editor
 
                         GUILayout.BeginHorizontal();
                         {
-//                        GUIMamalade();
-                            //                        GUILayout.Space(10);
-
                             GUINoRegen();
-                            //                        GUILayout.Space(10);
                         }
                         GUILayout.EndHorizontal();
 
@@ -249,32 +222,13 @@ namespace SweetSugar.Scripts.Editor
                         GUILevelSize();
                         GUILayout.Space(10);
 
-                        GUISections();
                         GUILayout.Space(10);
 
-                        if (section == 0)
-                        {
                             GUIBlocks();
                             GUILayout.Space(10);
-                        }
 
-                        if (section == 1)
-                        {
-                            GUIItems();
-                            GUILayout.Space(10);
-                        }
+                   
 
-                        if (section == 2)
-                        {
-                            GUIDirections();
-                            GUILayout.Space(10);
-                        }
-
-                        if (section == 3)
-                        {
-                            GUITeleport();
-                            GUILayout.Space(10);
-                        }
 
                         GUIGameField();
                     }
@@ -1102,158 +1056,16 @@ namespace SweetSugar.Scripts.Editor
             return list.Count() > 0;
         }
 
-        private void GUISections()
-        {
-            GUILayout.BeginHorizontal();
-            {
-                var saveSetion = section;
-                section = GUILayout.Toolbar(section, sectionsString, GUILayout.Width(450));
-                if (section != saveSetion && section == 3) squareBlockSelected = null;
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        private void GUITeleport()
-        {
-            GUILayout.BeginHorizontal();
-            {
-                //GUILayout.Space(30);
-                GUILayout.BeginVertical();
-                {
-                    if (GUILayout.Button(new GUIContent("Clear", "clear all teleports"), GUILayout.Width(50),
-                        GUILayout.Height(50)))
-                    {
-                        squareBlockSelected = null;
-                        for (int i = 0; i < levelData.GetField(subLevelNumber - 1).levelSquares.Length; i++)
-                        {
-                            levelData.GetField(subLevelNumber - 1).levelSquares[i].isEnterTeleport = false;
-                            levelData.GetField(subLevelNumber - 1).levelSquares[i].teleportCoordinatesLinkedBack =
-                                Vector2Int.one * -1;
-                            levelData.GetField(subLevelNumber - 1).levelSquares[i].teleportCoordinatesLinked =
-                                Vector2Int.one * -1;
-                        }
-
-                        dirtyLevel = true;
-                        // SaveLevel();
-                    }
-
-                    GUILayout.Space(10);
-
-                    GUILayout.Label("Click to the field, once for enter then for exit.", EditorStyles.boldLabel);
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        private int arrow_index;
-        private int selectDirectionType;
-
-        private void GUIDirections()
-        {
-            GUILayout.BeginHorizontal();
-            {
-                //GUILayout.Space(30);
-                GUILayout.BeginVertical();
-                {
-                    GUILayout.Label("Tools:", EditorStyles.boldLabel);
-                    GUILayout.BeginHorizontal();
-                    {
-                        if (GUILayout.Button(new GUIContent(arrows_enter[0], "enter point on/off"), GUILayout.Width(50),
-                            GUILayout.Height(50)))
-                        {
-                            selectDirectionType = 1;
-                        }
-                    
-                        if (GUILayout.Button(new GUIContent(arrows[4], "rotate one arrow"), GUILayout.Width(50),
-                            GUILayout.Height(50)))
-                        {
-                            selectDirectionType = 0;
-                        }
-
-                        if (GUILayout.Button(new GUIContent(arrows[5], "rotate all"), GUILayout.Width(50),
-                            GUILayout.Height(50)))
-                        {
-                            arrow_index = (int)Mathf.Repeat(arrow_index + 1, 4);
-                            var squares = levelData.GetField(subLevelNumber - 1).levelSquares;
-                            foreach (var item in squares)
-                            {
-                                item.direction = GetDirectionByIndex(arrow_index);
-                            }
-
-                            SetEnterPoint(GetDirectionByIndex(arrow_index));
-                        }
-
-                        if (GUILayout.Button(new GUIContent("Default", "default all direction"), GUILayout.Width(50),
-                            GUILayout.Height(50)))
-                        {
-                            arrow_index = 0;
-                            ResetDirection();
-                            // SaveLevel();
-                        }
-                    }
-                    GUILayout.EndHorizontal();
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndHorizontal();
-        }
+     
 
         private void ResetDirection()
         {
             var squares = levelData.GetField(subLevelNumber - 1).levelSquares;
-            foreach (var item in squares)
-            {
-                item.direction = GetDirectionByIndex(arrow_index);
-            }
+         
 
-            SetEnterPoint(GetDirectionByIndex(arrow_index));
             dirtyLevel = true;
         }
 
-        private void SetEnterPoint(Vector2 direction)
-        {
-            levelData.GetField(subLevelNumber - 1).levelSquares.ToList().ForEach(i => i.enterSquare = false);
-            if (direction == Vector2.down)
-            {
-                for (int col = 0; col < levelData.GetField(subLevelNumber - 1).maxCols; col++)
-                {
-                    var squareBlocks = levelData.GetBlock(0, col);
-                    if (squareBlocks.teleportCoordinatesLinkedBack == Vector2Int.one * -1)
-                        squareBlocks.enterSquare = true;
-                }
-            }
-
-            if (direction == Vector2.up)
-            {
-                for (int col = 0; col < levelData.GetField(subLevelNumber - 1).maxCols; col++)
-                {
-                    var squareBlocks = levelData.GetBlock(levelData.GetField(subLevelNumber - 1).maxRows - 1, col);
-                    if (squareBlocks.teleportCoordinatesLinkedBack == Vector2Int.one * -1)
-                        squareBlocks.enterSquare = true;
-                }
-            }
-
-            if (direction == Vector2.left)
-            {
-                for (int row = 0; row < levelData.GetField(subLevelNumber - 1).maxRows; row++)
-                {
-                    var squareBlocks = levelData.GetBlock(row, levelData.GetField(subLevelNumber - 1).maxCols - 1);
-                    if (squareBlocks.teleportCoordinatesLinkedBack == Vector2Int.one * -1)
-                        squareBlocks.enterSquare = true;
-                }
-            }
-
-            if (direction == Vector2.right)
-            {
-                for (int row = 0; row < levelData.GetField(subLevelNumber - 1).maxRows; row++)
-                {
-                    var squareBlocks = levelData.GetBlock(row, 0);
-                    if (squareBlocks.teleportCoordinatesLinkedBack == Vector2Int.one * -1)
-                        squareBlocks.enterSquare = true;
-                }
-            }
-        }
 
         private int GetIndexByDirection(Vector2 direction)
         {
@@ -1266,14 +1078,7 @@ namespace SweetSugar.Scripts.Editor
             return 0;
         }
 
-        private Vector2 GetDirectionByIndex(int index)
-        {
-            if (index == 0) return Vector2.down;
-            if (index == 1) return Vector2.left;
-            if (index == 2) return Vector2.up;
-            if (index == 3) return Vector2.right;
-            return Vector2.down;
-        }
+
 
         private Texture GetArrowByAngle(float angle)
         {
@@ -1293,94 +1098,8 @@ namespace SweetSugar.Scripts.Editor
             return arr[0];
         }
 
-        private void GUIItems()
-        {
-            GUILayout.BeginHorizontal();
-            {
-                //GUILayout.Space(30);
-                GUILayout.BeginVertical();
-                {
-                    GUILayout.Label("Tip: right click to change sprite for level", EditorStyles.boldLabel);
-                    GUILayout.BeginHorizontal();
-                    {
-                        if (GUILayout.Button(new GUIContent("Clear", "clear all field"), GUILayout.Width(50),
-                            GUILayout.Height(50)))
-                        {
-                            ClearItems();
-                            // SaveLevel();
-                        }
 
-                        GUILayout.BeginVertical();
-                        {
-                            foreach (var val in itemsForEditor)
-                            {
-                                GUILayout.BeginHorizontal();
-                                {
-                                    foreach (var item in val)
-                                    {
-                                        GameObject item1 = item.Item;
-                                        if(!item1) continue;
-                                        if (item.ItemType != ItemsTypes.NONE)
-                                            item.SetColor(color, levelNumber);
-                                        var texture = item.Texture;
-                                        if (item.ItemType == ItemsTypes.PACKAGE)
-                                        {
-                                            try
-                                            {
-                                                texture = packageTexture.AlphaBlend(item.Texture);
-                                            }
-                                            catch (Exception e)
-                                            {
-                                            }
-                                        }
-                                        if (GUILayout.Button(new GUIContent(texture, item1.name),
-                                            GUILayout.Width(50), GUILayout.Height(50)))
-                                        {
-                                            Event current = Event.current;
-                                            if(current.button == 1)
-                                            {
-                                                dirtyLevel = true;
-                                                SaveLevel(levelNumber);
-                                                ItemsPerLevelEditor.ShowWindow(item1, levelNumber);
-                                            }
-                                            else
-                                            {
-                                                itemBrush = item.DeepCopy();
-                                                if (item.ItemType == ItemsTypes.NONE) color = itemBrush.Color;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (val == itemsForEditor.Last())
-                                {
-                                    if (GUILayout.Button(new GUIContent("X", "Clear block"), GUILayout.Width(50),
-                                        GUILayout.Height(50)))
-                                    {
-                                        itemBrush = null;
-                                    }
-                                }
-
-                                GUILayout.EndHorizontal();
-                            }
-                        }
-                        GUILayout.EndVertical();
-                    }
-                    GUILayout.EndHorizontal();
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        private void ClearItems()
-        {
-            for (int i = 0; i < levelData.GetField(subLevelNumber - 1).levelSquares.Length; i++)
-            {
-                levelData.GetField(subLevelNumber - 1).levelSquares[i].item = null;
-            }
-
-            dirtyLevel = true;
-        }
+  
 
         private void GUIBlocks()
         {
@@ -1410,6 +1129,7 @@ namespace SweetSugar.Scripts.Editor
                                 if (GUILayout.Button(
                                     new GUIContent(Square.GetSquareTexture(squareTypeItem), squareTypeItem.ToString()),
                                     GUILayout.Width(50), GUILayout.Height(50)))
+
                                     squareType = squareTypeItem;
                             }
 
@@ -1440,10 +1160,7 @@ namespace SweetSugar.Scripts.Editor
         {
             for (int i = 0; i < levelData.GetField(subLevelNumber - 1).levelSquares.Length; i++)
             {
-                levelData.GetField(subLevelNumber - 1).levelSquares[i].block = SquareTypes.EmptySquare;
-                levelData.GetField(subLevelNumber - 1).levelSquares[i].blockLayer = 1;
                 levelData.GetField(subLevelNumber - 1).levelSquares[i].obstacle = SquareTypes.NONE;
-                levelData.GetField(subLevelNumber - 1).levelSquares[i].obstacleLayer = 1;
             }
 
             dirtyLevel = true;
@@ -1455,8 +1172,8 @@ namespace SweetSugar.Scripts.Editor
             {
                 var squareBlocks = levelData.GetField(subLevelNumber - 1).levelSquares[i];
                 var tempType = squareType;
-                if ((squareBlocks.block == squareType && Square.GetLayersCount(squareType) == squareBlocks.blockLayer)
-                    || (squareBlocks.obstacle == squareType && Square.GetLayersCount(squareType) == squareBlocks.obstacleLayer))
+                if (
+                    (squareBlocks.obstacle == squareType))
                 {
                     var sqPos = squareBlocks.position;
                     squareType = SquareTypes.EmptySquare;
@@ -1464,7 +1181,7 @@ namespace SweetSugar.Scripts.Editor
                     squareType = tempType;
 
                 }
-                else if (squareBlocks.block == SquareTypes.EmptySquare || (squareBlocks.block == squareType || squareBlocks.obstacle == squareType))
+                else if ( (squareBlocks.obstacle == squareType))
                 {
                     var sqPos = squareBlocks.position;
                     SetSquareType(sqPos.x, sqPos.y);
@@ -1489,221 +1206,26 @@ namespace SweetSugar.Scripts.Editor
                     var imageButton = new object();
                     SquareBlocks squareBlock = levelData.GetBlock(row, col);
                     squareBlock.position = new Vector2Int(col, row);
-                    var blockTextures = Square.GetSquareTextures(squareBlock);
-                    var blockTexturesArray = new List<Texture2D>();
-                    var itemTextures = new Texture2D[2];
-                    if (squareBlock.block == SquareTypes.NONE)
-                    {
-                        imageButton = "X";
-                        squareColor = new Color(0.8f, 0.8f, 0.8f);
-                    }
-                    else
-                    {
-                        imageButton = blockTextures?[0];
-                        squareColor = Color.white;
-                    }
-
-                    blockTexturesArray = blockTextures.Take(squareBlock.blockLayer + squareBlock.obstacleLayer).ToList();
-                    if (section == 0 || section == 1)
-                    {
-                        if (squareBlock.block != SquareTypes.NONE )
-                        {
-                            //                        imageButton = squareBlock.item?.Texture;
-                            if(squareBlock.item != null && squareBlock.item.Item != null)
-                                blockTexturesArray.Add(squareBlock.item?.Item.GetComponent<IColorableComponent>().GetSprite(levelNumber, squareBlock.item.Color).texture);
-                            else
-                                blockTexturesArray.Add(squareBlock.item?.Texture);
-                        }
-                        if (squareBlock.item?.ItemType == ItemsTypes.PACKAGE)
-                        {
-                            // if (squareBlock.item?.Texture == null)
-                            blockTexturesArray.Add(itemsForEditorFull.First(i => i.ItemType == ItemsTypes.PACKAGE).Texture
-                                ?.AlphaBlend(squareBlock.item?.Item.GetComponent<IColorableComponent>().GetSprite(levelNumber, squareBlock.item.Color).texture));
-                        }
-                    }
-
-                    if (section == 2)
-                    {
-                        imageButton = GetArrowByVector(squareBlock.direction, squareBlock.enterSquare);
-                    }
-
-                    if (section == 3)
-                    {
-                        if (squareBlock.teleportCoordinatesLinkedBack != Vector2Int.one * -1)
-                        {
-                            imageButton = teleports[1];
-                        }
-
-                        if (squareBlock.isEnterTeleport)
-                            imageButton = teleports[0];
-                    }
-
                     UnityEngine.GUI.color = squareColor;
                     if (GUILayout.Button(imageButton as Texture, GUILayout.Width(50), GUILayout.Height(50)))
                     {
-                        if (section == 0)
+                        Debug.Log(squareType);
                             SetSquareType(col, row);
-                        if (section == 1)
-                            SetItem(col, row);
-                        else if (section == 2)
-                        {
-                            if (selectDirectionType == 0)
-                                SetArrow(col, row);
-                            else if (selectDirectionType == 1)
-                                levelData.GetBlock(row, col).enterSquare = !levelData.GetBlock(row, col).enterSquare;
-                        }
-                        else if (section == 3)
-                        {
-                            if (squareBlock.isEnterTeleport ||
-                                squareBlock.teleportCoordinatesLinkedBack != Vector2Int.one * -1)
-                            {
-                                squareBlockSelected = null;
-                                squareBlock.isEnterTeleport = false;
-                                squareBlock.teleportCoordinatesLinkedBack = Vector2Int.one * -1;
-                                squareBlock.teleportCoordinatesLinked = Vector2Int.one * -1;
-                            }
-                            else if (squareBlockSelected == null)
-                            {
-                                squareBlockSelected = squareBlock;
-                                squareBlockSelected.isEnterTeleport = true;
-                            }
-                            else
-                            {
-                                levelData.GetBlock(row, col).enterSquare = false;
-                                squareBlock.teleportCoordinatesLinkedBack = squareBlockSelected.position;
-                                squareBlockSelected.teleportCoordinatesLinked = squareBlock.position;
-                                squareBlockSelected = null;
-                            }
-                        }
                     }
 
 
-                    var lastRect = GUILayoutUtility.GetLastRect();
-                    if (lastRect != Rect.zero && lastRect.position != Vector2.zero)
-                        squareBlock.guiRect = lastRect;
-                    if (section != 2 && section != 3)
-                        DrawLayeredTextures(blockTexturesArray.WhereNotNull().ToArray(), lastRect);
                 }
 
                 GUILayout.EndHorizontal();
             }
 
             GUILayout.EndVertical();
-            SetupArrows();
-            DrawLines();
 
         }
 
-        private static void DrawLayeredTextures(Texture2D[] textures, Rect lastRect)
-        {
-            if (textures.Length > 1)
-            {
-                for (int i = 1; i < textures.Length; i++)
-                {
-                    if (i < textures.Length)
-                        UnityEngine.GUI.DrawTexture(new Rect(lastRect.position.x + 4, lastRect.position.y + 4, 40, 40),
-                            textures[i]);
-                }
-            }
-        }
-
-        private void DrawLines()
-        {
-            if (section != 1) return;
-            var marmalades = levelData.GetField().levelSquares.Where(i => i.item != null && i.item.EnableMarmaladeTargets);
-            Handles.color = Color.red;
-            foreach (var marmalade in marmalades)
-            {
-                //            Handles.BeginGUI();
-                foreach (var targetPosition in marmalade.item.TargetMarmaladePositions)
-                {
-                    Handles.DrawLine(marmalade.guiRect.center, levelData.GetBlock(targetPosition).guiRect.center);
-                    RotateGizmo(marmalade.guiRect.center, levelData.GetBlock(targetPosition).guiRect.center, 20f);
-                    RotateGizmo(marmalade.guiRect.center, levelData.GetBlock(targetPosition).guiRect.center, -20f);
-                }
-                //            Handles.EndGUI();
-            }
-        }
-
-        private void RotateGizmo(Vector3 square, Vector3 pivot, float angle)
-        {
-            var rightPoint = Vector3.zero;
-            var dir = (square - pivot) * 0.1f;
-            dir = Quaternion.AngleAxis(angle, Vector3.back) * dir;
-            rightPoint = dir + pivot;
-            Handles.DrawLine(pivot, rightPoint);
-        }
-
-        private void SetItem(int col, int row)
-        {
-            SquareBlocks squareBlock = levelData.GetBlock(row, col);
-            ItemForEditor itemTemp = squareBlock.item;
-            if (itemTemp == null)
-                itemTemp = itemBrush.DeepCopy();
-            else if (itemBrush?.ItemType != ItemsTypes.NONE ||
-                     (itemTemp.ItemType == ItemsTypes.NONE && itemBrush?.ItemType == ItemsTypes.NONE))
-                itemTemp = itemBrush?.DeepCopy();
-            else if (itemBrush.ItemType == ItemsTypes.NONE && itemTemp.ItemType != ItemsTypes.NONE)
-                itemTemp.Color = itemBrush.Color;
-            //        if (itemTemp.ItemType != ItemsTypes.NONE)
-            if (itemTemp != null && itemBrush != null && itemsForEditorFull.First(i => i.ItemType == itemTemp.ItemType).Item.GetComponent<IColorableComponent>().GetSprites(levelNumber).Count() > 1)
-                itemTemp.Texture = itemsForEditorFull.FirstOrDefault(i => i.ItemType == itemTemp.ItemType).Item.GetComponent<IColorableComponent>().GetSprites(levelNumber)[color].texture;
-            squareBlock.item = itemTemp;
-        }
-
-        private void SetupArrows()
-        {
-            for (int row = 0; row < levelData.GetField(subLevelNumber - 1).maxRows; row++)
-            {
-                for (int col = 0; col < levelData.GetField(subLevelNumber - 1).maxCols; col++)
-                {
-                    SquareBlocks squareBlock = levelData.GetBlock(row, col);
-                    if (section == 2)
-                    {
-                        if (squareBlock.teleportCoordinatesLinkedBack != Vector2Int.one * -1)
-                        {
-                            Handles.BeginGUI();
-                            Handles.color = Color.red;
-                            Vector2 position1 = squareBlock.guiRect.center;
-                            Vector2 position2 = levelData.GetBlock(squareBlock.teleportCoordinatesLinkedBack).guiRect
-                                .center;
-                            Handles.DrawLine(position1, position2);
-                            float angle = AngleInDeg(position1, position2);
-                            Handles.ArrowHandleCap(0, position2,
-                                Quaternion.AngleAxis(angle, Vector3.forward) * Quaternion.Euler(new Vector3(0, -95, 0)), 50,
-                                EventType.Repaint);
-                            Handles.EndGUI();
-                        }
-                    }
-                }
-            }
-        }
-
-        //This returns the angle in radians
-        public static float AngleInRad(Vector3 vec1, Vector3 vec2)
-        {
-            return Mathf.Atan2(vec2.y - vec1.y, vec2.x - vec1.x);
-        }
-
-        //This returns the angle in degress
-        public static float AngleInDeg(Vector3 vec1, Vector3 vec2)
-        {
-            return AngleInRad(vec1, vec2) * 180 / Mathf.PI;
-        }
 
 
-        private void SetArrow(int col, int row)
-        {
-            SquareBlocks squareBlock = levelData.GetBlock(row, col);
-            int index = GetIndexByDirection(squareBlock.direction);
-            index = (int)Mathf.Repeat(index + 1, 4);
-            // if (squareBlock.block != SquareTypes.NONE)
-            // {
-            squareBlock.direction = GetDirectionByIndex(index);
-            // }
-        }
-
-
+ 
         private void SaveLevel(int _levelNumber)
         {
             squareBlockSelected = null;
@@ -1728,7 +1250,6 @@ namespace SweetSugar.Scripts.Editor
             levelData = ScriptableLevelManager.LoadLevel(levelNumber);
             Initialize();
             ClearLevel();
-            ClearItems();
             SaveLevel(levelNumber);
             subLevelNumberTotal = GetSubLevelsCount();
         }
@@ -1831,8 +1352,6 @@ namespace SweetSugar.Scripts.Editor
         }
 
         private bool dirtyLevel;
-        private int section;
-        private bool gotFocus;
         private static Material mat;
         private int color;
         private Texture2D packageTexture;
@@ -1843,36 +1362,9 @@ namespace SweetSugar.Scripts.Editor
         {
             dirtyLevel = true;
             SquareBlocks squareBlock = levelData.GetBlock(row, col);
-            if (squareType == SquareTypes.EmptySquare || squareType == SquareTypes.NONE)
-            {
-                squareBlock.block = squareType;
-                squareBlock.blockLayer = 1;
-                squareBlock.obstacle = SquareTypes.NONE;
-                squareBlock.obstacleLayer = 1;
-            }
-            else
-            {
-                Square squarePrototype = Square.GetBlockPrefab(squareType).Last().GetComponent<Square>();
-                if (!squarePrototype.IsObstacle() && squareType != SquareTypes.EmptySquare &&
-                    squareType != SquareTypes.NONE)
-                {
-                    if (squareBlock.block == squareType)
-                        squareBlock.blockLayer =
-                            (int)Mathf.Repeat(squareBlock.blockLayer, Square.GetLayersCount(squareType)) + 1;
-                    else
-                        squareBlock.blockLayer = 1;
-                    squareBlock.block = squareType;
-                }
-                else if (squarePrototype.IsObstacle())
-                {
-                    if (squareBlock.obstacle == squareType)
-                        squareBlock.obstacleLayer =
-                            (int)Mathf.Repeat(squareBlock.obstacleLayer, Square.GetLayersCount(squareType)) + 1;
-                    else
-                        squareBlock.obstacleLayer = 1;
-                    squareBlock.obstacle = squareType;
-                }
-            }
+
+            squareBlock.obstacle = squareType;
+            SaveLevel(levelNumber);
 
             update = true;
             // SaveLevel();
@@ -1881,24 +1373,8 @@ namespace SweetSugar.Scripts.Editor
 
         private void SaveToScriptable(int _levelNumber)
         {
-            levelData.InitTargetObjects();
             SquareBlocks[] levelSquares = levelData.GetField(subLevelNumber - 1).levelSquares;
-            for (int i = 0; i < levelSquares.Length; i++)
-            {
-                var item = levelSquares[i];
-                var dir = item.direction;
-
-                if (dir == Vector2.zero) item.direction = Vector2.down;
-            }
-
-            bool enterSquaresExist = levelSquares.Any(i => i.enterSquare);
-            if (!enterSquaresExist)
-            {
-                for (int col = 0; col < levelData.GetField(subLevelNumber - 1).maxCols; col++)
-                {
-                    levelData.GetBlock(0, col).enterSquare = true;
-                }
-            }
+     
 
             if (levelScriptable.levels.Count() < _levelNumber)
                 levelScriptable.levels.Add(levelData);

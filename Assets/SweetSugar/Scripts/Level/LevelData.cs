@@ -19,7 +19,6 @@ namespace SweetSugar.Scripts.Level
         public static LevelData THIS;
         /// level number
         public int levelNum;
-        private int hashCode;
         /// fields data
         public List<FieldData> fields = new List<FieldData>();
         /// target container keeps the object should be collected, its count, sprite, color
@@ -69,14 +68,9 @@ namespace SweetSugar.Scripts.Level
 
         public LevelData(bool isPlaying, int currentLevel)
         {
-            hashCode = GetHashCode();
             levelNum = currentLevel;
             Name = "Level " + levelNum;
             LoadTargetObject();
-            // if (isPlaying)
-            //     targetEditorObject = LevelManager.This.targetEditorScriptable;
-            // else
-            //     targetEditorObject = AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Scriptable/TargetEditorScriptable.asset", typeof(TargetEditorScriptable)) as TargetEditorScriptable;
 
         }
 
@@ -215,15 +209,7 @@ namespace SweetSugar.Scripts.Level
 
         }
 
-        public void InitTargetObjects()
-        {
-
-            targetObject.subTargetContainers = subTargetsContainers.ToArray();
-            if (targetObject.subTargetContainers.Length > 0)
-                targetObject.InitTarget();
-            else Debug.LogError( "set " + target.name + " more than 0" );
-        }
-
+ 
         public void SetItemTarget(Item item)
         {
             foreach (var _subTarget in subTargetsContainers)
@@ -260,7 +246,6 @@ namespace SweetSugar.Scripts.Level
         {
             LoadTargetObject();
             var other = (LevelData)MemberwiseClone();
-            other.hashCode = other.GetHashCode();
             other.levelNum = level;
             other.Name = "Level " + other.levelNum;
             other.fields = new List<FieldData>();
@@ -280,7 +265,6 @@ namespace SweetSugar.Scripts.Level
                 other.subTargetsContainers.Add(subTargetsContainers[i].DeepCopy());
             }
 
-            other.targetObject = (Target)Activator.CreateInstance(Type.GetType("SweetSugar.Scripts.TargetScripts."+target.name));
 
             return other;
         }
@@ -319,7 +303,6 @@ namespace SweetSugar.Scripts.Level
     [Serializable]
     public class FieldData
     {
-        private int hashCode;
         public int subLevel;
         public int maxRows;
         public int maxCols;
@@ -327,13 +310,6 @@ namespace SweetSugar.Scripts.Level
         public SquareBlocks[] levelSquares = new SquareBlocks[81];
         internal int row;
         public int bombTimer = 15;
-
-        public FieldData()
-        {
-            hashCode = GetHashCode();
-
-        }
-
         public FieldData DeepCopy()
         {
             var other = (FieldData)MemberwiseClone();
@@ -342,9 +318,6 @@ namespace SweetSugar.Scripts.Level
             {
                 other.levelSquares[i] = levelSquares[i].DeepCopy();
             }
-
-            other.hashCode = other.GetHashCode();
-
             return other;
         }
     }
@@ -355,52 +328,12 @@ namespace SweetSugar.Scripts.Level
     [Serializable]
     public class SquareBlocks
     {
-        public SquareTypes block;
-        public int blockLayer = 1;
         public SquareTypes obstacle;
-        public int obstacleLayer = 1;
         public Vector2Int position;
-        public Vector2 direction;
-        public bool enterSquare;
-        public bool isEnterTeleport;
-        public Vector2Int teleportCoordinatesLinked = new Vector2Int(-1, -1);
-        public Vector2Int teleportCoordinatesLinkedBack = new Vector2Int(-1, -1);
-        public Rect guiRect;
-        public ItemForEditor item;
-
         public SquareBlocks DeepCopy()
         {
             var other = (SquareBlocks)MemberwiseClone();
             return other;
-        }
-    }
-
-    /// <summary>
-    /// Item for editor uses in editor
-    /// </summary>
-    [Serializable]
-    public class ItemForEditor
-    {
-        public int Color;
-        public ItemsTypes ItemType;
-        public Texture2D Texture;
-        public IColorableComponent colors;
-        public IItemInterface ItemInterface;
-        public GameObject Item;
-        public bool EnableMarmaladeTargets;
-        public Vector2Int[] TargetMarmaladePositions;
-
-        public ItemForEditor DeepCopy()
-        {
-            var other = (ItemForEditor)MemberwiseClone();
-            return other;
-        }
-
-        public void SetColor(int color, int currentLevel)
-        {
-            Color = color;
-            if(colors && colors.GetSprites(currentLevel).Count() > color)
-                Texture = colors.GetSprites(currentLevel)[color].texture;
         }
     }
 }

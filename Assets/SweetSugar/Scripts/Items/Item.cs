@@ -168,7 +168,6 @@ namespace SweetSugar.Scripts.Items
         //dont destroy this item, i.e. just appeared bonus item
         [HideInInspector] public bool dontDestroyOnThisMove;
         //editor item link
-        [HideInInspector] public ItemForEditor itemForEditor;
         /// set this item Undestroyable for current combine
         public bool dontDestroyForThisCombine;
         /// playable director for package animation
@@ -736,8 +735,6 @@ namespace SweetSugar.Scripts.Items
                 if (distance < 0.2f) continue;
                 startTime = Time.time;
                 float fracJourney = 0;
-                if (waypoint.square?.teleportDestination != null) TeleportationEffect(waypoint.square);
-                else if (waypoint.square?.teleportOrigin != null) TeleportationEffect(waypoint.square);
                 while (fracJourney < .9f)
                 {
                     if(LevelManager.THIS.StopFall)
@@ -1215,7 +1212,6 @@ namespace SweetSugar.Scripts.Items
             {
                 destPosition = vector;
                 square = _square;
-                if (square?.teleportOrigin != null) instant = true;
             }
         }
 

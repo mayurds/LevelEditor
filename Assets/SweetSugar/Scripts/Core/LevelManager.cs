@@ -150,8 +150,8 @@ namespace SweetSugar.Scripts.Core
                 switch (value)
                 {
                     case GameState.PrepareGame://preparing and initializing  the game
+                        LoadLevel(1);
                         CrosssceneData.passLevelCounter++;
-                        Score = 0;
                         stars = 0;
                         moveID = 0;
                         fieldBoards = new List<FieldBoard>();
@@ -160,31 +160,6 @@ namespace SweetSugar.Scripts.Core
                         GenerateLevel();
                         levelLoaded = true;
                         OnLevelLoaded?.Invoke();
-                        break;
-                    case GameState.WaitForPopup://waiting for pre game banners
-                        StopCoroutine(IdleItemsDirection());
-                        StartCoroutine(IdleItemsDirection());
-                        OrientationGameCameraHandle.CameraParameters cameraParameters = orientationGameCameraHandle.GetCameraParameters();
-                        Vector2 cameraCenter = orientationGameCameraHandle.GetCenterOffset();
-                        StartCoroutine(AnimateField(field.GetPosition() + cameraCenter, cameraParameters.size));
-                        break;
-                    case GameState.Tutorial://tutorial state
-                        OnWaitForTutorial?.Invoke();
-                        break;
-                    case GameState.Playing://playing state
-                        break;
-                    case GameState.GameOver://game over
-                        OnLose?.Invoke();
-                        break;
-                    case GameState.PreWinAnimations://animations after win
-                        break;
-                    case GameState.ChangeSubLevel://changing sub level state
-                        if (CurrentSubLevel != GetLastSubLevel())
-                            ChangeSubLevel();
-                        break;
-                    case GameState.Win://shows MenuComplete
-                        OnMenuComplete?.Invoke();
-                        OnWin();
                         break;
                 }
             }
@@ -230,7 +205,7 @@ namespace SweetSugar.Scripts.Core
  
         private void OnEnable()
         {
-            LoadLevel(1);
+       
             gameStatus = GameState.PrepareGame;
         }
         //enable map

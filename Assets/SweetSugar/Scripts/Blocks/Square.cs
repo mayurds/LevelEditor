@@ -82,12 +82,6 @@ namespace SweetSugar.Scripts.Blocks
         [HideInInspector] public Square enterSquare;
         /// Next square by direction flow
         [HideInInspector] public Square nextSquare;
-        /// teleport destination position
-        [HideInInspector] public Vector2Int teleportDestinationCoord;
-        /// teleport destionation square
-        [HideInInspector] public Square teleportDestination;
-        /// teleport started square
-        [HideInInspector] public Square teleportOrigin;
         /// current field
         [HideInInspector] public FieldBoard field;
         /// mask for the top squares
@@ -156,24 +150,6 @@ namespace SweetSugar.Scripts.Blocks
                     break;
                 yield return new WaitForEndOfFrame();
             }
-        }
-
-        /// <summary>
-        /// set mask for top squares
-        /// </summary>
-        public void SetMask()
-        {
-            if (isEnterPoint || teleportOrigin)
-            {
-                var m = Instantiate(mask, transform.position + Vector3.up * (field.squareHeight + 3.05f), Quaternion.identity, transform);
-                var angle = Vector3.Angle(Vector2.down, direction);
-                angle = Mathf.Sign(Vector3.Cross(Vector2.down, direction).z) < 0 ? (360 - angle) % 360 : angle;
-                Vector2 pos = m.transform.localPosition;
-                pos = Quaternion.Euler(0, 0, angle) * pos;
-                m.transform.localPosition = pos;
-                m.transform.rotation = Quaternion.Euler(0, 0, angle);
-            }
-
         }
 
         /// <summary>
@@ -268,63 +244,13 @@ namespace SweetSugar.Scripts.Blocks
         }
 
 
-        /// <summary>
-        /// set square with teleport
-        /// </summary>
-        public void SetTeleports()
-        {
-            if (teleportDestinationCoord != Vector2Int.one * -1)
-            {
-                var sq = field.GetSquare(teleportDestinationCoord);
-                teleportDestination = sq;
-                sq.teleportOrigin = this;
-            }
-        }
-        /// set square with teleport
-        public void CreateTeleports()
-        {
-            if (teleportDestination != null || teleportOrigin != null)
-            {
-                teleport = Instantiate(teleportEffect).GetComponent<TeleportDirector>();
-                teleport.transform.SetParent(transform);
-                teleport.SetTeleport(teleportDestination != null && teleportOrigin == null);
-                var pos = new Vector2(0, -0.92f);
-                var angle = Vector3.Angle(Vector2.down, direction);
-                angle = Mathf.Sign(Vector3.Cross(Vector2.down, direction).z) < 0 ? (360 - angle) % 360 : angle;
-                if (teleportOrigin != null) angle += 180;
-                pos = Quaternion.Euler(0, 0, angle) * pos;
-                teleport.transform.localPosition = pos;
-                teleport.transform.rotation = Quaternion.Euler(0, 0, angle);
-                CreateArrow(teleportOrigin);
-            }
-        }
-        /// <summary>
-        /// set square direction on field creation
-        /// </summary>
-        public void SetDirection()
-        {
-            Square nextSq = null;
-            if (teleportDestination != null) nextSq = teleportDestination;
-            else if (direction == Vector2.down) nextSq = GetNeighborBottom(true);
-            else if (direction == Vector2.up) nextSq = GetNeighborTop(true);
-            else if (direction == Vector2.left) nextSq = GetNeighborLeft(true);
-            else if (direction == Vector2.right) nextSq = GetNeighborRight(true);
-//        if (!nextSq?.IsNone() ?? false)
-            {
-                nextSquare = nextSq;
-            }
-            CreateTeleports();
-        }
+      
     
         /// <summary>
         /// change square type
         /// </summary>
         /// <param name="sqBlock"></param>
-        public void SetType(SquareBlocks sqBlock)
-        {
-            SetType(sqBlock.block, sqBlock.blockLayer, sqBlock.obstacle, sqBlock.obstacleLayer);
-        }
-
+   
         public void SetType(SquareTypes _type, int sqLayer, SquareTypes obstacleType, int obLayer)
         {
             var prefabs = GetBlockPrefab(_type);
@@ -477,21 +403,7 @@ namespace SweetSugar.Scripts.Blocks
         {
             return nextSquare;
         }
-        /// <summary>
-        /// Get previous square along with direction
-        /// </summary>
-        /// <param name="safe"></param>
-        /// <returns></returns>
-        public Square GetPreviousSquare(bool safe = false)
-        {
-            if (teleportOrigin != null) return teleportOrigin;
-            if (GetNeighborBottom(true, safe)?.direction == Vector2.up) return GetNeighborBottom(true, safe);
-            if (GetNeighborTop(true, safe)?.direction == Vector2.down) return GetNeighborTop(true, safe);
-            if (GetNeighborLeft(true, safe)?.direction == Vector2.right) return GetNeighborLeft(true, safe);
-            if (GetNeighborRight(true, safe)?.direction == Vector2.left) return GetNeighborRight(true, safe);
-
-            return null;
-        }
+ 
         /// <summary>
         /// Get squares sequence before this square
         /// </summary>
@@ -544,7 +456,6 @@ namespace SweetSugar.Scripts.Blocks
                 if (!square.IsFree())
                     return null;
             }
-            if (list.Count() == 0) return GetPreviousSquare().Item;
             return null;
         }
         /// <summary>
@@ -1039,14 +950,8 @@ namespace SweetSugar.Scripts.Blocks
 
         public static List<Texture2D> GetSquareTextures(SquareBlocks sqBlock)
         {
-            var listBlocks = GetBlockPrefab(sqBlock.block);
             var listObstacles = GetBlockPrefab(sqBlock.obstacle);
-            var textureBlocks = listBlocks.Select(i => i.GetComponent<SpriteRenderer>().sprite.texture).Take(sqBlock.blockLayer);
-            var textureObstacles = listObstacles.Select(i => i.GetComponent<SpriteRenderer>().sprite.texture).Take(sqBlock.obstacleLayer);
             var resultList = new List<Texture2D>();
-            resultList.AddRange(textureBlocks);
-            if (sqBlock.obstacle != SquareTypes.NONE)
-                resultList.AddRange(textureObstacles);
 
             return resultList;
         }
@@ -1118,43 +1023,8 @@ namespace SweetSugar.Scripts.Blocks
             return field;
         }
 
-        void OnDrawGizmos()
-        {
-            if (nextSquare != null)
-            {
-                if (teleportDestination == null)
-                    SetNextArrow();
-                else
-                    SetNextArrowTeleport();
-            }
-        }
-
-        private void SetNextArrowTeleport()
-        {
-            Gizmos.color = Color.green;
-            var pivot = nextSquare.transform.position + Vector3.left * .1f;
-            Gizmos.DrawLine(transform.position + Vector3.left * .1f, pivot);
-            RotateGizmo(pivot, 20);
-            RotateGizmo(pivot, -20);
-        }
-
-        private void SetNextArrow()
-        {
-            Gizmos.color = Color.blue;
-            var pivot = nextSquare.transform.position;
-            Gizmos.DrawLine(transform.position, pivot);
-            RotateGizmo(pivot, 20);
-            RotateGizmo(pivot, -20);
-        }
-
-        private void RotateGizmo(Vector3 pivot, float angle)
-        {
-            var rightPoint = Vector3.zero;
-            var dir = (transform.position - pivot) * 0.2f;
-            dir = Quaternion.AngleAxis(angle, Vector3.back) * dir;
-            rightPoint = dir + pivot;
-            Gizmos.DrawLine(pivot, rightPoint);
-        }
+ 
+  
 
         public void SetOutline()
         {
