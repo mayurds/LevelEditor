@@ -380,47 +380,6 @@ using Random = UnityEngine.Random;
          }
 
          /// <summary>
-         /// Destroy items around the square
-         /// </summary>
-         /// <param name="square"></param>
-         /// <param name="item1"></param>
-         public void DestroyItemsAround(Square square, Item item1)
-         {
-             var itemsList = LevelManager.THIS.GetItemsAround9(square);
-
-             foreach (var item in itemsList)
-             {
-                 if (item != null)
-                 {
-                     if (item.Combinable || item.Explodable)
-                         item.DestroyItem(true, true, item1);
-                 }
-             }
-             LevelManager.THIS.GetSquaresAroundSquare(square).ForEach(i => i.DestroyBlock());
-
-         }
-
-         /// <summary>
-         /// Check if any items should be destroy
-         /// </summary>
-         /// <returns></returns>
-         public bool DestroyingItemsExist()
-         {
-             return GetDestroyingItems()?.Length > 0;
-         }
-
-         /// <summary>
-         /// Get destroying items
-         /// </summary>
-         /// <returns></returns>
-         public ILongDestroyable[] GetDestroyingItems()
-         {
-             var longDestroyable = FindObjectsOfType<MonoBehaviour>().OfType<ILongDestroyable>().Where(i => !i.IsAnimationFinished() && i.CanBeStarted()).OrderBy(i => i.GetPriority()).ToArray();
-             return longDestroyable;
-         }
-
-
-         /// <summary>
          /// Get random items for win animation and boosts
          /// </summary>
          /// <param name="count">count of items</param>
@@ -468,14 +427,6 @@ using Random = UnityEngine.Random;
              return items.ToList();
          }
 
-         /// <summary>
-         /// Get new created items
-         /// </summary>
-         /// <returns></returns>
-         public List<Item> GetJustCreatedItems()
-         {
-             return FindObjectsOfType<Item>().Where(i => i.JustCreatedItem && i.needFall && !i.falling && !i.GetItemInterfaces()[0].IsStaticOnStart()).ToList();
-         }
 
          /// <summary>
          /// Get items from bottom order

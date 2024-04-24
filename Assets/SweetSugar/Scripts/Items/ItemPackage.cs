@@ -8,7 +8,7 @@ namespace SweetSugar.Scripts.Items
     /// <summary>
     /// Item package
     /// </summary>
-    public class ItemPackage : Item, IItemInterface//, ILongDestroyable
+    public class ItemPackage : Item
     {
         // public bool Combinable;
         public bool ActivateByExplosion;
@@ -43,7 +43,6 @@ namespace SweetSugar.Scripts.Items
 
             gameObject.AddComponent<GameBlocker>();
             item1.destroying = true;
-            GetParentItem().GetComponent<ItemDestroyAnimation>().DestroyPackage(item1);
         }
 
 
@@ -68,12 +67,7 @@ namespace SweetSugar.Scripts.Items
             {
                 item2.Check(item2, item1);
             }
-
-            if (item1.currentType == ItemsTypes.PACKAGE && item2.currentType == ItemsTypes.PACKAGE)
-            {
-                item1.GetTopItemInterface().Destroy(item1, item2);
-                item2.GetTopItemInterface().Destroy(item2, item1);
-            }
+          
         }
         public GameObject GetGameobject()
         {

@@ -127,8 +127,6 @@ namespace SweetSugar.Scripts.Editor
             failed_settings_show = true;
             gems_shop_show = true;
             target_description_show = true;
-            var num = 0;
-            var simpleItem = Resources.Load<GameObject>("Items/Item").GetComponent<ItemSimple>();
             Resources.LoadAll("Items");
         }
 

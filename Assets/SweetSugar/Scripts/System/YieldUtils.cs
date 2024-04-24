@@ -218,33 +218,7 @@ namespace SweetSugar.Scripts.System
 
         public override bool keepWaiting => !animationFinished;
 
-        public WaitWhileAnimations()
-        {
-            // Debug.Log(this.GetType());
-
-            StartCoroutine(DestroyAnimatedItems());
-        }
-
-        IEnumerator DestroyAnimatedItems()
-        {
-            var destroyingItems = LevelManager.THIS.field.GetDestroyingItems();
-            var i = 0;
-            foreach (var item in destroyingItems)
-            {
-                animationFinished = false;
-                item.SecondPartDestroyAnimation(() =>
-                {
-                    StartCoroutine(SetupFalling());
-                    i++;
-                    if (i == destroyingItems.Count())
-                        animationFinished = true;
-                });
-                //yield return new WaitUntil(() => animationFinished);
-                yield return new WaitForEndOfFrame();
-            }
-            if (i == destroyingItems.Count())
-                animationFinished = true;
-        }
+       
 
         IEnumerator SetupFalling()
         {

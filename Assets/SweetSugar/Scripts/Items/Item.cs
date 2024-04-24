@@ -42,16 +42,7 @@ namespace SweetSugar.Scripts.Items
         public bool CombinableWithBonus;
         [Header("Item score")]
         public int scoreForItem = 10;
-        public bool Explodable
-        {
-            get
-            {
-                bool? v = GetTopItemInterface()?.IsExplodable();
-                return v ?? false;
-            }
-            set => GetTopItemInterface()?.SetExplodable(value);
-        }
-
+     
         //sprite rendered reference
         public SpriteRenderer[] sprRenderer
         {
@@ -420,24 +411,8 @@ namespace SweetSugar.Scripts.Items
             return false;
         }
 
-        /// <summary>
-        /// Get main item of the current hierarchy
-        /// </summary>
-        /// <returns></returns>
-        public IItemInterface GetTopItemInterface()
-        {
-            return GetComponent<IItemInterface>();
-        }
-
-        /// <summary>
-        /// Get item interface
-        /// </summary>
-        /// <returns></returns>
-        public IItemInterface[] GetItemInterfaces()
-        {
-            var items = transform.GetComponentsInChildren<IItemInterface>();
-            return items;
-        }
+      
+     
         /// <summary>
         /// Get mouse position
         /// </summary>
@@ -861,14 +836,6 @@ namespace SweetSugar.Scripts.Items
                 return;
             }
 
-            this.explodedItem = explodedItem;
-            if (!explodedItem && (!marmaladeTarget || (!marmaladeTarget?.activeSelf ?? false)) && (dontDestroyForThisCombine || dontDestroyOnThisMove /* || NextType != ItemsTypes
-        .NONE*/ ||/* falling 
-        ||*/ needFall) || !Explodable)
-            {
-                StopDestroy();
-                return;
-            }
 
 
             if (currentType == ItemsTypes.INGREDIENT && square.nextSquare != null) return;
@@ -911,7 +878,6 @@ namespace SweetSugar.Scripts.Items
             LevelManager.THIS.CheckStars();
             Destroy(itemAnimTransform.GetComponent<Animator>());
             yield return new WaitForFixedUpdate();
-            GetTopItemInterface()?.Destroy(this, null);
         }
 
         public void StopDestroy()
