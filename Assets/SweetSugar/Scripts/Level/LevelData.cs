@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Items;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.Level
@@ -16,10 +14,7 @@ namespace SweetSugar.Scripts.Level
         public static LevelData THIS;
         public int levelNum;
         public List<FieldData> fields = new List<FieldData>();
-        [SerializeField] public Target targetObject;
-        public int targetIndex;
         public LIMIT limitType;
-        public int[] ingrCountTarget = new int[2];
         public int limit = 25;
         public int colorLimit = 5;
         public int star1 = 100;
@@ -27,9 +22,7 @@ namespace SweetSugar.Scripts.Level
         public int star3 = 500;
         public int maxRows { get { return GetField().maxRows; } set { GetField().maxRows = value; } }
         public int maxCols { get { return GetField().maxCols; } set { GetField().maxCols = value; } }
-        public int selectedTutorial;
         public int currentSublevelIndex;
-        public List<SubTargetContainer> subTargetsContainers = new List<SubTargetContainer>();
         public FieldData GetField()
         {
             return fields[currentSublevelIndex];
@@ -44,10 +37,7 @@ namespace SweetSugar.Scripts.Level
             levelNum = currentLevel;
             Name = "Level " + levelNum;
         }
-        public Target GetTargetObject()
-        {
-            return targetObject;
-        }
+  
         public SquareBlocks GetBlock(int row, int col)
         {
             return GetField().levelSquares[row * GetField().maxCols + col];
@@ -68,15 +58,7 @@ namespace SweetSugar.Scripts.Level
             fields.Remove(field);
         }
   
-        public string GetSaveString()
-        {
-            var str = "";
-            foreach (var item in subTargetsContainers)
-            {
-                str += item.GetCount() + "/";
-            }
-            return str;
-        }
+  
         public LevelData DeepCopy(int level)
         {
             var other = (LevelData)MemberwiseClone();
@@ -87,29 +69,11 @@ namespace SweetSugar.Scripts.Level
             {
                 other.fields.Add(fields[i].DeepCopy());
             }
-            if (targetObject != null)
-                other.targetObject = targetObject.DeepCopy();
-            other.subTargetsContainers = new List<SubTargetContainer>();
-            for (var i = 0; i < subTargetsContainers.Count; i++)
-            {
-                other.subTargetsContainers.Add(subTargetsContainers[i].DeepCopy());
-            }
             return other;
         }
         public LevelData DeepCopyForPlay(int level)
         {
             LevelData data = DeepCopy(level);
-            data.subTargetsContainers = new List<SubTargetContainer>();
-            for (var i = 0; i < subTargetsContainers.Count; i++)
-            {
-                subTargetsContainers[i].color = i;
-                if (subTargetsContainers[i].GetCount() > 0)
-                {
-                    var subTargetContainer = subTargetsContainers[i].DeepCopy();
-                    subTargetContainer.color = i;
-                    data.subTargetsContainers.Add(subTargetContainer);
-                }
-            }
 
             return data;
         }
@@ -124,10 +88,8 @@ namespace SweetSugar.Scripts.Level
         public int subLevel;
         public int maxRows;
         public int maxCols;
-        public bool noRegenLevel; //no regenerate level if no matches possible
         public SquareBlocks[] levelSquares = new SquareBlocks[81];
         internal int row;
-        public int bombTimer = 15;
         public FieldData DeepCopy()
         {
             var other = (FieldData)MemberwiseClone();

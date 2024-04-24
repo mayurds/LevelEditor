@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using SweetSugar.Scripts.GUI;
 using SweetSugar.Scripts.Level;
-using SweetSugar.Scripts.MapScripts;
 using SweetSugar.Scripts.System;
 using UnityEngine;
 using UnityEngine.Audio;

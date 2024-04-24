@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Effects;
 using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.System;
 using SweetSugar.Scripts.System.Combiner;
 using SweetSugar.Scripts.System.Pool;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -82,7 +80,6 @@ using Random = UnityEngine.Random;
                  if (i.sequence.All(x => !x.IsNone() && !x.undestroyable) && i.sequence.Any() && i.sequence.Any(x=>x.isEnterPoint))
                      i.linkedEnterSquare = true;
              }
-             DirectionCloudEffect.SetGroupSquares(squaresArray);
              SetPivot();
              SetPosY(0);
              GenerateNewItems(false);
@@ -176,19 +173,7 @@ using Random = UnityEngine.Random;
              square.GenItem(falling);
          }
     
-         public string GetIngredientName()
-         {
-             var targetPrefabs = LevelManager.THIS.levelData.subTargetsContainers;
-             var IngredientsCountOnField = GetItems().Where(i => i.currentType == ItemsTypes.INGREDIENT).GroupBy(i => i.GetComponent<PoolBehaviour>().name).Select(i =>
-                 new {name = i.Key, Count = i.Count()});
-
-             for (var index = 0; index < targetPrefabs.Count; index++)
-             {
-                 var targetPrefab = targetPrefabs[index];
-             }
-
-             return "";
-         }
+      
 
          public List<Item.Waypoint> GetWaypoints(Square startSquare, Square destSquare, List<Square> list = null)
          {
@@ -523,17 +508,7 @@ using Random = UnityEngine.Random;
              return items.ToList();
          }
 
-         /// <summary>
-         /// Get target objects to check destination count
-         /// </summary>
-         /// <returns></returns>
-         public TargetComponent[] GetTargetObjects()
-         {
-             var list = FindObjectsOfType(typeof(TargetComponent)) as TargetComponent[];
-             list = list.Where(i => i.GetComponent<IField>().GetField() == this).Select(i => i.GetComponent<TargetComponent>()).ToArray();
-             return list;
-         }
-
+   
          /// <summary>
          /// Get all bonus items like striped, package
          /// </summary>

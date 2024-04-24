@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using SweetSugar.Scripts.Core;
 using SweetSugar.Scripts.Level;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,10 +16,8 @@ namespace SweetSugar.Scripts.GUI
         private float lastTime;
         bool alert;
 
-        private TargetGUI _targetGui;
         private Image _image;
         private LevelData _thisLevelData;
-        private Target _getTargetObject;
         private string _spriteName;
 
         public LevelData ThisLevelData
@@ -46,13 +43,7 @@ namespace SweetSugar.Scripts.GUI
         {
             ThisLevelData = LevelManager.THIS.levelData;
 
-            if (name == "TargetUIText")
-            {
-                _targetGui = transform.parent.GetComponent<TargetGUI>();
-                _image = _targetGui.image.GetComponent<Image>();
-                _getTargetObject = ThisLevelData.GetTargetObject();
-                _spriteName = _image.sprite.name;
-            }
+           
         }
 
         void OnEnable()
@@ -61,13 +52,6 @@ namespace SweetSugar.Scripts.GUI
             alert = false; StartCoroutine(UpdateRare());
         }
 
-        private void Update()
-        {
-            if (name == "TargetUIText")
-            {
-                txt.text = "" + _getTargetObject?.GetCount(_spriteName);
-            }
-        }
 
         // Update is called once per frame
         IEnumerator UpdateRare()

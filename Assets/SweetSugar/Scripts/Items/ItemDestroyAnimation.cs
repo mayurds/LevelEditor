@@ -1,7 +1,6 @@
 using System.Collections;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Effects;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.Items
@@ -63,7 +62,6 @@ namespace SweetSugar.Scripts.Items
         {
             LevelManager.THIS.field.DestroyItemsAround(square, item);
             var sqList = LevelManager.THIS.GetSquaresAroundSquare(square);
-            LevelManager.THIS.levelData.GetTargetObject().CheckSquares(sqList.ToArray());
             item1.destroying = false;
             item.square.Item = null;
         }

@@ -22,7 +22,6 @@ namespace SweetSugar.Scripts.Items
             else if (THIS != this)
                 Destroy(gameObject);
 
-            StartCoroutine(DestroyingPipelineCor());
         }
 
         public void DestroyItems(List<Item> items, Delays delays, Action callback)
@@ -33,40 +32,6 @@ namespace SweetSugar.Scripts.Items
             bunch.callback = callback;
             bunch.delays = delays;
             pipeline.Add(bunch);
-        }
-
-        private IEnumerator DestroyingPipelineCor()
-        {
-            while (true)
-            {
-                for (var i = 0; i < pipeline.Count; i++)
-                {
-                    var bunch = pipeline[i];
-                    if (bunch.items.Any())
-                        LevelManager.THIS.levelData.GetTargetObject().CheckSquares(bunch.items.Select(x => x.square).ToArray());
-
-                    if (bunch.delays.before != null)
-                        yield return bunch.delays.before;
-                    for (var j = 0; j < bunch.items.Count; j++)
-                    {
-                        var item = bunch.items[j];
-                        if (bunch.delays.beforeevery != null)
-                            yield return Activator.CreateInstance(bunch.delays.beforeevery.GetType());
-                        if (item != null) item.DestroyItem(true);
-                        if (bunch.delays.afterevery != null)
-                        {
-                            yield return Activator.CreateInstance(bunch.delays.afterevery.GetType());
-                        }
-                    }
-                    if (bunch.delays.after != null)
-                        yield return bunch.delays.after;
-                    pipeline.Remove(bunch);
-                    if (bunch.callback != null)
-                        bunch.callback();
-                }
-                yield return new WaitForFixedUpdate();
-
-            }
         }
 
     }

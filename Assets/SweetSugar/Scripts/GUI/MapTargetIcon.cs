@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.GUI

@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Effects;
 using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using SweetSugar.Scripts.System.Pool;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.Blocks
@@ -80,7 +78,6 @@ namespace SweetSugar.Scripts.Blocks
         /// teleport effect gameObject
         public GameObject teleportEffect;
         /// teleport square object
-        public TeleportDirector teleport;
 
         /// subsquares of the current square, obstacle or jelly
         [HideInInspector] public List<Square> subSquares = new List<Square>();
@@ -550,13 +547,7 @@ namespace SweetSugar.Scripts.Blocks
             {
                 var subSquare = GetSubSquare();
                 if (type == SquareTypes.JellyBlock) return;
-                if (subSquare.GetComponent<TargetComponent>() == null)
-                {
-                    var itemAnim = new GameObject();
-                    var animComp = itemAnim.AddComponent<AnimateItems>();
-                    animComp.InitAnimation(subSquare.gameObject, new Vector2(transform.position.x, -5), subSquare.transform.localScale, null);
-                }
-                LevelManager.THIS.levelData.GetTargetObject().CheckSquare(new[] { this });
+           
                 LevelManager.THIS.ShowPopupScore(subSquare.score, transform.position, 0);
 
                 subSquares.Remove(subSquare);

@@ -62,20 +62,7 @@ namespace SweetSugar.Scripts.Items
             GetComponent<SpriteRenderer>().sortingOrder = i;
         }
 
-        public override void OnStopFall()
-        {
-            LevelManager.THIS.levelData.GetTargetObject().CheckTargetItemsAfterDestroy();
 
-//        var sqList = LevelManager.THIS.field.GetBottomRow();
-//        if (sqList.Contains(square))
-//        {
-////            var spriteName = GetComponent<IColorableComponent>().directSpriteRenderer.sprite.name;
-////            var pos = TargetGUI.GetTargetGUIPosition(spriteName);
-////            var targetContainer = LevelManager.THIS.levelData.subTargetsContainers.First(i => i.extraObject.name == spriteName);
-////            new AnimateItems(gameObject, pos, transform.localScale, () => { targetContainer.changeCount(-1);  });
-////            DestroyBehaviour();
-//        }
-        }
 
     }
 }

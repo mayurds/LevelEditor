@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Core;
 using SweetSugar.Scripts.Level;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -17,7 +16,6 @@ namespace SweetSugar.Scripts.GUI
     public class TargetGUIGroup : MonoBehaviour
     {
         public HorizontalLayoutGroup hg;
-        public List<TargetGUI> list = new List<TargetGUI>();
         public TextMeshProUGUI description;
         HorizontalLayoutGroup group;
 
@@ -37,10 +35,6 @@ namespace SweetSugar.Scripts.GUI
         {
             ClearTargets();
             description.gameObject.SetActive(false);
-            foreach (var item in list)
-            {
-                item.gameObject.SetActive(false);
-            }
         }
 
         private void OnDisable()
@@ -77,21 +71,6 @@ namespace SweetSugar.Scripts.GUI
             hg.padding.right = 10;
 
             description.gameObject.SetActive(false);
-            // for (var i = 1; i < list.Count; i++)
-            // {
-            // Destroy(list[i].gameObject);
-            // list.Remove(list[i]);
-            // }
-        }
-
-        private void SetPadding()
-        {
-            if (list.Count == 2)
-            {
-                hg.padding.left = 150;
-                hg.padding.right = 150;
-            }
-
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Linq;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Effects;
 using SweetSugar.Scripts.System;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -118,40 +117,14 @@ namespace SweetSugar.Scripts.Items
 
         }
 
-        private void CreateLightning(Vector3 pos1, Vector3 pos2)
-        {
-            var go = Instantiate(LightningPrefab, Vector3.zero, Quaternion.identity);
-            var lightning = go.GetComponent<Lightning>();
-            lightning.SetLight(pos1, pos2);
-        }
 
         #region DoubleMulitcolor
         public void DestroyDoubleMulticolor(int col, Action callback)
         {
             LevelManager.THIS.field.GetItems();
-            StartCoroutine(DestroyDoubleBombCor(col, () => { callback(); }));
         }
 
-        private IEnumerator DestroyDoubleBombCor(int col, Action callback)
-        {
-            for (var i = 0; i < LevelManager.THIS.field.fieldData.maxCols; i++)
-            {
-            
-                var list = LevelManager.THIS.GetColumn(i).Where(a => !a.destroying ).ToList();
-                foreach (var a in list)
-                {
-                    a.globalExplEffect = true;
-                    CreateLightning(transform.position, a.transform.position);
-                    if(jellySpread)
-                        a.square?.SetType(SquareTypes.JellyBlock, 1, SquareTypes.NONE, 1);
-                }
 
-                LevelManager.THIS.levelData.GetTargetObject().CheckItems(list.ToArray());
-                yield return new WaitWhileDestroyPipeline(list, new Delays());
-                yield return new WaitForSeconds(0.1f);
-            }
-            callback();
-        }
 
         #endregion
 

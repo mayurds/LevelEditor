@@ -190,35 +190,17 @@ namespace SweetSugar.Scripts.Editor
                         GUIColorLimit();
                         GUILayout.Space(10);
                         GUILayout.BeginHorizontal();
-                        GUILayout.Label("Bomb timer",GUILayout.Width(80));
                         GUILayout.Space(70);
-                        levelData.GetField(subLevelNumber - 1).bombTimer = EditorGUILayout.IntField("",
-                            levelData.GetField(subLevelNumber - 1).bombTimer, GUILayout.Width(50));
                         GUILayout.EndHorizontal();
                         GUILayout.Space(10);
-
                         GUIStars();
                         GUILayout.Space(10);
-
-                        GUILayout.BeginHorizontal();
-                        {
-                            GUINoRegen();
-                        }
-                        GUILayout.EndHorizontal();
-
                         GUILayout.Space(10);
-
                         GUILevelSize();
                         GUILayout.Space(10);
-
                         GUILayout.Space(10);
-
                             GUIBlocks();
                             GUILayout.Space(10);
-
-                   
-
-
                         GUIGameField();
                     }
                     //                else
@@ -842,26 +824,7 @@ namespace SweetSugar.Scripts.Editor
             GUILayout.EndHorizontal();
         }
 
-        private void GUINoRegen()
-        {
-            GUILayout.BeginHorizontal();
-            {
-
-                GUILayout.Label(new GUIContent("Don't Regen", "Don't regenerate if no matches possible"),
-                    GUILayout.Width(80));
-                bool s = false;
-                GUILayout.Space(70);
-                s = EditorGUILayout.Toggle(levelData.GetField().noRegenLevel, GUILayout.Width(50));
-                if (s != levelData.GetField().noRegenLevel)
-                {
-                    levelData.GetField().noRegenLevel = s;
-                    dirtyLevel = true;
-                    // SaveLevel();
-                }
-            }
-            GUILayout.EndHorizontal();
-        }
-
+  
   
 
         string[] GetTutorialNames() => new[] {"Disabled","SIMPLE", ItemsTypes.HORIZONTAL_STRIPED.ToString(), ItemsTypes.PACKAGE.ToString(), ItemsTypes.TimeBomb.ToString()};

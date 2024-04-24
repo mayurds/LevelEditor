@@ -19,11 +19,10 @@ MonoBehaviour:
     - subLevel: 1
       maxRows: 3
       maxCols: 3
-      noRegenLevel: 0
       levelSquares:
-      - obstacle: 5
+      - obstacle: 7
         position: {x: 0, y: 0}
-      - obstacle: 5
+      - obstacle: 7
         position: {x: 1, y: 0}
       - obstacle: 2
         position: {x: 2, y: 0}
@@ -39,11 +38,9 @@ MonoBehaviour:
         position: {x: 1, y: 2}
       - obstacle: 0
         position: {x: 2, y: 2}
-      bombTimer: 1
     - subLevel: 0
       maxRows: 3
       maxCols: 3
-      noRegenLevel: 0
       levelSquares:
       - obstacle: 2
         position: {x: 0, y: 0}
@@ -63,18 +60,10 @@ MonoBehaviour:
         position: {x: 1, y: 2}
       - obstacle: 0
         position: {x: 2, y: 2}
-      bombTimer: 15
-    targetIndex: 2
     limitType: 0
-    ingrCountTarget: 0000000000000000
     limit: 31
     colorLimit: 5
     star1: 100
     star2: 600
     star3: 1200
-    selectedTutorial: 1
     currentSublevelIndex: 0
-    subTargetsContainers:
-    - count: 0
-      preCount: 0
-      color: 0

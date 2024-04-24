@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Effects;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using SweetSugar.Scripts.System.Combiner;
@@ -520,14 +519,7 @@ namespace SweetSugar.Scripts.Items
             return waypoints;
         }
 
-    
-        //show teleportation effect
-        private void TeleportationEffect(Square _square)
-        {
-//        _square.teleport.EnableMask(false);
-            var animationFinished = false;
-            _square.teleport.StartTeleport(this, () => { animationFinished = true; });
-        }
+   
 
         int fallingID;
         private Vector3 defaultTransformPosition;
@@ -896,7 +888,6 @@ namespace SweetSugar.Scripts.Items
             destroycoroutineStarted = true;
             if (explodedItem != null)
                 switchItem = explodedItem;
-            LevelManager.THIS.levelData.GetTargetObject().CheckItems(new[] { this });
             if (explEffect || globalExplEffect)
             {
                 var partcl1 =

@@ -53,7 +53,6 @@ namespace SweetSugar.Scripts.Items
             }
 
             var sqL = GetSquaresInRow(square, itemMain.currentType);
-            LevelManager.THIS.levelData.GetTargetObject().CheckSquares(sqL.ToArray());
             sqL.Where(i => i.item == null).ToList().ForEach(i => i.DestroyBlock());
 
             DestroyBehaviour();
@@ -125,7 +124,6 @@ namespace SweetSugar.Scripts.Items
                         direction *= -1;
                     }
                 }
-                LevelManager.THIS.levelData.GetTargetObject().CheckSquares(squares.ToArray());
                 var squaresToDestroy = squares.Distinct();
                 var destroyingItems = squaresToDestroy.Where(i => i.Item != null ).Select(i => i.Item);
                 yield return new WaitForSeconds(0.1f);
@@ -161,7 +159,6 @@ namespace SweetSugar.Scripts.Items
             var list1 = GetSquaresInRow(GetItem.square, ItemsTypes.HORIZONTAL_STRIPED);
             var list2 = GetSquaresInRow(GetItem.square, ItemsTypes.VERTICAL_STRIPED);
             var lDistinct = list1.Union(list2).Distinct();
-            LevelManager.THIS.levelData.GetTargetObject().CheckSquares(lDistinct.ToArray());
 
             foreach (var square in lDistinct)
             {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.TargetScripts.TargetSystem;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.Level
@@ -15,7 +14,6 @@ namespace SweetSugar.Scripts.Level
         {
             public int levelNum;
             public List<FieldData> fields = new List<FieldData>();
-            [SerializeField]        public Target targetObject;
             public LIMIT limitType;
             public int limit = 25;
             public int colorLimit = 5;
@@ -26,7 +24,6 @@ namespace SweetSugar.Scripts.Level
             public int maxRows;
             public int maxCols;
             public int currentSublevelIndex;
-            public List<SubTargetContainer> subTargetsContainers = new List<SubTargetContainer>();
 
 
         }
