@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using SweetSugar.Scripts.Localization;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.TargetScripts.TargetSystem
@@ -31,14 +30,6 @@ namespace SweetSugar.Scripts.TargetScripts.TargetSystem
             return other;
         }
 
-        public string GetDescription()
-        {
-            return LocalizationManager.GetText(descriptionLocalizationRefrence, Description);
-        }
-
-        public string GetFailedDescription()
-        {
-            return LocalizationManager.GetText(failedLocalizationRefrence, FailedDescription);
-        }
+     
     }
 }

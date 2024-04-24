@@ -55,16 +55,7 @@ namespace SweetSugar.Scripts.System.Combiner
                     var combine = combines.Find(x => GetConditionByType(x, itemType));
                     if (combine != null)
                     {
-                        if (item.color == combine.color)
-                        {
-                            AI.THIS.TipItem = item;
-                            AI.THIS.vDirection = (item1.transform.position - item.transform.position).normalized;
-                        }
-                        else
-                        {
-                            AI.THIS.TipItem = item1;
-                            AI.THIS.vDirection = (item.transform.position - item1.transform.position).normalized;
-                        }
+                      
                         combine.items.Add(item);
                         combine.items.Add(item1);
                         return combine.items;

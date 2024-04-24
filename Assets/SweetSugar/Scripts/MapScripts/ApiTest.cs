@@ -25,8 +25,6 @@ namespace SweetSugar.Scripts.MapScripts
         public void OnEnable()
         {
             Debug.Log("Subscribe to events.");
-            LevelsMap.LevelSelected += OnLevelSelected;
-            LevelsMap.LevelReached += OnLevelReached;
             //            YesButton.Click += OnYesButtonClick;
             //            NoButton.Click += OnNoButtonClick;
         }
@@ -34,8 +32,6 @@ namespace SweetSugar.Scripts.MapScripts
         public void OnDisable()
         {
             Debug.Log("Unsubscribe from events.");
-            LevelsMap.LevelSelected -= OnLevelSelected;
-            LevelsMap.LevelReached -= OnLevelReached;
             //           YesButton.Click -= OnYesButtonClick;
             //           NoButton.Click -= OnNoButtonClick;
         }
@@ -66,31 +62,6 @@ namespace SweetSugar.Scripts.MapScripts
                     }
                 }
 
-                if (GUILayout.Button("Complete level"))
-                {
-                    if (LevelsMap.IsStarsEnabled())
-                        LevelsMap.CompleteLevel(_levelNumber, _starsCount);
-                    else
-                        LevelsMap.CompleteLevel(_levelNumber);
-                }
-
-                if (GUILayout.Button("Go to level"))
-                {
-                    LevelsMap.GoToLevel(_levelNumber);
-                }
-
-                if (GUILayout.Button("Is level locked"))
-                {
-                    var isLocked = LevelsMap.IsLevelLocked(_levelNumber);
-                    Debug.Log(string.Format("Level {0} is {1}",
-                        _levelNumber,
-                        isLocked ? "locked" : "not locked"));
-                }
-
-                if (GUILayout.Button("Clear all progress"))
-                {
-                    LevelsMap.ClearAllProgress();
-                }
             }
 
             GUILayout.EndVertical();
@@ -122,12 +93,6 @@ namespace SweetSugar.Scripts.MapScripts
             var strLevelNumber = GUILayout.TextField(_levelNumber.ToString(), 10, GUILayout.Width(80));
             int.TryParse(strLevelNumber, out _levelNumber);
 
-            if (LevelsMap.IsStarsEnabled())
-            {
-                GUILayout.Label("Stars count:");
-                var strStarsCount = GUILayout.TextField(_starsCount.ToString(), 10, GUILayout.Width(80));
-                int.TryParse(strStarsCount, out _starsCount);
-            }
 
             GUILayout.EndHorizontal();
         }
@@ -163,11 +128,6 @@ namespace SweetSugar.Scripts.MapScripts
 
         private void OnLevelSelected(object sender, LevelReachedEventArgs e)
         {
-            if (LevelsMap.GetIsConfirmationEnabled())
-            {
-                SelectedLevelNumber = e.Number;
-                // ConfirmationView.SetActive(true);
-            }
         }
 
         private void OnNoButtonClick(object sender, EventArgs e)
@@ -178,7 +138,6 @@ namespace SweetSugar.Scripts.MapScripts
         private void OnYesButtonClick(object sender, EventArgs e)
         {
             ConfirmationView.SetActive(false);
-            LevelsMap.GoToLevel(SelectedLevelNumber);
         }
 
         #endregion

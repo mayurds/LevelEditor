@@ -11,7 +11,6 @@ namespace SweetSugar.Scripts.GUI.BonusSpin
 
 		private void OnCollisionEnter2D(Collision2D other)
 		{
-			SoundBase.Instance.PlayOneShot( clip );
 
 		}
 	}

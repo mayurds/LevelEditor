@@ -19,19 +19,15 @@ namespace SweetSugar.Scripts.GUI
 		}
 
 		public void Settings () {
-			SoundBase.Instance.GetComponent<AudioSource> ().PlayOneShot (SoundBase.Instance.click);
 
-			MenuReference.THIS.Settings.gameObject.SetActive (true);
 
 		}
 
 		public void Play () {
-			SoundBase.Instance.GetComponent<AudioSource> ().PlayOneShot (SoundBase.Instance.click);
 			LeanTween.delayedCall(1, ()=>SceneManager.LoadScene("game"));
 		}
 
 		public void Pause () {
-			SoundBase.Instance.GetComponent<AudioSource> ().PlayOneShot (SoundBase.Instance.click);
 
 			if (LevelManager.THIS.gameStatus == GameState.Playing)
 				GameObject.Find ("CanvasGlobal").transform.Find ("MenuPause").gameObject.SetActive (true);

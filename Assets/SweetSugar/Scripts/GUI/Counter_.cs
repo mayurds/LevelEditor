@@ -59,7 +59,6 @@ namespace SweetSugar.Scripts.GUI
         {
             lastTime = 0;
             alert = false; StartCoroutine(UpdateRare());
-            if (name == "Limit") StartCoroutine(TimeTick());
         }
 
         private void Update()
@@ -126,7 +125,6 @@ namespace SweetSugar.Scripts.GUI
                             if (lastTime + 5 < Time.time)
                             {
                                 lastTime = Time.time;
-                                SoundBase.Instance.PlayOneShot(SoundBase.Instance.timeOut);
                             }
 
                         }
@@ -141,7 +139,6 @@ namespace SweetSugar.Scripts.GUI
 
                 if (name == "Lifes")
                 {
-                    txt.text = "" + InitScript.Instance?.GetLife();
                 }
 
                 if (name == "FailedCount")
@@ -158,16 +155,7 @@ namespace SweetSugar.Scripts.GUI
                     txt.text = "" + LevelManager.THIS.FailedCost;
                 }
 
-            if (name == "FailedDescription")
-            {
-                txt.text = "" + LevelData.THIS.target.GetFailedDescription();
-            }
 
-
-                if (name == "Gems")
-                {
-                    txt.text = "" + InitScript.Gems;
-                }
 
                 if (name == "TargetScore")
                 {
@@ -197,23 +185,5 @@ namespace SweetSugar.Scripts.GUI
             }
         }
     
-        IEnumerator TimeTick()
-        {
-            while (true)
-            {
-                if (LevelManager.THIS.gameStatus == GameState.Playing)
-                {
-                    if (_thisLevelData.limitType == LIMIT.TIME)
-                    {
-                        _thisLevelData.limit--;
-                        if (!LevelManager.THIS.DragBlocked)
-                            LevelManager.THIS.CheckWinLose();
-                    }
-                }
-                if (LevelManager.THIS.gameStatus == GameState.Map)
-                    yield break;
-                yield return new WaitForSeconds(1);
-            }
-        }
     }
 }

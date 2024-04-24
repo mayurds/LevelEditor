@@ -826,7 +826,6 @@ namespace SweetSugar.Scripts.Blocks
                 if (type == SquareTypes.JellyBlock) return;
                 if (subSquare.GetComponent<TargetComponent>() == null)
                 {
-                    SoundBase.Instance.PlayOneShot(SoundBase.Instance.block_destroy);
                     var itemAnim = new GameObject();
                     var animComp = itemAnim.AddComponent<AnimateItems>();
                     animComp.InitAnimation(subSquare.gameObject, new Vector2(transform.position.x, -5), subSquare.transform.localScale, null);

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using SweetSugar.Scripts.AdsEvents;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
 using SweetSugar.Scripts.GUI;
-using SweetSugar.Scripts.GUI.Boost;
 using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.Level.ItemsPerLevel.Editor;
@@ -37,15 +35,6 @@ namespace SweetSugar.Scripts.Editor
             }
         }
 
-        public MenuReference MenuReference
-        {
-            get
-            {
-                if (!menuReference) menuReference = GameObject.FindObjectOfType<MenuReference>();
-                return menuReference;
-            }
-            set { menuReference = value; }
-        }
 
         private int subLevelNumberTotal = 1;
 
@@ -71,7 +60,6 @@ namespace SweetSugar.Scripts.Editor
 
         private bool enableGoogleAdsProcessing;
         private bool enableChartboostAdsProcessing;
-        private List<AdEvents> oldList;
         private LevelData levelData;
         private Texture[] arrows = new Texture[6];
         private Texture[] teleports = new Texture[2];
@@ -98,7 +86,6 @@ namespace SweetSugar.Scripts.Editor
 
         private void OnFocus()
         {
-            adsSettings = Resources.Load<AdManagerScriptable>("Scriptable/AdManagerScriptable");
             levelScriptable = Resources.Load("Levels/LevelScriptable") as LevelScriptable;
             LoadLevel(levelNumber);
 
@@ -128,25 +115,7 @@ namespace SweetSugar.Scripts.Editor
             arrows_enter[3] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_red_up.png",typeof(Texture));
 
 
-            if (EditorSceneManager.GetActiveScene().name == "game")
-            {
-                MenuReference = FindObjectOfType<MenuReference>();  
-
-                LevelManager lm = Camera.main.GetComponent<LevelManager>();
-                InitScript initscript = Camera.main.GetComponent<InitScript>();
-                if (oldList == null)
-                {
-                    oldList = new List<AdEvents>();
-                    oldList.Clear();
-                    for (int i = 0; i < adsSettings.adsEvents.Count; i++)
-                    {
-                        oldList.Add(new AdEvents());
-                        oldList[i].adType = adsSettings.adsEvents[i].adType;
-                        oldList[i].everyLevel = adsSettings.adsEvents[i].everyLevel;
-                        oldList[i].gameEvent = adsSettings.adsEvents[i].gameEvent;
-                    }
-                }
-            }
+        
 
             gotFocus = true;
         }
@@ -185,50 +154,6 @@ namespace SweetSugar.Scripts.Editor
                     num++;
                 });
             Resources.LoadAll("Items");
-            var bonusitems = Resources.FindObjectsOfTypeAll(typeof(EditorIcon))
-                .Select(i => (EditorIcon)i)
-                .GroupBy(i => i.GetType())
-                .Select(i => /* i.Key == typeof(ItemMarmalade) ? i.Where(x => ((ItemMarmalade)x).secondItem == null) : */ i)
-                .SelectMany(group => group)
-                .Select(i => new ItemForEditor
-                {
-                    Item = i.gameObject,
-                    Color = color,
-                    ItemType = i.itemType,
-                    colors = i.GetComponent<IColorableComponent>(),
-                    Texture = i.GetComponent<Item>().sprRenderer.FirstOrDefault().sprite.texture
-                });
-            packageTexture = bonusitems.First(i => i.ItemType == ItemsTypes.PACKAGE).Texture;
-            var l1 = bonusitems.ToList();
-            // for (int i = 0; i < 5; i++)
-            // {
-            //     var item = bonusitems.First(x => x.ItemType == ItemsTypes.PACKAGE);
-            //     l1.Add(item.DeepCopy());
-            // }
-
-            var list = l1.GroupBy(i => i.ItemType).Select(group => group.OrderBy(i => i.Item.name).ToArray()).ToArray()
-                .ForEachY(group =>
-                {
-                    num = 0;
-                    group.ForEachY(i =>
-                    {
-                        i.Color = num;
-                        num++;
-                    });
-                }).SelectMany(i => i).ToArray();
-            // for (int i = 0; i < list.Count(); i++)
-            // {
-            //     if (list[i].ItemType == ItemsTypes.PACKAGE)
-            //     {
-            //         list[i].Texture = list[i].Texture.AlphaBlend(simpleitems.ElementAt(list[i].Color).Texture);
-            //     }
-            // }
-            itemsForEditorFull = simpleitems.Union(list);
-            itemsForEditor = simpleitems.Union(bonusitems.GroupBy(i => i.ItemType).Select(i => i.First()))
-                .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(i => i.Index / 6)
-                .Select(i => i.Select(x => x.Value))
-                .ToArray();
             if (levelData.target.prefabs.All(i => i.GetComponent<IColorableComponent>()))
             {
                 for (var index = 0; index < levelData.subTargetsContainers.Count; index++)
@@ -376,14 +301,10 @@ namespace SweetSugar.Scripts.Editor
             }
             else if (selected == 3)
             {
-                if (EditorSceneManager.GetActiveScene().name == "game")
-                    GUIInappSettings();
-                else
                     GUIShowWarning();
             }
             else if (selected == 4)
             {
-                GUIAds();
             }
             else if (selected == 5)
             {
@@ -394,14 +315,10 @@ namespace SweetSugar.Scripts.Editor
             }
             else if (selected == 6)
             {
-                if (EditorSceneManager.GetActiveScene().name == "game")
-                    GUIRate();
-                else
                     GUIShowWarning();
             }
             else if (selected == 7)
             {
-                GUIHelp();
             }
 
 
@@ -439,26 +356,6 @@ namespace SweetSugar.Scripts.Editor
         }
 
 
-        #region GUIRate
-
-        private void GUIRate()
-        {
-            InitScript initscript = Camera.main.GetComponent<InitScript>();
-
-            GUILayout.Label("Rate settings:", EditorStyles.boldLabel, GUILayout.Width(150));
-            GUILayout.Space(10);
-            GUILayout.BeginHorizontal();
-            initscript.ShowRateEvery = EditorGUILayout.IntField("Show Rate every ", initscript.ShowRateEvery,
-                GUILayout.Width(220), GUILayout.MaxWidth(220));
-            GUILayout.Label(" level (0 = disable)", EditorStyles.label, GUILayout.Width(150));
-            GUILayout.EndHorizontal();
-            initscript.RateURL =
-                EditorGUILayout.TextField("URL", initscript.RateURL, GUILayout.Width(220), GUILayout.MaxWidth(220));
-            initscript.RateURLIOS = EditorGUILayout.TextField("URL iOS", initscript.RateURLIOS, GUILayout.Width(220),
-                GUILayout.MaxWidth(220));
-        }
-
-        #endregion
 
         #region GUIDialogs
 
@@ -484,13 +381,6 @@ namespace SweetSugar.Scripts.Editor
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(label, EditorStyles.label, GUILayout.Width(100));
-            GameObject obj = MenuReference.transform.Find(name).gameObject;
-            if (GUILayout.Button(obj.activeSelf ? "hide" : "show", GUILayout.Width(100)))
-            {
-                EditorGUIUtility.PingObject(obj);
-                Selection.activeGameObject = obj;
-                obj.SetActive(!obj.activeSelf);
-            }
 
             GUILayout.EndHorizontal();
         }
@@ -542,175 +432,6 @@ namespace SweetSugar.Scripts.Editor
         }
 
 
-        private void GUIAds()
-        {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
-            InitScript initscript = Camera.main.GetComponent<InitScript>();
-
-            GUILayout.Label("Ads settings:", EditorStyles.boldLabel, GUILayout.Width(150));
-            GUILayout.BeginHorizontal();
-
-            GUILayout.Label("Unity ads", EditorStyles.boldLabel, GUILayout.Width(150)); //1.6.1
-            GUILayout.Label("Install: Windows->\n Services->Ads - ON", GUILayout.Width(130));
-            if (GUILayout.Button("Help", GUILayout.Width(80)))
-            {
-                Application.OpenURL("https://docs.google.com/document/d/1HeN8JtQczTVetkMnd8rpSZp_TZZkEA7_kan7vvvsMw0");
-            }
-
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(10);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(20);
-            initscript.rewardedGems = EditorGUILayout.IntField("Rewarded gems count", initscript.rewardedGems,
-                GUILayout.Width(200), GUILayout.MaxWidth(200));
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10);
-
-#if GOOGLE_MOBILE_ADS
-            GUILayout.BeginHorizontal();
-
-            GUILayout.Label("Google mobile ads", EditorStyles.boldLabel, GUILayout.Width(150)); //1.6.1
-            if (GUILayout.Button("Install", GUILayout.Width(100)))
-            {
-                Application.OpenURL("https://github.com/googleads/googleads-mobile-unity/releases"); //1.6.1
-            }
-
-            if (GUILayout.Button("Help", GUILayout.Width(80)))
-            {
-                Application.OpenURL(
-                    "https://docs.google.com/document/d/1I69mo9yLzkg35wtbHpsQd3Ke1knC5pf7G1Wag8MdO-M/edit?usp=sharing");
-            }
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(10);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(20);
-            adsSettings.admobUIDAndroid = EditorGUILayout.TextField("Admob Interstitial ID Android ",
-                adsSettings.admobUIDAndroid, GUILayout.Width(220), GUILayout.MaxWidth(220));
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(20);
-            adsSettings.admobUIDIOS = EditorGUILayout.TextField("Admob Interstitial ID iOS", adsSettings.admobUIDIOS,
-                GUILayout.Width(220), GUILayout.MaxWidth(220));
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10);
-#endif
-
-            //CHARTBOOST ADS
-//        GUILayout.BeginHorizontal();
-//        bool oldenableChartboostAds = initscript.enableChartboostAds;
-//        //		initscript.enableChartboostAds = EditorGUILayout.Toggle ("Enable Chartboost Ads", initscript.enableChartboostAds, new GUILayoutOption[] {//1.6.1
-//        //			GUILayout.Width (50),
-//        //			GUILayout.MaxWidth (200)
-//        //		});
-//        GUILayout.Label("Chartboost ads", EditorStyles.boldLabel, GUILayout.Width(150)); //1.6.1
-//        if (GUILayout.Button("Install", GUILayout.Width(100)))
-//        {
-//            Application.OpenURL("http://www.chartboo.st/sdk/unity"); //1.6.1
-//        }
-//
-//        if (GUILayout.Button("Help", GUILayout.Width(80)))
-//        {
-//            Application.OpenURL("https://docs.google.com/document/d/1ibnQbuxFgI4izzyUtT45WH5m1ab3R5d1E3ke3Wrb10Y");
-//        }
-//
-//        GUILayout.EndHorizontal();
-
-//        GUILayout.Space(10);
-//        //		if (oldenableChartboostAds != initscript.enableChartboostAds) {//1.6.1
-//        //			SetScriptingDefineSymbols ();
-//        //			if (initscript.enableChartboostAds) {
-//        //				enableChartboostAdsProcessing = true;
-//        //			}
-//        //
-//        //		}
-//        if (initscript.enableChartboostAds)
-//        {
-//            GUILayout.BeginHorizontal();
-//            GUILayout.Space(20);
-//            EditorGUILayout.LabelField("menu Chartboost->Edit settings", GUILayout.Width(50), GUILayout.MaxWidth(200));
-//            GUILayout.EndHorizontal();
-//            GUILayout.BeginHorizontal();
-//            GUILayout.Space(20);
-//            EditorGUILayout.LabelField("Put ad ID to appropriate platform to prevent crashing!", EditorStyles.boldLabel,
-//                GUILayout.Width(100), GUILayout.MaxWidth(400));
-//            GUILayout.EndHorizontal();
-//
-//            GUILayout.Space(10);
-//        }
-
-
-            GUILayout.Space(10);
-
-            GUILayout.Label("Ads controller:", EditorStyles.boldLabel, GUILayout.Width(150));
-
-            EditorGUILayout.Space();
-
-            GUILayout.Label("Event:               Status:                            Show every:", GUILayout.Width(350));
-
-            foreach (AdEvents item in adsSettings.adsEvents)
-            {
-                EditorGUILayout.BeginHorizontal();
-                item.gameEvent = (GameState)EditorGUILayout.EnumPopup(item.gameEvent, GUILayout.Width(100));
-                item.adType = (AdType)EditorGUILayout.EnumPopup(item.adType, GUILayout.Width(150));
-                item.everyLevel = EditorGUILayout.IntPopup(item.everyLevel, new[]
-                {
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                    "10"
-                }, new[]
-                {
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10
-                }, GUILayout.Width(100));
-
-                EditorGUILayout.EndHorizontal();
-            }
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add"))
-            {
-                AdEvents adevent = new AdEvents();
-                adevent.everyLevel = 1;
-                adsSettings.adsEvents.Add(adevent);
-            }
-
-            if (GUILayout.Button("Delete"))
-            {
-                if (adsSettings.adsEvents.Count > 0)
-                    adsSettings.adsEvents.Remove(adsSettings.adsEvents[adsSettings.adsEvents.Count - 1]);
-            }
-
-
-            GUILayout.Space(10);
-
-            if (GUILayout.Button("Save"))
-            {   
-                EditorUtility.SetDirty(adsSettings);
-                AssetDatabase.SaveAssets();
-            }
-
-        }
     
         private string PendingItemDrawer(Rect position, string itemValue) {
             // Text fields do not like null values!
@@ -732,148 +453,14 @@ namespace SweetSugar.Scripts.Editor
         }
         #endregion
 
-        #region inapps_settings
 
-        private void GUIInappSettings()
-        {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
-
-            GUILayout.Label("In-apps settings:", EditorStyles.boldLabel, GUILayout.Width(150));
-
-            if (GUILayout.Button("Reset to default", GUILayout.Width(150)))
-            {
-                ResetInAppsSettings();
-            }
-
-
-            GUILayout.Space(10);
-            bool oldenableInApps = lm.enableInApps;
-
-            GUILayout.BeginHorizontal();
-            //		lm.enableInApps = EditorGUILayout.Toggle ("Enable In-apps", lm.enableInApps, new GUILayoutOption[] {//1.6.1
-            //			GUILayout.Width (180)
-            //		});
-            if (GUILayout.Button("How to setup", GUILayout.Width(120)))
-            {
-                Application.OpenURL(
-                    "https://docs.google.com/document/d/1HeN8JtQczTVetkMnd8rpSZp_TZZkEA7_kan7vvvsMw0#bookmark=id.b1efplsspes5");
-            }
-
-            GUILayout.EndHorizontal();
-
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(20);
-            GUILayout.Label("Install: Windows->Services->\n In-app Purchasing - ON->Import", GUILayout.Width(400));
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(10);
-
-            //		if (oldenableInApps != lm.enableInApps) {1.6.1
-            //			SetScriptingDefineSymbols ();
-            //		}
-
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(30);
-            GUILayout.BeginVertical();
-            for (int i = 0; i < lm.InAppIDs.Length; i++)
-            {
-                lm.InAppIDs[i] = EditorGUILayout.TextField("Product id " + (i + 1), lm.InAppIDs[i], GUILayout.Width(300),
-                    GUILayout.MaxWidth(300));
-            }
-
-            GUILayout.Space(10);
-
-            GUILayout.Label("Android:", EditorStyles.boldLabel, GUILayout.Width(150));
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(30);
-
-            GUILayout.BeginVertical();
-            GUILayout.Space(10);
-            //GUILayout.Label(" Put Google license key into the field \n from the google play account ", EditorStyles.label, new GUILayoutOption[] { GUILayout.Width(300) });
-            //GUILayout.Space(10);
-
-            //lm.GoogleLicenseKey = EditorGUILayout.TextField("Google license key", lm.GoogleLicenseKey, new GUILayoutOption[] {
-            //    GUILayout.Width (300),
-            //    GUILayout.MaxWidth (300)
-            //});
-
-            GUILayout.Space(10);
-            if (GUILayout.Button("Android account help", GUILayout.Width(400)))
-            {
-                Application.OpenURL("http://developer.android.com/google/play/billing/billing_admin.html");
-            }
-
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(30);
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(10);
-            GUILayout.Label("iOS:", EditorStyles.boldLabel, GUILayout.Width(150));
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(30);
-
-            GUILayout.BeginVertical();
-
-            //GUILayout.Label(" StoreKit library must be added \n to the XCode project, generated by Unity ", EditorStyles.label, new GUILayoutOption[] { GUILayout.Width(300) });
-            GUILayout.Space(10);
-            if (GUILayout.Button("iOS account help", GUILayout.Width(400)))
-            {
-                Application.OpenURL("https://developer.apple.com/library/ios/qa/qa1329/_index.html");
-            }
-
-            GUILayout.EndVertical();
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-        }
-
-        private void ResetInAppsSettings()
-        {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
-            lm.InAppIDs[0] = "gems10";
-            lm.InAppIDs[1] = "gems50";
-            lm.InAppIDs[2] = "gems100";
-            lm.InAppIDs[3] = "gems150";
-        }
-
-        #endregion
-
-        private void GUIHelp()
-        {
-            GUILayout.Label("Sweet Sugar Match 3 Complete Project + EDITOR v 1.3.3", EditorStyles.boldLabel,
-                GUILayout.Width(400));
-            GUILayout.Label("Please read our documentation:", EditorStyles.boldLabel, GUILayout.Width(200));
-            if (GUILayout.Button("DOCUMENTATION", GUILayout.Width(150)))
-            {
-                Application.OpenURL("https://docs.google.com/document/d/17QwNYwZysylZUvRcjLWZU-IaJPNynaAJ3Ds-JafhtMA/edit");
-            }
-
-            GUILayout.Space(10);
-            GUILayout.Label(
-                "To get support you should provide \n ORDER NUMBER (asset store) \n or NICKNAME and DATE of purchase (other stores):",
-                EditorStyles.boldLabel, GUILayout.Width(350));
-            GUILayout.Space(10);
-            GUILayout.TextArea("info@candy-smith.com", EditorStyles.boldLabel, GUILayout.Width(350));
-        }
-
+    
         #region settings
 
-        private bool share_settings;
-        private bool target_settings;
 
         private void GUISettings()
         {
             LevelManager lm = Camera.main.GetComponent<LevelManager>();//TODO: move all game settings to scriptabble
-            InitScript initscript = Camera.main.GetComponent<InitScript>();
             GUILayout.Label("Game settings:", EditorStyles.boldLabel, GUILayout.Width(150));
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Reset to default", GUILayout.Width(150)))
@@ -1055,8 +642,6 @@ namespace SweetSugar.Scripts.Editor
                 GUILayout.BeginVertical();
 
 
-                initscript.CapOfLife = EditorGUILayout.IntField("Max of lifes", initscript.CapOfLife, GUILayout.Width(200),
-                    GUILayout.MaxWidth(200));
                 GUILayout.Space(10);
 
                 GUILayout.Label("Total time for refill lifes:", EditorStyles.label);
@@ -1068,30 +653,18 @@ namespace SweetSugar.Scripts.Editor
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(30);
-                initscript.TotalTimeForRestLifeHours =
-                    EditorGUILayout.FloatField("", initscript.TotalTimeForRestLifeHours, GUILayout.Width(50));
-                initscript.TotalTimeForRestLifeMin =
-                    EditorGUILayout.FloatField("", initscript.TotalTimeForRestLifeMin, GUILayout.Width(50));
-                initscript.TotalTimeForRestLifeSec =
-                    EditorGUILayout.FloatField("", initscript.TotalTimeForRestLifeSec, GUILayout.Width(50));
                 GUILayout.EndHorizontal();
                 GUILayout.Space(10);
 
 
-                lm.lifeShop.CostIfRefill = EditorGUILayout.IntField("Cost of refilling lifes", lm.lifeShop.CostIfRefill,
-                    GUILayout.Width(200), GUILayout.MaxWidth(200));
                 GUILayout.EndVertical();
                 GUILayout.EndHorizontal();
             }
 
             GUILayout.Space(20);
 
-            initscript.FirstGems = EditorGUILayout.IntField("Start gems", initscript.FirstGems, GUILayout.Width(200),
-                GUILayout.MaxWidth(200));
             GUILayout.Space(20);
 
-            initscript.losingLifeEveryGame = EditorGUILayout.Toggle("Losing a life every game",
-                initscript.losingLifeEveryGame, GUILayout.Width(200), GUILayout.MaxWidth(200));
             GUILayout.Space(20);
 
 
@@ -1123,26 +696,7 @@ namespace SweetSugar.Scripts.Editor
         {
             LevelManager lm = Camera.main.GetComponent<LevelManager>();
             lm.showPopupScores = false;
-            lm.scoresColors[0] = new Color(251f / 255f, 80 / 255f, 1 / 255f);
-            lm.scoresColors[1] = new Color(255 / 255f, 193 / 255f, 22 / 255f);
-            lm.scoresColors[2] = new Color(237 / 255f, 13 / 255f, 233 / 255f);
-            lm.scoresColors[3] = new Color(41 / 255f, 157 / 255f, 255 / 255f);
-            lm.scoresColors[4] = new Color(255 / 255f, 255 / 255f, 38 / 255f);
-            lm.scoresColors[5] = new Color(37 / 255f, 219 / 255f, 0 / 255f);
 
-            lm.scoresColorsOutline[0] = new Color(138 / 255f, 1 / 255f, 0 / 255f);
-            lm.scoresColorsOutline[1] = new Color(184 / 255f, 77 / 255f, 1 / 255f);
-            lm.scoresColorsOutline[2] = new Color(128 / 255f, 0 / 255f, 128 / 255f);
-            lm.scoresColorsOutline[3] = new Color(0 / 255f, 64 / 255f, 182 / 255f);
-            lm.scoresColorsOutline[4] = new Color(174 / 255f, 104 / 255f, 0 / 255f);
-            lm.scoresColorsOutline[5] = new Color(19 / 255f, 111 / 255f, 0 / 255f);
-
-            InitScript initscript = Camera.main.GetComponent<InitScript>();
-            initscript.CapOfLife = 5;
-            initscript.TotalTimeForRestLifeHours = 0;
-            initscript.TotalTimeForRestLifeMin = 15;
-            initscript.TotalTimeForRestLifeSec = 0;
-            lm.lifeShop.CostIfRefill = 12;
             lm.FailedCost = 12;
             lm.ExtraFailedMoves = 5;
             lm.ExtraFailedSecs = 30;
@@ -1168,127 +722,16 @@ namespace SweetSugar.Scripts.Editor
 
             GUILayout.Label("Shop settings:", EditorStyles.boldLabel, GUILayout.Width(150));
 
-            if (GUILayout.Button("Reset to default", GUILayout.Width(150)))
-            {
-                ResetShops();
-            }
 
             GUILayout.Space(10);
             gems_shop_show = EditorGUILayout.Foldout(gems_shop_show, "Gems shop settings:");
-            if (gems_shop_show)
-            {
-                int i = 1;
-                foreach (GemProduct item in lm.gemsProducts)
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.BeginVertical();
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Space(30);
-                    GUILayout.Label("Gems count", GUILayout.Width(100));
-                    GUILayout.Label("Price $", GUILayout.Width(100));
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Space(30);
-                    item.count = EditorGUILayout.IntField("", item.count, GUILayout.Width(100), GUILayout.MaxWidth(100));
-                    item.price = EditorGUILayout.FloatField("", item.price, GUILayout.Width(100), GUILayout.MaxWidth(100));
-                    GUILayout.EndHorizontal();
-                    GUILayout.EndVertical();
-                    GUILayout.EndHorizontal();
-                    i++;
-                }
-            }
+           
 
             GUILayout.Space(10);
             boost_show = EditorGUILayout.Foldout(boost_show, "Boosts shop settings:");
-            if (boost_show)
-            {
-                BoostShop bs = MenuReference.BoostShop.GetComponent<BoostShop>();
-                List<BoostProduct> bp = bs.boostProducts;
-                foreach (BoostProduct item in bp)
-                {
-                    GUILayout.BeginVertical();
-                    {
-                        item.boostType = (BoostType) EditorGUILayout.EnumPopup(item.boostType, GUILayout.Width(93));
-
-                    GUILayout.BeginHorizontal();
-                    {
-                        GUILayout.Label("Description");
-                        item.description =
-                            EditorGUILayout.TextField("", item.description, GUILayout.Width(400), GUILayout.MaxWidth(400));
-                    }
-                    GUILayout.EndHorizontal();
-                    GUILayout.BeginHorizontal();
-                    {
-                        GUILayout.Label("Localization ref",GUILayout.Width(110));
-                        item.descriptionLocalizationRefrence =
-                            EditorGUILayout.IntField("", item.descriptionLocalizationRefrence, GUILayout.Width(30), GUILayout.MaxWidth(30));
-                    }
-                    GUILayout.EndHorizontal();
-                    GUILayout.BeginHorizontal();
-                    {
-                        GUILayout.Label(item.icon.texture, GUILayout.Width(50), GUILayout.Height(50));
-                        GUILayout.BeginVertical();
-                        {
-                            GUILayout.BeginHorizontal();
-                            {
-                                GUILayout.Label("Count", EditorStyles.label, GUILayout.Width(80));
-                                GUILayout.Label("Price(gem)", EditorStyles.label, GUILayout.Width(80));
-
-                                }
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                {
-                                    item.count = EditorGUILayout.IntField("", item.count, GUILayout.Width(80), GUILayout.MaxWidth(80));
-                                    item.GemPrices =
-                                        EditorGUILayout.IntField("", item.GemPrices, GUILayout.Width(80), GUILayout.MaxWidth(80));
-                                }
-                                GUILayout.EndHorizontal();
-                            }
-                            GUILayout.EndVertical();
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-                    GUILayout.EndVertical();
-                }
-            }
         }
 
-        private void ResetShops()
-        {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
-
-            lm.gemsProducts[0].count = 10;
-            lm.gemsProducts[0].price = 0.99f;
-            lm.gemsProducts[1].count = 50;
-            lm.gemsProducts[1].price = 4.99f;
-            lm.gemsProducts[2].count = 100;
-            lm.gemsProducts[2].price = 9.99f;
-            lm.gemsProducts[3].count = 150;
-            lm.gemsProducts[3].price = 14.99f;
-
-            BoostShop bs = MenuReference.BoostShop.GetComponent<BoostShop>();
-            bs.boostProducts[0].description = "Gives you the 5 extra moves";
-            bs.boostProducts[1].description = "Place this special item in game";
-            bs.boostProducts[2].description = "Place this special item in game";
-            bs.boostProducts[3].description = "Gives you the 30 extra seconds";
-            bs.boostProducts[4].description = "Destroy the item";
-            bs.boostProducts[5].description = "Place this special item in game";
-            bs.boostProducts[6].description = "Switch to item that don't match";
-            bs.boostProducts[7].description = "Replace the near items color";
-
-            for (int i = 0; i < 8; i++)
-            {
-                bs.boostProducts[i].count = 3;
-
-                bs.boostProducts[i].GemPrices = 5;
-            }
-
-            EditorUtility.SetDirty(lm);
-            EditorUtility.SetDirty(bs);
-        }
+  
 
         #endregion
 
@@ -2394,8 +1837,6 @@ namespace SweetSugar.Scripts.Editor
         private int color;
         private Texture2D packageTexture;
         private GUISkin customSkin;
-        private MenuReference menuReference;
-        private AdManagerScriptable adsSettings;
         private int selectedTutorial;
 
         private void SetSquareType(int col, int row)

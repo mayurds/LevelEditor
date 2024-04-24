@@ -202,7 +202,6 @@ using Random = UnityEngine.Random;
                  ChangeFoundCombines(allFoundCombines);
                  combs = LevelManager.THIS.CombineManager.GetCombines(this, out allFoundCombines);
                  bonusCombines.Clear();
-                 bonusCombines.Add( AI.THIS.GetMarmaladeCombines());
                  bonusCombines = bonusCombines.WhereNotNull().ToList();
                  ChangeFoundCombines(bonusCombines);
                  yield return new WaitForEndOfFrame();

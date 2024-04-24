@@ -29,7 +29,6 @@ namespace SweetSugar.Scripts.Level
             {
                 Debug.Log("restart");
 
-                GUIUtils.THIS.StartGame();
                 Destroy(gameObject);
             }
         }

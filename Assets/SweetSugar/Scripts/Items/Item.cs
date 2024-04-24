@@ -5,7 +5,6 @@ using System.Linq;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
 using SweetSugar.Scripts.Effects;
-using SweetSugar.Scripts.GUI.Boost;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using SweetSugar.Scripts.System.Combiner;
@@ -334,7 +333,6 @@ namespace SweetSugar.Scripts.Items
             //    switchItem.transform.position = neighborSquare.transform.position + Vector3.back * 0.2f;
             neighborSquare = null;
             switchItem = null;
-            LevelManager.THIS.DragBlocked = false;
         }
 
         //check destroying, changing type, falling and switching details 
@@ -354,7 +352,6 @@ namespace SweetSugar.Scripts.Items
                 deltaPos = mousePos - GetMousePosition();
                 if (switchDirection == Vector3.zero)
                 {
-                    SwitchDirection(deltaPos);
                 }
             }
         
@@ -379,54 +376,7 @@ namespace SweetSugar.Scripts.Items
         }
 
         //Switching start method
-        public void SwitchDirection(Vector3 delta)
-        {
-            deltaPos = delta;
-            if (Vector3.Magnitude(deltaPos) > 0.1f)
-            {
-                LevelManager.THIS.DragBlocked = true;
-                switchItem = null;
-                if (Mathf.Abs(deltaPos.x) > Mathf.Abs(deltaPos.y) && deltaPos.x > 0 /*&& !tutorialItem*/)
-                    switchDirection.x = 1;
-                else if (Mathf.Abs(deltaPos.x) > Mathf.Abs(deltaPos.y) && deltaPos.x < 0 /* && !tutorialItem*/)
-                    switchDirection.x = -1;
-                else if (Mathf.Abs(deltaPos.x) < Mathf.Abs(deltaPos.y) && deltaPos.y > 0)
-                    switchDirection.y = 1;
-                else if (Mathf.Abs(deltaPos.x) < Mathf.Abs(deltaPos.y) && deltaPos.y < 0)
-                    switchDirection.y = -1;
-                if (switchDirection.x > 0)
-                {
-                    neighborSquare = square.GetNeighborLeft();
-                }
-                else if (switchDirection.x < 0)
-                {
-                    neighborSquare = square.GetNeighborRight();
-                }
-                else if (switchDirection.y > 0)
-                {
-                    neighborSquare = square.GetNeighborBottom();
-                }
-                else if (switchDirection.y < 0)
-                {
-                    neighborSquare = square.GetNeighborTop();
-                }
-
-                if (neighborSquare != null)
-                    switchItem = neighborSquare.Item;
-                if (switchItem != null)
-                {
-                    if (switchItem.square.GetSubSquare().CanGoOut())
-                        LevelManager.THIS.StartCoroutine(Switching());
-                    else if (((currentType != ItemsTypes.NONE || switchItem.currentType != ItemsTypes.NONE) && (currentType != ItemsTypes.INGREDIENT && switchItem.currentType != ItemsTypes.INGREDIENT)) &&
-                             switchItem.square.GetSubSquare().CanGoOut())
-                        LevelManager.THIS.StartCoroutine(Switching());
-                    else
-                        ResetDrag(); //1.6.1
-                }
-                else
-                    ResetDrag();
-            }
-        }
+    
 
         //switching animation and check rest conditions
         private IEnumerator Switching()
@@ -462,7 +412,7 @@ namespace SweetSugar.Scripts.Items
                 }
                 var list = new[] {this, switchItem};
 
-                if ((!combines2.Any() && !IsSwitchBonus() && LevelManager.THIS.ActivatedBoost.type != BoostType.FreeMove) &&
+                if ((!combines2.Any() && !IsSwitchBonus() ) &&
                     NotContainsBoth(ItemsTypes.MULTICOLOR,ItemsTypes.MULTICOLOR) || ContainsBoth(ItemsTypes.MULTICOLOR, ItemsTypes.INGREDIENT) 
                                                                                  || ContainsBoth(ItemsTypes.MULTICOLOR, ItemsTypes.SPIRAL) 
                                                                                  || ContainsBoth(ItemsTypes.TimeBomb, ItemsTypes.TimeBomb) 
@@ -476,20 +426,9 @@ namespace SweetSugar.Scripts.Items
                     square.Item = this;
                     backMove = true;
                     //                Debug.Log(matchesHere);
-                    SoundBase.Instance.PlayOneShot(SoundBase.Instance.wrongMatch);
                 }
                 else
                 {
-                    if (LevelManager.THIS.ActivatedBoost.type != BoostType.FreeMove)
-                    {
-                        if (LevelManager.THIS.levelData.limitType == LIMIT.MOVES)
-                            LevelManager.THIS.levelData.limit--;
-                        LevelManager.THIS.moveID++;
-                    }
-
-                    if (LevelManager.THIS.ActivatedBoost.type == BoostType.FreeMove)
-                        LevelManager.THIS.ActivatedBoost = null;
-
                     LevelManager.THIS.lastDraggedItem = this;
                     LevelManager.THIS.lastSwitchedItem = switchItem;
                 }
@@ -563,12 +502,7 @@ namespace SweetSugar.Scripts.Items
             float distCovered = 0;
             while (distCovered < duration)
             {
-                if (itemPrefabObject == null || !square || falling || needFall || destroying || destroyNext || LevelManager.THIS.DragBlocked)
-                {
-                    itemPrefabObject.transform.localPosition = startPos;
-                    callback();
-                    yield break;
-                }
+          
                 if (distCovered > duration / 10)
                     callback();
                 distCovered = (Time.time - startTime);
@@ -888,8 +822,6 @@ namespace SweetSugar.Scripts.Items
 //        transform.position = destPos;// square.transform.position;
             if (distance > 0.5f && animate)
             {
-                SoundBase.Instance
-                    .PlayOneShot(SoundBase.Instance.drop[Random.Range(0, SoundBase.Instance.drop.Length)]);
             }
 
             //        transform.position = Square1.transform.position + Vector3.back * 0.2f;
@@ -1081,8 +1013,6 @@ namespace SweetSugar.Scripts.Items
         IEnumerator ChangeTypeCor(Action<Item> callback=null,bool dontDestroyForThisCombine = true)
         {
             if (NextType == ItemsTypes.NONE) yield break;
-            if(LevelManager.GetGameStatus() != GameState.PrepareGame)
-                SoundBase.Instance.PlayLimitSound(SoundBase.Instance.appearStipedColorBomb);
             Item newItem = square.GenItem(false, NextType, color);
             newItem.dontDestroyForThisCombine = dontDestroyForThisCombine;
             newItem.transform.position = transform.position;
@@ -1188,8 +1118,6 @@ namespace SweetSugar.Scripts.Items
             destroycoroutineStarted = true;
             if (explodedItem != null)
                 switchItem = explodedItem;
-            SoundBase.Instance
-                .PlayOneShot(SoundBase.Instance.destroy[Random.Range(0, SoundBase.Instance.destroy.Length)]);
             LevelManager.THIS.levelData.GetTargetObject().CheckItems(new[] { this });
             if (explEffect || globalExplEffect)
             {

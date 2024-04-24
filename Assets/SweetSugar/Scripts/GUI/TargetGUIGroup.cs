@@ -79,7 +79,6 @@ namespace SweetSugar.Scripts.GUI
 
         var sprites = LevelManager.THIS.levelData.GetTargetSprites();
         list[0].SetSprite(sprites?[0]);
-        SetDescription(LevelManager.THIS.levelData.target.GetDescription());
 
             if (sprites != null)
             {

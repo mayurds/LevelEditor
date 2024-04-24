@@ -119,7 +119,6 @@ namespace SweetSugar.Scripts.Items
 
         private void DestroyColor(int p)
         {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.colorBombExpl);
 
             var items = LevelManager.THIS.field.GetItemsByColor(p).Where(i => !i.Equals(GetParentItem())).ToArray();
             StartCoroutine(IterateItems(items, item =>

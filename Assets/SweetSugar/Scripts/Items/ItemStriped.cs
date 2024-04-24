@@ -42,7 +42,6 @@ namespace SweetSugar.Scripts.Items
 
             itemMain = item1;
             var square = itemMain.square;
-            SoundBase.Instance.PlayLimitSound(SoundBase.Instance.strippedExplosion);
             LevelManager.THIS.StripedShow(gameObject, item1.currentType == ItemsTypes.HORIZONTAL_STRIPED);
             var itemsList = GetList(square);
             foreach (var item in itemsList)
@@ -136,7 +135,6 @@ namespace SweetSugar.Scripts.Items
                     item.DestroyItem(true, this, this);
                 }
                 squaresToDestroy.Where(i=>i.Item == null /*&& i.IsObstacle()*/).ForEachY(i => i.DestroyBlock());
-                SoundBase.Instance.PlayLimitSound( SoundBase.Instance.explosion2 );
                 striped.DestroyBehaviour();
                 package.DestroyBehaviour();
                 LevelManager.THIS.FindMatches();
@@ -159,7 +157,6 @@ namespace SweetSugar.Scripts.Items
             item1.destroying = true;
             item2.destroying = true;
             item2?.DestroyBehaviour();
-            SoundBase.Instance.PlayLimitSound(SoundBase.Instance.strippedExplosion);
             LevelManager.THIS.StripedShow(gameObject, false);
             LevelManager.THIS.StripedShow(gameObject, true);
             var list1 = GetSquaresInRow(GetItem.square, ItemsTypes.HORIZONTAL_STRIPED);

@@ -101,23 +101,17 @@ namespace SweetSugar.Scripts.GUI
 
             if (Score >= levelData.star1)
             {
-                if (!star1Anim.activeSelf && !starsAwarded[0])
-                    SoundBase.Instance.PlayOneShot(SoundBase.Instance.getStarIngr);
                 star1Anim.SetActive(true);
                 starsAwarded[0] = true;
             }
             if (Score >= levelData.star2)
             {
-                if (!star2Anim.activeSelf && !starsAwarded[1])
-                    SoundBase.Instance.PlayOneShot(SoundBase.Instance.getStarIngr);
                 star2Anim.SetActive(true);
                 starsAwarded[1] = true;
 
             }
             if (Score >= levelData.star3)
             {
-                if (!star3Anim.activeSelf && !starsAwarded[2])
-                    SoundBase.Instance.PlayOneShot(SoundBase.Instance.getStarIngr);
                 star3Anim.SetActive(true);
                 starsAwarded[2] = true;
 

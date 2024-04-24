@@ -2,10 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using SweetSugar.Scripts.AdsEvents;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.GUI.Boost;
-using SweetSugar.Scripts.GUI.Purchasing;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using TMPro;
@@ -87,13 +84,6 @@ namespace SweetSugar.Scripts.GUI
 
             if (name == "GemsShop")
             {
-                var tr = GetComponent<SweetSugarPacks>().packs;
-                for (var i = 0; i < LevelManager.THIS.gemsProducts.Count; i++)
-                {
-                    var item = tr[i];
-                    item.Find("Count").GetComponent<TextMeshProUGUI>().text = "" + LevelManager.THIS.gemsProducts[i].count;
-                    item.Find("Buy/Price").GetComponent<TextMeshProUGUI>().text = "" + LevelManager.THIS.gemsProducts[i].price;
-                }
             }
             if (name == "MenuComplete")
             {
@@ -126,37 +116,11 @@ namespace SweetSugar.Scripts.GUI
             }
         }
 
-        /// <summary>
-        /// show rewarded ads
-        /// </summary>
-        public void ShowAds()
-        {
-            if (name == "GemsShop")
-                InitScript.Instance.currentReward = RewardsType.GetGems;
-            else if (name == "LiveShop")
-                InitScript.Instance.currentReward = RewardsType.GetLifes;
-            else if (name == "PreFailed")
-                InitScript.Instance.currentReward = RewardsType.GetGoOn;
-            AdsManager.THIS.ShowRewardedAds();
-            CloseMenu();
-        }
 
         /// <summary>
         /// Open rate store
         /// </summary>
-        public void GoRate()
-        {
-
-#if UNITY_ANDROID
-        Application.OpenURL(InitScript.Instance.RateURL);
-#elif UNITY_IOS
-        Application.OpenURL(InitScript.Instance.RateURLIOS);
-#endif
-            PlayerPrefs.SetInt("Rated", 1);
-            PlayerPrefs.Save();
-            CloseMenu();
-        }
-
+ 
         void OnDisable()
         {
             if (transform.Find("Image/Video") != null)
@@ -183,10 +147,6 @@ namespace SweetSugar.Scripts.GUI
             }
             if (name == "MenuPlay")
             {
-                //            InitScript.Instance.currentTarget = InitScript.Instance.targets[PlayerPrefs.GetInt( "OpenLevel" )];
-                transform.Find("Image/Boosters/Boost1").GetComponent<BoostIcon>().InitBoost();
-                transform.Find("Image/Boosters/Boost2").GetComponent<BoostIcon>().InitBoost();
-                transform.Find("Image/Boosters/Boost3").GetComponent<BoostIcon>().InitBoost();
 
             }
             if (name == "MenuPause")
@@ -211,7 +171,6 @@ namespace SweetSugar.Scripts.GUI
             {
                 CloseMenu();
                 LevelManager.THIS.gameStatus = GameState.Tutorial;
-                if(LevelManager.THIS.levelData.limitType == LIMIT.TIME) SoundBase.Instance.PlayOneShot(SoundBase.Instance.timeOut);
 
             }
             if (name == "PreFailed")
@@ -267,7 +226,6 @@ namespace SweetSugar.Scripts.GUI
             {
                 //  SoundBase.Instance.audio.PlayOneShot( SoundBase.Instance.scoringStar );
                 transform.Find("Image").Find("Star" + i).gameObject.SetActive(true);
-                SoundBase.Instance.PlayOneShot(SoundBase.Instance.star[i - 1]);
                 yield return new WaitForSeconds(0.5f);
             }
         }
@@ -292,8 +250,6 @@ namespace SweetSugar.Scripts.GUI
         /// </summary>
         public void Info()
         {
-            MenuReference.THIS.Tutorials.gameObject.SetActive(false);
-            MenuReference.THIS.Tutorials.gameObject.SetActive(true);
             OpneMenu(gameObject);
         }
 
@@ -358,7 +314,6 @@ namespace SweetSugar.Scripts.GUI
 
         public void SwishSound()
         {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.swish[1]);
 
         }
 
@@ -368,46 +323,6 @@ namespace SweetSugar.Scripts.GUI
 
         }
 
-        public void Play()
-        {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
-            if (gameObject.name == "MenuPreGameOver")
-            {
-                if (InitScript.Gems >= 12)
-                {
-                    InitScript.Instance.SpendGems(12);
-                    //                LevelData.LimitAmount += 12;
-                    LevelManager.THIS.gameStatus = GameState.WaitAfterClose;
-                    gameObject.SetActive(false);
-
-                }
-                else
-                {
-                    BuyGems();
-                }
-            }
-            else if (gameObject.name == "MenuFailed")
-            {
-                LevelManager.THIS.gameStatus = GameState.Map;
-            }
-            else if (gameObject.name == "MenuPlay")
-            {
-                GUIUtils.THIS.StartGame();
-                CloseMenu();
-            }
-            else if (gameObject.name == "MenuPause")
-            {
-                CloseMenu();
-                LevelManager.THIS.gameStatus = GameState.Playing;
-            }
-        }
-
-        public void PlayTutorial()
-        {
-            LevelManager.THIS.gameStatus = GameState.Playing;
-            //    mainscript.Instance.dropDownTime = Time.time + 0.5f;
-            //        CloseMenu();
-        }
 
         public void BackToMap()
         {
@@ -421,7 +336,6 @@ namespace SweetSugar.Scripts.GUI
 
         public void Next()
         {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
 
             CloseMenu();
         }
@@ -429,96 +343,23 @@ namespace SweetSugar.Scripts.GUI
         [UsedImplicitly]
         public void Again()
         {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
             GameObject gm = new GameObject();
             gm.AddComponent<RestartLevel>();
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
         }
 
-        public void BuyGems()
-        {
-
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
-            MenuReference.THIS.GemsShop.gameObject.SetActive(true);
-        }
-
-        [UsedImplicitly]
-        public void Buy(GameObject pack)
-        {
-            var i = pack.transform.GetSiblingIndex();
-            InitScript.waitedPurchaseGems = int.Parse(pack.transform.Find("Count").GetComponent<TextMeshProUGUI>().text.Replace("x ", ""));
-#if UNITY_WEBPLAYER || UNITY_WEBGL
-            InitScript.Instance.PurchaseSucceded();
-            CloseMenu();
-            return;
-#endif
-#if UNITY_PURCHASING && UNITY_INAPPS
-            UnityInAppsIntegration.THIS.BuyProductID(LevelManager.THIS.InAppIDs[i]);
-#endif
-
-            CloseMenu();
-
-        }
-
-        public void BuyLifeShop()
-        {
-
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
-            if (InitScript.lifes < InitScript.Instance.CapOfLife)
-                MenuReference.THIS.LiveShop.gameObject.SetActive(true);
-
-        }
-
-        public void BuyLife(GameObject button)
-        {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
-            if (InitScript.Gems >= int.Parse(button.transform.Find("Price").GetComponent<TextMeshProUGUI>().text))
-            {
-                InitScript.Instance.SpendGems(int.Parse(button.transform.Find("Price").GetComponent<TextMeshProUGUI>().text));
-                InitScript.Instance.RestoreLifes();
-                CloseMenu();
-            }
-            else
-            {
-                MenuReference.THIS.GemsShop.gameObject.SetActive(true);
-            }
-
-        }
-
-        public void BuyFailed(GameObject button)
-        {
-//        if (GetComponent<Animation>()["bannerFailed"].speed == 0)
-            {
-                if (InitScript.Gems >= LevelManager.THIS.FailedCost)
-                {
-                    InitScript.Instance.SpendGems(LevelManager.THIS.FailedCost);
-                    button.GetComponent<Button>().interactable = false;
-                    GoOnFailed();
-                    GetComponent<Animation>()["bannerFailed"].speed = 1;  
-                }
-                else
-                {
-                    MenuReference.THIS.GemsShop.gameObject.SetActive(true);
-                }
-            }
-        }
-
         public void GoOnFailed()
         {
-            GetComponent<PreFailed>().Continue();
         }
 
         [UsedImplicitly]
         public void GiveUp()
         {
-            GetComponent<PreFailed>().Close();
         }
 
         void ShowGameOver()
         {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.gameOver[1]);
-
             GameObject.Find("Canvas").transform.Find("MenuGameOver").gameObject.SetActive(true);
             gameObject.SetActive(false);
 
@@ -526,22 +367,6 @@ namespace SweetSugar.Scripts.GUI
 
         #region boosts
 
-        public void BuyBoost(BoostType boostType, int price, int count, Action callback)
-        {
-            SoundBase.Instance.PlayOneShot(SoundBase.Instance.click);
-            if (InitScript.Gems >= price)
-            {
-                InitScript.Instance.SpendGems(price);
-                InitScript.Instance.BuyBoost(boostType, price, count);
-                callback?.Invoke();
-                //InitScript.Instance.SpendBoost(boostType);
-                CloseMenu();
-            }
-            else
-            {
-                BuyGems();
-            }
-        }
 
         #endregion
 
@@ -552,14 +377,12 @@ namespace SweetSugar.Scripts.GUI
             if (!Off.activeSelf)
             {
                 //            SoundBase.Instance.volume = 0;
-                SoundBase.Instance.audioMixer.SetFloat("SoundVolume", -80);
                 on.GetComponent<Image>().enabled = false;
                 Off.SetActive(true);
             }
             else
             {
                 //            SoundBase.Instance.volume = 1;
-                SoundBase.Instance.audioMixer.SetFloat("SoundVolume", 1);
 
                 Off.SetActive(false);
                 on.GetComponent<Image>().enabled = true;
@@ -567,8 +390,6 @@ namespace SweetSugar.Scripts.GUI
             }
 
             float vol;
-            SoundBase.Instance.audioMixer.GetFloat("SoundVolume", out vol);
-            PlayerPrefs.SetInt("Sound", (int)vol);
             PlayerPrefs.Save();
 
         }
@@ -579,7 +400,6 @@ namespace SweetSugar.Scripts.GUI
             if (!Off.activeSelf)
             {
                 //            GameObject.Find("Music").GetComponent<AudioSource>().volume = 0;
-                MusicBase.Instance.audioMixer.SetFloat("MusicVolume", -80);
                 on.GetComponent<Image>().enabled = false;
 
                 Off.SetActive(true);
@@ -587,15 +407,12 @@ namespace SweetSugar.Scripts.GUI
             else
             {
                 //            GameObject.Find("Music").GetComponent<AudioSource>().volume = 1;
-                MusicBase.Instance.audioMixer.SetFloat("MusicVolume", 1);
 
                 Off.SetActive(false);
                 on.GetComponent<Image>().enabled = true;
 
             }
             float vol;
-            MusicBase.Instance.audioMixer.GetFloat("MusicVolume", out vol);
-            PlayerPrefs.SetInt("Music", (int)vol);
             PlayerPrefs.Save();
 
         }

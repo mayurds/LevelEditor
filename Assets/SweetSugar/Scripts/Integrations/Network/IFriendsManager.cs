@@ -8,7 +8,6 @@ namespace SweetSugar.Scripts.Integrations.Network
 
 		void PlaceFriendsPositionsOnMap (Action<Dictionary<string,int>> Callback);
 
-		void GetLeadboardOnLevel (int LevelNumber, Action<List<LeadboardPlayerData>> Callback);
 
 		void Logout ();
 	}
