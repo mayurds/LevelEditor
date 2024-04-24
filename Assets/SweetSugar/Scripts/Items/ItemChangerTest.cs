@@ -48,7 +48,6 @@ namespace SweetSugar.Scripts.Items
                 if (GUILayout.Button("Destroy"))
                 {
                     item.DestroyItem(true);
-                    LevelManager.THIS.FindMatches();
                 }
             }
         }

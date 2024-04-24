@@ -137,7 +137,6 @@ namespace SweetSugar.Scripts.Items
                 squaresToDestroy.Where(i=>i.Item == null /*&& i.IsObstacle()*/).ForEachY(i => i.DestroyBlock());
                 striped.DestroyBehaviour();
                 package.DestroyBehaviour();
-                LevelManager.THIS.FindMatches();
             }
         }
 

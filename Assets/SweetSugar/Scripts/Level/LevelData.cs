@@ -9,78 +9,41 @@ using UnityEngine;
 
 namespace SweetSugar.Scripts.Level
 {
-    /// <summary>
-    /// Level data for level editor
-    /// </summary>
     [Serializable]
     public class LevelData
     {
         public string Name;
         public static LevelData THIS;
-        /// level number
         public int levelNum;
-        /// fields data
         public List<FieldData> fields = new List<FieldData>();
-        /// target container keeps the object should be collected, its count, sprite, color
-        [SerializeField] public TargetContainer target;
-        /// target manager reference
         [SerializeField] public Target targetObject;
         public int targetIndex;
-
-        // public static TargetContainer targetContainer;
-        /// moves or time
         public LIMIT limitType;
-
         public int[] ingrCountTarget = new int[2];
-        /// moves amount or seconds 
         public int limit = 25;
-        /// color amount
         public int colorLimit = 5;
-        /// score amount for reach 1 star
         public int star1 = 100;
-        /// score amount for reach 2 stars
         public int star2 = 300;
-        /// score amount for reach 3 stars
         public int star3 = 500;
-        /// pre generate marmalade
-        public bool enableMarmalade;
         public int maxRows { get { return GetField().maxRows; } set { GetField().maxRows = value; } }
         public int maxCols { get { return GetField().maxCols; } set { GetField().maxCols = value; } }
         public int selectedTutorial;
-
         public int currentSublevelIndex;
-        private TargetEditorScriptable targetEditorObject;
-        private List<TargetContainer> targetEditorArray;
-        /// target container keeps the object should be collected, its count, sprite, color
         public List<SubTargetContainer> subTargetsContainers = new List<SubTargetContainer>();
-
-
         public FieldData GetField()
         {
             return fields[currentSublevelIndex];
         }
-
         public FieldData GetField(int index)
         {
             currentSublevelIndex = index;
             return fields[index];
         }
-
         public LevelData(bool isPlaying, int currentLevel)
         {
             levelNum = currentLevel;
             Name = "Level " + levelNum;
-            LoadTargetObject();
-
         }
-
-        public void LoadTargetObject()
-        {
-            targetEditorObject = Resources.Load("Levels/TargetEditorScriptable") as TargetEditorScriptable;
-            targetEditorArray = targetEditorObject.targets;
-
-        }
-
         public Target GetTargetObject()
         {
             return targetObject;
@@ -89,7 +52,6 @@ namespace SweetSugar.Scripts.Level
         {
             return GetField().levelSquares[row * GetField().maxCols + col];
         }
-
         public SquareBlocks GetBlock(Vector2Int vec)
         {
             return GetBlock(vec.y, vec.x);
@@ -100,138 +62,12 @@ namespace SweetSugar.Scripts.Level
             fields.Add(fieldData);
             return fieldData;
         }
-
         public void RemoveField()
         {
             FieldData field = fields.Last();
             fields.Remove(field);
         }
-        public Sprite[] GetTargetSprites()
-        {
-            return subTargetsContainers.Where(i => i.targetPrefab.GetComponent<SpriteRenderer>() != null)
-                .Select(i => i.targetPrefab.GetComponent<SpriteRenderer>().sprite).ToArray()
-                .Union(subTargetsContainers.Where(i => i.targetPrefab.GetComponent<LayeredBlock>() != null)
-                    .SelectMany(i => i.targetPrefab.GetComponent<LayeredBlock>().layers)
-                    .Select(x => x.GetComponent<SpriteRenderer>().sprite))
-                .Union(subTargetsContainers.Where(i=>i.extraObject && i.extraObject.GetType() == typeof(Sprite)).Select(i=>(Sprite)i.extraObject))
-                .ToArray();
-        }
-
-        public string[] GetTargetsNames()
-        {
-            return targetEditorArray?.Select(i => i.name).ToArray();
-        }
-
-        public string[] GetSubTargetNames()
-        {
-            return target.prefabs.Select(i => i.name).ToArray();
-        }
-
-        public Sprite[] GetTargetSpritePrefab()
-        {
-            return subTargetsContainers.Where(i => i.targetPrefab.GetComponent<SpriteRenderer>() != null)
-                .Select(i => i.targetPrefab.GetComponent<SpriteRenderer>().sprite).ToArray()
-                .Union(subTargetsContainers.Where(i => i.targetPrefab.GetComponent<LayeredBlock>() != null)
-                    .SelectMany(i => i.targetPrefab.GetComponent<LayeredBlock>().layers).Take(1)
-                    .Select(x => x.GetComponent<SpriteRenderer>().sprite)).ToArray()
-                .Union(subTargetsContainers.Where(i => i.extraObject != null).Select(i=>(Sprite)i.extraObject)).ToArray();
-        }
-
-        public GameObject[] GetSubTargetPrefabs()
-        {
-
-            var layerBlockPrefabs = target.prefabs.Where(i => i.GetComponent<LayeredBlock>() != null).SelectMany(i => i.GetComponent<LayeredBlock>().layers).Select(i => i.gameObject).ToArray();
-            var mergedList = layerBlockPrefabs.Concat(target.prefabs.Where(i => i.GetComponent<LayeredBlock>() == null)).ToArray();
-            return mergedList;
-        }
-        public int GetTargetIndex()
-        {
-            var v = targetEditorArray.FindIndex(i => i.name == target.name);
-            if (v < 0) { SetTarget(0); v = 0; }
-            return v;
-        }
-
-        public void SetTargetFromArray()
-        {
-            SetTarget(targetEditorArray.FindIndex(x => x.name == target.name));
-        }
-
-        public void SetTarget(int index)
-        {
-            if (targetEditorObject == null || targetEditorArray == null) LoadTargetObject();
-            subTargetsContainers.Clear();
-            if (index < 0) index = 0;
-            target = targetEditorArray[index];
-            targetIndex = index;
-            try
-            {
-                targetObject = (Target)Activator.CreateInstance(Type.GetType("SweetSugar.Scripts.TargetScripts."+target.name));
-                Debug.Log("create target " + targetObject);
-                var subTargetPrefabs = GetSubTargetPrefabs();
-                if(subTargetPrefabs.Length>1)
-                {
-                    foreach (var _target in subTargetPrefabs)
-                    {
-                        var component = _target.GetComponent<Item>();
-                        Sprite extraObject = null;
-                        if(component)
-                        {
-                            extraObject = component.sprRenderer.FirstOrDefault().sprite;
-                        }
-                        subTargetsContainers.Add(new SubTargetContainer(_target, 0, extraObject));
-                    }
-                }
-                else if (subTargetPrefabs.Length > 0 && subTargetPrefabs[0].GetComponent<IColorableComponent>())
-                {
-                    foreach (var item in subTargetPrefabs[0].GetComponent<IColorableComponent>().GetSprites(levelNum))
-                    {
-                        subTargetsContainers.Add(new SubTargetContainer(subTargetPrefabs[0], 0, item));
-                    }
-                }
-                else if (subTargetPrefabs.Length > 0)
-                {
-                    foreach (var _target in subTargetPrefabs)
-                    {
-                        var component = _target.GetComponent<Item>();
-                        Sprite extraObject = null;
-                        if(component)
-                        {
-                            extraObject = component.sprRenderer.FirstOrDefault().sprite;
-                        }
-                        subTargetsContainers.Add(new SubTargetContainer(_target, 0, extraObject));
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                Debug.LogError("Check the target name or create class " + target.name);
-            }
-
-        }
-
- 
-        public void SetItemTarget(Item item)
-        {
-            foreach (var _subTarget in subTargetsContainers)
-            {
-                if (item.CompareTag(_subTarget.targetPrefab.tag) && _subTarget.GetCount() > 0 && item.gameObject.GetComponent<TargetComponent>() == null)
-                {
-                    item.gameObject.AddComponent<TargetComponent>();
-                }
-            }
-        }
-
-        public void SetSquareTarget(GameObject gameObject, SquareTypes _sqType, GameObject prefabLink)
-        {
-            if (_sqType.ToString().Contains(target.name))
-            {
-                var subTargetContainer = subTargetsContainers.FirstOrDefault(i => _sqType.ToString().Contains(i.targetPrefab.name));
-                if (subTargetContainer == null) Debug.LogError("Check Target Editor for " + _sqType);
-                subTargetContainer.changeCount(1);
-                gameObject.AddComponent<TargetComponent>();
-            }
-        }
-
+  
         public string GetSaveString()
         {
             var str = "";
@@ -241,10 +77,8 @@ namespace SweetSugar.Scripts.Level
             }
             return str;
         }
-
         public LevelData DeepCopy(int level)
         {
-            LoadTargetObject();
             var other = (LevelData)MemberwiseClone();
             other.levelNum = level;
             other.Name = "Level " + other.levelNum;
@@ -253,10 +87,6 @@ namespace SweetSugar.Scripts.Level
             {
                 other.fields.Add(fields[i].DeepCopy());
             }
-            if (targetEditorArray.Count > 0)
-                other.target = targetEditorArray.First(x => x.name == target.name);//target.DeepCopy();
-            else
-                other.target = target.DeepCopy();
             if (targetObject != null)
                 other.targetObject = targetObject.DeepCopy();
             other.subTargetsContainers = new List<SubTargetContainer>();
@@ -264,11 +94,8 @@ namespace SweetSugar.Scripts.Level
             {
                 other.subTargetsContainers.Add(subTargetsContainers[i].DeepCopy());
             }
-
-
             return other;
         }
-
         public LevelData DeepCopyForPlay(int level)
         {
             LevelData data = DeepCopy(level);
@@ -286,15 +113,6 @@ namespace SweetSugar.Scripts.Level
 
             return data;
         }
-
-
-
-
-
-        // public static GameObject[] GetTargetObjects()
-        // {
-        //     return targetEditorObject.GetComponent<TargetMono>().targets.Find(i => i.target == target).prefabs.ToArray();
-        // }
     }
 
     /// <summary>

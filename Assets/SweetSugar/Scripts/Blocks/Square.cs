@@ -36,7 +36,7 @@ namespace SweetSugar.Scripts.Blocks
     /// <summary>
     /// Handles square behaviour like destroying, generating item if the square empty, determines items directions, and obstacles behaviour
     /// </summary>
-    public class Square : MonoBehaviour, ISpriteRenderer, IField, IMarmaladeTargetable
+    public class Square : MonoBehaviour, IField
     {
         [Header("Score for destroying")]
         public int score;
@@ -47,16 +47,7 @@ namespace SweetSugar.Scripts.Blocks
             get { return item; }
             set
             {
-                if (value == null)
-                {
-                    if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(item + " set square " + name + " empty ", DebugLogKeeper.LogType.Falling);
-                }
-                else
-                {
-                    if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(value + " set square " + name, DebugLogKeeper.LogType.Falling);
-                }
                 item = value;
-
                 if (item == null && isEnterPoint && LevelManager.GetGameStatus() != GameState.RegenLevel) StartCoroutine(CheckNullItem());
             }
         }
@@ -106,7 +97,7 @@ namespace SweetSugar.Scripts.Blocks
         void Start()//init some objects
         {
             name = "Square_" + col + "_" + row;
-            if ((LevelData.THIS.target.name == "Ingredients" || direction != Vector2.down) && enterSquare && type != SquareTypes.NONE)
+            if (( direction != Vector2.down) && enterSquare && type != SquareTypes.NONE)
             {
                 if (orderInSequence == 0)
                     CreateArrow(isEnterPoint);
@@ -164,8 +155,6 @@ namespace SweetSugar.Scripts.Blocks
             GameObject item = null;
             if (itemType == ItemsTypes.NONE)
             {
-                if (LevelManager.THIS.collectIngredients && !IsObstacle())
-                    item = GetIngredientItem();
                 if(!item)
                     item = ObjectPooler.Instance.GetPooledObject("Item");
             }
@@ -182,10 +171,6 @@ namespace SweetSugar.Scripts.Blocks
             Item itemComponent = item.GetComponent<Item>();
             itemComponent.square = this;
             // item.GetComponent<IColorableComponent>().RandomizeColor();
-            IColorableComponent colorableComponent = item.GetComponent<IColorableComponent>();
-            if (color == -1)
-                itemComponent.GenColor();
-            else if (colorableComponent != null) colorableComponent.SetColor(color); 
             itemComponent.field = field;
             itemComponent.needFall = falling;
             if(!falling)
@@ -205,7 +190,6 @@ namespace SweetSugar.Scripts.Blocks
                 itemComponent.JustCreatedItem = true;
 
             }
-            if (LevelManager.THIS.DebugSettings.DestroyLog) DebugLogKeeper.Log(name + " gen item " + item.name + " pos " + item.transform.position, DebugLogKeeper.LogType.Destroying);
 
             itemComponent.needFall = falling;
 //        if ((!nextSquare?.IsFree() ?? false) || Item == itemComponent)
@@ -217,31 +201,7 @@ namespace SweetSugar.Scripts.Blocks
         /// Generates ingredient
         /// </summary>
         /// <returns></returns>
-        private GameObject GetIngredientItem()
-        {
-            GameObject item = null;
-            var restCount = LevelManager.THIS.levelData.GetTargetObject().CountTargetSublevel();
-            var fieldCount = LevelManager.THIS.field.GetItems()?.Where(i => i.currentType == ItemsTypes.INGREDIENT)?.Count() ?? 0;
-            if (fieldCount < 10)
-            {
-                if (LevelManager.THIS.levelData.target.prefabs.FirstOrDefault()?.GetComponent<ItemIngredient>() != null && !this.IsBottom())
-                {
-                    if (restCount - fieldCount > 0)
-                    {
-                        if (Random.Range(0, LevelManager.THIS.levelData.limit / 3) == 0)
-                        {
-                            string ingredientColor = field.GetIngredientName();
-                            if (ingredientColor != "")
-                            {
-                                item = ObjectPooler.Instance.GetPooledObject(ingredientColor);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return item;
-        }
+    
 
 
       
@@ -262,7 +222,6 @@ namespace SweetSugar.Scripts.Blocks
                     if (prefab != null && _type != SquareTypes.EmptySquare && _type != SquareTypes.NONE)
                     {
                         var b = Instantiate(prefab);
-                        LevelManager.THIS.levelData.SetSquareTarget(b, _type, prefab);
                         b.transform.SetParent(transform);
                         b.GetComponent<Square>().field = field;
                         b.transform.localScale = Vector2.one;
@@ -313,7 +272,6 @@ namespace SweetSugar.Scripts.Blocks
                 square.mainSquqre = this;
                 b.transform.localPosition = new Vector3(0, 0, -0.5f);
                 b.transform.localScale = Vector2.one;
-                LevelManager.THIS.levelData.SetSquareTarget(b, obstacleType, prefab);
                 // if (prefab != null && obstacleType == SquareTypes.ThrivingBlock)
                 //     Destroy(prefab.gameObject);
                 if (obstacleType != SquareTypes.JellyBlock)
@@ -413,32 +371,7 @@ namespace SweetSugar.Scripts.Blocks
             var sq = sequence;//field.GetCurrentSequence(this);
             return sq.Where(i => i.orderInSequence > orderInSequence).OrderBy(i => i.orderInSequence).ToArray();
         }
-        /// <summary>
-        /// Check is there any falling items in this sequence
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        public bool AnyFallingItemsInSeq(int color = -1)
-        {
-            var sq = sequence;//field.GetCurrentSequence(this);
-            if (color > -1)
-            {
-                var anyFallingItemsInSeq = sq.Any(i => i.Item != null && i.Item?.color == color && i.Item.falling);
-                return anyFallingItemsInSeq;
-            }
-
-            return sq.Any(i => i.Item?.falling ?? false);
-        }
-        /// <summary>
-        /// Check any falling items around the square
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        public bool AnyFallingItemsAround(int color = -1)
-        {
-            return GetAllNeghborsCross().Any(i => i.AnyFallingItemsInSeq(color));
-        }
-
+     
         /// <summary>
         /// Get item above the square by flow
         /// </summary>
@@ -472,122 +405,7 @@ namespace SweetSugar.Scripts.Blocks
             return pos;
         }
 
-        /// <summary>
-        /// Gets the match color around to set right color for Generated item
-        /// </summary>
-        /// <returns>The count match color around.</returns>
-        public int GetMatchColorAround(int col)
-        {
-            var matches = 0;
-            if ((GetNeighborBottom()?.Item?.color ?? -1) == col)
-                matches=1;
-            if (((GetNeighborBottom()?.GetNeighborBottom())?.Item?.color ?? -1) == col)
-                matches++;
-            if ((GetNeighborTop()?.Item?.color ?? -1) == col)
-                matches=1;
-            if (((GetNeighborTop()?.GetNeighborTop())?.Item?.color ?? -1) == col)
-                matches++;
-            if ((GetNeighborRight()?.Item?.color ?? -1) == col)
-                matches=1;
-            if (((GetNeighborRight()?.GetNeighborRight())?.Item?.color ?? -1) == col)
-                matches++;
-            if ((GetNeighborLeft()?.Item?.color ?? -1) == col)
-                matches=1;
-            if (((GetNeighborLeft()?.GetNeighborLeft())?.Item?.color ?? -1) == col)
-                matches++;
-            return matches;
-        }
-        /// <summary>
-        /// Match 3 search methods
-        /// </summary>
-        /// <param name="spr_COLOR"></param>
-        /// <param name="countedSquares"></param>
-        /// <param name="separating"></param>
-        /// <param name="countedSquaresGlobal"></param>
-        /// <returns></returns>
-        Hashtable FindMoreMatches(int spr_COLOR, Hashtable countedSquares, FindSeparating separating, Hashtable countedSquaresGlobal = null)
-        {
-            var globalCounter = true;
-            if (countedSquaresGlobal == null)
-            {
-                globalCounter = false;
-                countedSquaresGlobal = new Hashtable();
-            }
 
-            if (Item == null || Item.destroying || Item.falling)
-                return countedSquares;
-            //    if (LevelManager.This.countedSquares.ContainsValue(this.item) && globalCounter) return countedSquares;
-            if (Item.color == spr_COLOR && !countedSquares.ContainsValue(Item) && Item.currentType != ItemsTypes.INGREDIENT && Item.currentType != ItemsTypes.MULTICOLOR && !Item
-                    .falling && Item.Combinable)
-            {
-                if (LevelManager.THIS.onlyFalling && Item.JustCreatedItem)
-                    countedSquares.Add(countedSquares.Count - 1, Item);
-                else if (!LevelManager.THIS.onlyFalling)
-                    countedSquares.Add(countedSquares.Count - 1, Item);
-                else
-                    return countedSquares;
-
-                //			if (separating == FindSeparating.VERTICAL)
-                {
-                    if (GetNeighborTop() != null)
-                        countedSquares = GetNeighborTop().FindMoreMatches(spr_COLOR, countedSquares, FindSeparating.VERTICAL);
-                    if (GetNeighborBottom() != null)
-                        countedSquares = GetNeighborBottom().FindMoreMatches(spr_COLOR, countedSquares, FindSeparating.VERTICAL);
-                }
-                //			else if (separating == FindSeparating.HORIZONTAL)
-                {
-                    if (GetNeighborLeft() != null)
-                        countedSquares = GetNeighborLeft().FindMoreMatches(spr_COLOR, countedSquares, FindSeparating.HORIZONTAL);
-                    if (GetNeighborRight() != null)
-                        countedSquares = GetNeighborRight().FindMoreMatches(spr_COLOR, countedSquares, FindSeparating.HORIZONTAL);
-                }
-            }
-            return countedSquares;
-        }
-
-        public List<Item> FindMatchesAround(FindSeparating separating = FindSeparating.NONE, int matches = 3, Hashtable countedSquaresGlobal = null)
-        {
-            var globalCounter = true;
-            var newList = new List<Item>();
-            if (countedSquaresGlobal == null)
-            {
-                globalCounter = false;
-                countedSquaresGlobal = new Hashtable();
-            }
-            var countedSquares = new Hashtable();
-            countedSquares.Clear();
-            if (Item == null)
-                return newList;
-            if(!Item.Combinable)
-                return newList;
-            //		if (separating != FindSeparating.HORIZONTAL)
-            //		{
-            countedSquares = FindMoreMatches(Item.color, countedSquares, FindSeparating.VERTICAL, countedSquaresGlobal);
-            //		}
-
-            foreach (DictionaryEntry de in countedSquares)
-            {
-                field.countedSquares.Add(field.countedSquares.Count - 1, de.Value);
-            }
-
-            foreach (DictionaryEntry de in countedSquares)
-            {
-                field.countedSquares.Add(field.countedSquares.Count - 1, de.Value);
-            }
-
-            if (countedSquares.Count < matches)
-                countedSquares.Clear();
-
-            foreach (DictionaryEntry de in countedSquares)
-            {
-                newList.Add((Item)de.Value);
-            }
-            // print(countedSquares.Count);
-            return newList.Distinct().ToList();
-        }
-        /// <summary>
-        /// Check should Item fall down
-        /// </summary>
         public void CheckFallOut()
         {
             if (LevelManager.THIS.StopFall) return;
@@ -709,13 +527,10 @@ namespace SweetSugar.Scripts.Blocks
             if (destroyIteration == 0)
             {
                 destroyIteration = LevelManager.THIS.destLoopIterations;
-                LeanTween.delayedCall(1, () => { destroyIteration = 0; });
             }
             else return;
             if (IsUndestroyable())
                 return;
-            if (LevelManager.THIS.DebugSettings.DestroyLog)
-                DebugLogKeeper.Log("DestroyBlock " + " " + type + " " + GetInstanceID(), DebugLogKeeper.LogType.Destroying);
             if (GetSubSquare().CanGoInto())
             {
                 var sqList = GetAllNeghborsCross();

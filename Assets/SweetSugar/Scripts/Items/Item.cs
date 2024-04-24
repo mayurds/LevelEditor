@@ -34,7 +34,7 @@ namespace SweetSugar.Scripts.Items
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(Animator))]
 
-    public class Item : ItemMonoBehaviour, ISpriteRenderer, IField, IColorChangable, IMarmaladeTargetable
+    public class Item : ItemMonoBehaviour, IField
     {
         public int instanceID;
         [Header("Item can MATCH with other items")]
@@ -105,8 +105,6 @@ namespace SweetSugar.Scripts.Items
 
             set
             {
-                if (LevelManager.THIS.DebugSettings.BonusCombinesShowLog)
-                    DebugLogKeeper.Log("set next " + value + " " + GetInstanceID(), DebugLogKeeper.LogType.BonusAppearance);
                 nextType = value;
             }
         }
@@ -120,16 +118,7 @@ namespace SweetSugar.Scripts.Items
         [HideInInspector]
         public int COLORView;
         private int COLOR;
-        public int color
-        {
-            get
-            {
-                if (colorableComponent != null) return colorableComponent.color;
-                return GetHashCode();
-            }
-            set => colorableComponent.SetColor(value);
-        }
-    
+      
         //if true - item just created
         private bool justCreatedItem;
         public bool JustCreatedItem
@@ -223,7 +212,7 @@ namespace SweetSugar.Scripts.Items
             marmaladeTarget = null;
         
             if(currentType == ItemsTypes.NONE && LevelManager.THIS.levelData.limitType == LIMIT.TIME ){
-                if(Random.Range(0, 20) == 1 && FindObjectsOfType<PlusFiveBonus>().Length < 2){
+                if(Random.Range(0, 20) == 1 ){
                     plusTimeObj = Instantiate(plusTime, transform.position, Quaternion.identity, transform);
                     BindSortingOrder bindSortingOrder = plusTimeObj.transform.GetChild(0).GetComponent<BindSortingOrder>();
                     bindSortingOrder.sourceObject = GetSpriteRenderer();
@@ -234,7 +223,6 @@ namespace SweetSugar.Scripts.Items
 
         private void Awake()
         {
-            colorableComponent = GetComponent<IColorableComponent>();
             director = GetComponent<PlayableDirector>();
             anim = GetComponent<Animator>();
             instanceID = GetInstanceID();
@@ -260,22 +248,9 @@ namespace SweetSugar.Scripts.Items
         }
 
         /// Generate color for this Item
-        public void GenColor()
-        {
-            GenMarmalade();
-            if (colorableComponent != null) colorableComponent.RandomizeColor();
-            LevelManager.THIS.levelData.SetItemTarget(this);
-        }
+        
 
-        private void GenMarmalade()
-        {
-            if (LevelManager.THIS.enableMarmalade && Random.Range(0, 10) == 0 &&
-                LevelManager.THIS.gameStatus == GameState.Playing && currentType == ItemsTypes.NONE && !tutorialItem)
-            {
-                var marmaladeCount = LevelManager.THIS.field.GetItems()?.Where(i => i.currentType == ItemsTypes.MARMALADE)
-                                         ?.Count() ?? 0;
-            }
-        }
+      
         //animation event "Appear"
         public void SetAppeared()
         {
@@ -334,30 +309,7 @@ namespace SweetSugar.Scripts.Items
             switchItem = null;
         }
 
-        //check destroying, changing type, falling and switching details 
-        private void Update()
-        {
-            COLORView = color;
-            if (currentType != debugType && currentType != ItemsTypes.INGREDIENT && NextType == ItemsTypes.NONE)
-            {
-                NextType = debugType;
-
-                ChangeType();
-                DestroyItem();
-            }
-
-            if (dragThis && !LevelManager.THIS.findMatchesStarted)
-            {
-                deltaPos = mousePos - GetMousePosition();
-                if (switchDirection == Vector3.zero)
-                {
-                }
-            }
-        
-            if(!falling && square && LevelManager.GetGameStatus() != GameState.RegenLevel)
-                CheckSquareBelow();
-        }
-
+   
         IEnumerator RareUpdate()
         {
             while (true)
@@ -375,108 +327,6 @@ namespace SweetSugar.Scripts.Items
         }
 
         //Switching start method
-    
-
-        //switching animation and check rest conditions
-        private IEnumerator Switching()
-        {
-            if (switchDirection != Vector3.zero && neighborSquare)
-            {
-                Square[] backupSquares = { square, neighborSquare };
-                Item[] switchingItems = { this, switchItem };
-                var backMove = false;
-                neighborSquare.Item = this;
-                square.Item = switchItem;
-                switchItem.square = backupSquares[0];
-                square = backupSquares[1];
-                var combines2 = GetMatchesAround().Concat(backupSquares.First().Item.GetMatchesAround());
-                var startTime = Time.time;
-                var startPos = transform.position;
-                float speed = 5;
-                float distCovered = 0;
-                while (distCovered < 1)
-                {
-                    distCovered = (Time.time - startTime) * speed;
-                    if(currentType == ItemsTypes.MULTICOLOR || switchItem.currentType == ItemsTypes.MULTICOLOR)
-                        transform.position = Vector3.Lerp(startPos, neighborSquare.transform.position + Vector3.back * 0.3f,
-                            distCovered);
-                    else
-                    {
-                        transform.position = Vector3.Lerp(startPos, neighborSquare.transform.position + Vector3.back * 0.3f,
-                            distCovered);
-                        switchItem.transform.position = Vector3.Lerp(neighborSquare.transform.position + Vector3.back * 0.2f,
-                            startPos, distCovered);
-                    }
-                    yield return new WaitForFixedUpdate();
-                }
-                var list = new[] {this, switchItem};
-
-                if ((!combines2.Any() && !IsSwitchBonus() ) &&
-                    NotContainsBoth(ItemsTypes.MULTICOLOR,ItemsTypes.MULTICOLOR) || ContainsBoth(ItemsTypes.MULTICOLOR, ItemsTypes.INGREDIENT) 
-                                                                                 || ContainsBoth(ItemsTypes.MULTICOLOR, ItemsTypes.SPIRAL) 
-                                                                                 || ContainsBoth(ItemsTypes.TimeBomb, ItemsTypes.TimeBomb) 
-                                                                                 || (!combines2.Any() && list.Any(i => i.currentType != ItemsTypes.NONE && i.currentType != ItemsTypes.TimeBomb && i
-                                                                                                                           .currentType != ItemsTypes.SPIRAL && i.currentType != ItemsTypes.INGREDIENT) 
-                                                                                                      && list.Any(i=>!i.CombinableWithBonus))) 
-                {
-                    square = backupSquares[0];
-                    switchItem.square = backupSquares[1];
-                    neighborSquare.Item = switchItem;
-                    square.Item = this;
-                    backMove = true;
-                    //                Debug.Log(matchesHere);
-                }
-                else
-                {
-                    LevelManager.THIS.lastDraggedItem = this;
-                    LevelManager.THIS.lastSwitchedItem = switchItem;
-                }
-
-                if (!backMove)
-                {
-                    BonusesAnimation(this, switchItem);
-                    yield return new WaitWhile(() => LevelManager.THIS.StopFall);
-                    Check(this, switchItem);
-                    foreach (var combine in combines2)
-                    {
-                        if (combine.nextType != ItemsTypes.NONE)
-                        {
-                            if (combine.color == LevelManager.THIS.lastDraggedItem.color)
-                                LevelManager.THIS.lastDraggedItem.NextType = combine.nextType;
-                            else if (combine.color == LevelManager.THIS.lastSwitchedItem.color)
-                                LevelManager.THIS.lastSwitchedItem.NextType = combine.nextType;
-                        }
-                    }
-
-                    if (!list.All(i=>i.currentType != ItemsTypes.NONE && i.CombinableWithBonus)
-                    ) //MULTICOLOR has own FindMatches
-                    {
-                        var destroyItems = combines2.SelectMany(i => i.items).ToList();
-                        LevelManager.THIS.FindMatches();
-                        yield return new WaitWhileDestroyPipeline(destroyItems, new Delays { after = new WaitForSecCustom() });
-                    }
-                    LevelManager.THIS.levelData.GetTargetObject().CheckTargetItemsAfterDestroy();
-                    CheckAndChangeTypes();
-                }
-
-                startTime = Time.time;
-                distCovered = 0;
-                while (distCovered < 1 && backMove)
-                {
-                    distCovered = (Time.time - startTime) * speed;
-                    transform.position = Vector3.Lerp(neighborSquare.transform.position + Vector3.back * 0.3f, startPos,
-                        distCovered);
-                    switchItem.transform.position = Vector3.Lerp(startPos,
-                        neighborSquare.transform.position + Vector3.back * 0.2f, distCovered);
-                    yield return new WaitForFixedUpdate();
-                }
-
-                if (backMove)
-                    ResetDrag();
-            }
-            if(switchDirection == Vector3.zero && !neighborSquare)
-                ResetDrag();
-        }
 
         private bool NotContainsBoth(ItemsTypes type1, ItemsTypes type2) => (currentType != type1 && switchItem.currentType != type2);
 
@@ -557,19 +407,7 @@ namespace SweetSugar.Scripts.Items
             }
         }
 
-        ///get mathes around this item, local check
-        public List<Combine> GetMatchesAround()
-        {
-            var list = square.FindMatchesAround();
-            var combine = new Combine().ConvertToCombine(list);
-            var combineManager = LevelManager.THIS.CombineManager;
-            var dic = new Dictionary<Item, Combine>();
-            foreach (var item in combine.items) dic.Add(item, combine);
-            var combines2 = combineManager.CheckCombines(dic, new List<Combine> { combine });
-            LevelManager.THIS.combo += combines2.Count;
-            return combines2;
-        }
-
+   
         ///is switching item is bonus
         private bool IsSwitchBonus()
         {
@@ -648,7 +486,6 @@ namespace SweetSugar.Scripts.Items
 //        if (LevelManager.THIS.StopFall) return;
             if (!falling && needFall && fallingID == 0)
             {
-                if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(name + " start fall, target - " + square, DebugLogKeeper.LogType.Falling);
                 falling = true;
 
                 StartCoroutine(FallingCor(generateWaypoints, true));
@@ -666,7 +503,6 @@ namespace SweetSugar.Scripts.Items
                 new Waypoint(transform.position, null),
                 new Waypoint(square.transform.position, null)
             };
-            if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(name + " start side fall, target - " + square, DebugLogKeeper.LogType.Falling);
             falling = true;
 
             StartCoroutine(FallingCor(waypoints, true));
@@ -697,15 +533,12 @@ namespace SweetSugar.Scripts.Items
         private Vector3 defaultTransformPosition;
         private Vector3 defaultTransformScale;
         private Quaternion defaultTransformRotation;
-        [HideInInspector]
-        public IColorableComponent colorableComponent;
 
         ///falling item animation
         private IEnumerator FallingCor(List<Waypoint> waypoints, bool animate, Action callback = null)
         {
             if (fallingID > 0) yield break;
             fallingID++;
-            LevelManager.THIS.FindMatches();
             falling = true;
             needFall = false;
             var destPos = waypoints.LastOrDefault().destPosition + Vector3.back * 0.2f;
@@ -772,10 +605,6 @@ namespace SweetSugar.Scripts.Items
                         startTime = Time.time;
                     }
 
-                    if (LevelManager.THIS.DebugSettings.FallingLog)
-                        DebugLogKeeper.Log(this + " " + transform.position + " frac " + fracJourney + " dist " +distance + " pauseTime " + totalPauseTime + " time " + Time.time
-                                           + "speed " + speed +" start " + startPos + " dest " + destPos + " to " + square
-                            ,DebugLogKeeper.LogType.Falling);
                     if (fracJourney < 1)
                         yield return new WaitForEndOfFrame();
                     if (waypoint.instant && Vector2.Distance(square.transform.position, transform.position)>2)
@@ -799,7 +628,6 @@ namespace SweetSugar.Scripts.Items
                             JustCreatedItem = false;
                             square.Item = null;
                             squareNew.Item = this;
-                            if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(name + " change square from " + square + " to " + squareNew, DebugLogKeeper.LogType.Falling);
                             square = squareNew;
                             waypoints.Add(new Waypoint(squareNew.transform.position + Vector3.back * 0.2f, squareNew));
                             destPos = waypoint.destPosition + Vector3.back * 0.2f;
@@ -836,25 +664,6 @@ namespace SweetSugar.Scripts.Items
                 ResetAnimTransform();
 
                 yield return new WaitForSeconds(0.2f);
-                if(!square.GetAllNeghborsCross().Any(i => (i.Item && i.Item.falling && i.Item.color == color)))
-                {
-                    var combines2 = GetMatchesAround();
-
-                    if (LevelManager.THIS.DebugSettings.FallingLog)
-                        DebugLogKeeper.Log(GetInstanceID() + " count " + combines2.Count, DebugLogKeeper.LogType.Falling);
-
-                    foreach (var combine in combines2)
-                    {
-                        if (combine.items.Any(i => i == this))
-                        {
-                            NextType = combine.nextType;
-                        }
-                    }
-
-                    var selectMany = combines2.SelectMany(i => i.items);
-                    selectMany.ToList().ForEach(x => x.DestroyItem());
-                    LevelManager.THIS.levelData.GetTargetObject().CheckSquares(selectMany.Select(i => i.square).ToArray());
-                }
                 OnStopFall();
             }
         }
@@ -875,7 +684,6 @@ namespace SweetSugar.Scripts.Items
         public void StopFallFinished()
         {
             falling = false;
-            if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(name + " stop fall " + square + " pos " + transform.position, DebugLogKeeper.LogType.Falling);
             if (square.Item != this) DestroyBehaviour();
         }
 
@@ -1003,32 +811,9 @@ namespace SweetSugar.Scripts.Items
             {
   
                 // UndestroyableForThisCombine = true;
-                StartCoroutine(ChangeTypeCor(callback,dontDestroyForThisCombine));
             }
         }
 
-        IEnumerator ChangeTypeCor(Action<Item> callback=null,bool dontDestroyForThisCombine = true)
-        {
-            if (NextType == ItemsTypes.NONE) yield break;
-            Item newItem = square.GenItem(false, NextType, color);
-            newItem.dontDestroyForThisCombine = dontDestroyForThisCombine;
-            newItem.transform.position = transform.position;
-            newItem.debugType = newItem.currentType;
-            if (LevelManager.THIS.DebugSettings.BonusCombinesShowLog)
-                DebugLogKeeper.Log("set " + NextType + " " + name + " to " + newItem.name,DebugLogKeeper.LogType.BonusAppearance);
-            List<Waypoint> waypoints = new List<Waypoint>();
-            newItem.CheckSquareBelow();
-            newItem.square.Item = newItem;
-            newItem.transform.position = newItem.square.transform.position;
-            NextType = ItemsTypes.NONE;
-            square.DestroyBlock();
-            if (square && this == square.Item)
-                square.Item = null;
-            if(!destroying)
-                ObjectPooler.Instance.PutBack(gameObject);
-            callback?.Invoke(newItem);
-            yield return new WaitForSeconds(0.3f);
-        }
 
         /// <summary>
         /// animation event trigger after destroy
@@ -1101,10 +886,6 @@ namespace SweetSugar.Scripts.Items
             StopCoroutine(AnimIdleStart());
             destroying = true;
             // square.item = null;
-            LevelManager.THIS.FindMatches();
-
-            if (LevelManager.THIS.DebugSettings.DestroyLog)
-                DebugLogKeeper.Log("start destroy " + " type " + currentType + " nextType " + NextType + GetInstanceID(), DebugLogKeeper.LogType.Destroying);
 
             if(!destroycoroutineStarted)
                 StartCoroutine(DestroyCor(showScore, particles, explodedItem, explEffect));
@@ -1132,17 +913,9 @@ namespace SweetSugar.Scripts.Items
                 if (partcl2 != null)
                 {
                     partcl2.transform.position = transform.position;
-                    partcl2.GetComponent<SplashParticles>().SetColor(color);
                 }
             }
-
-            if (LevelManager.THIS.levelData.limitType == LIMIT.TIME && plusTimeObj)
-            {
-                plusTimeObj.GetComponent<PlusFiveBonus>().Destroy();
-            }
-
-            if (showScore)
-                LevelManager.THIS.ShowPopupScore(scoreForItem, transform.position, color);
+        
             LevelManager.Score += scoreForItem;
             LevelManager.THIS.CheckStars();
             Destroy(itemAnimTransform.GetComponent<Animator>());
@@ -1152,7 +925,6 @@ namespace SweetSugar.Scripts.Items
 
         public void StopDestroy()
         {
-            if (LevelManager.THIS.DebugSettings.DestroyLog) DebugLogKeeper.Log("Stop destroy " + GetInstanceID(),DebugLogKeeper.LogType.Destroying);
             destroying = false;
             destroyNext = false;
             destroycoroutineStarted = false;

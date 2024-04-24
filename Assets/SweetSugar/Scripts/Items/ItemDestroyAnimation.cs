@@ -31,8 +31,6 @@ namespace SweetSugar.Scripts.Items
             if (go != null)
             {
                 go.transform.position = transform.position;
-                var explosionAround = go.GetComponent<ExplAround>();
-                explosionAround.item = thisItem;
                 go.SetActive(true);
             }
 

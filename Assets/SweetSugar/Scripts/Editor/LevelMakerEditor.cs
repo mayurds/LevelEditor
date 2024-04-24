@@ -90,7 +90,6 @@ namespace SweetSugar.Scripts.Editor
                     levelData.GetField(subLevelNumber - 1).maxCols = 9;
                 Initialize();
             }
-            customSkin = Resources.Load("SweetSkin") as GUISkin;
             arrows[0] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow.png",typeof(Texture));
             arrows[1] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_left.png",typeof(Texture));
             arrows[2] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_right.png",typeof(Texture));
@@ -119,7 +118,6 @@ namespace SweetSugar.Scripts.Editor
         private void Initialize()
         {
             var shader = Shader.Find("Hidden/Internal-Colored");
-            mat = new Material(shader);
             subLevelNumberTotal = GetSubLevelsCount();
             if (levelNumber < 1)
                 levelNumber = 1;
@@ -132,14 +130,6 @@ namespace SweetSugar.Scripts.Editor
             var num = 0;
             var simpleItem = Resources.Load<GameObject>("Items/Item").GetComponent<ItemSimple>();
             Resources.LoadAll("Items");
-            if (levelData.target.prefabs.All(i => i.GetComponent<IColorableComponent>()))
-            {
-                for (var index = 0; index < levelData.subTargetsContainers.Count; index++)
-                {
-                    var levelDataSubTargetsContainer = levelData.subTargetsContainers[index];
-                    levelDataSubTargetsContainer.extraObject = levelDataSubTargetsContainer.targetPrefab.GetComponent<IColorableComponent>().GetSprite(levelNumber, index);
-                }
-            }
         }
 
         private void InitializeSublevel()
@@ -216,7 +206,6 @@ namespace SweetSugar.Scripts.Editor
                         }
                         GUILayout.EndHorizontal();
 
-                        GUITarget();
                         GUILayout.Space(10);
 
                         GUILevelSize();
@@ -238,10 +227,7 @@ namespace SweetSugar.Scripts.Editor
             }
             else if (selected == 1)
             {
-                if (EditorSceneManager.GetActiveScene().name == "game")
                     GUISettings();
-                else
-                    GUIShowWarning();
             
                 GUILayout.Space(10);
                 CheckSeparateLevels();
@@ -250,41 +236,12 @@ namespace SweetSugar.Scripts.Editor
             {
                 if (EditorSceneManager.GetActiveScene().name == "game")
                     GUIShops();
-                else
-                    GUIShowWarning();
             }
-            else if (selected == 3)
-            {
-                    GUIShowWarning();
-            }
-            else if (selected == 4)
-            {
-            }
-            else if (selected == 5)
-            {
-                if (EditorSceneManager.GetActiveScene().name == "game")
-                    GUIDialogs();
-                else
-                    GUIShowWarning();
-            }
-            else if (selected == 6)
-            {
-                    GUIShowWarning();
-            }
-            else if (selected == 7)
-            {
-            }
-
 
             UnityEngine.GUI.EndScrollView();
             if (UnityEngine.GUI.changed && !EditorApplication.isPlaying)
                 EditorSceneManager.MarkAllScenesDirty();
 
-            if (enableGoogleAdsProcessing)
-                RunOnceGoogle();
-
-            if (enableChartboostAdsProcessing)
-                RunOnceChartboost();
         }
         private void CheckSeparateLevels()
         {
@@ -299,17 +256,6 @@ namespace SweetSugar.Scripts.Editor
         }
 
   
-
-
-        private void GUIShowWarning()
-        {
-            GUILayout.Space(100);
-            GUILayout.Label("CAUTION!", EditorStyles.boldLabel, GUILayout.Width(600));
-            GUILayout.Label("Please open scene - game ( Assets/SweetSugar/Scenes/game.unity )", EditorStyles.boldLabel,
-                GUILayout.Width(600));
-        }
-
-
 
         #region GUIDialogs
 
@@ -365,50 +311,6 @@ namespace SweetSugar.Scripts.Editor
 
         #endregion
 
-        #region ads_settings
-
-        private void RunOnceGoogle()
-        {
-            if (Directory.Exists("Assets/PlayServicesResolver"))
-            {
-                Debug.Log("assets try reimport");
-#if GOOGLE_MOBILE_ADS && UNITY_ANDROID
-//            GooglePlayServices.PlayServicesResolver.MenuResolve();//2.1.2
-            Debug.Log("assets reimorted");
-            enableGoogleAdsProcessing = false;
-#endif
-            }
-        }
-
-        private void RunOnceChartboost()
-        {
-            enableChartboostAdsProcessing = false;
-        }
-
-
-    
-        private string PendingItemDrawer(Rect position, string itemValue) {
-            // Text fields do not like null values!
-            if (itemValue == null)
-                itemValue = "";
-		
-            position.width -= 50;
-            itemValue = EditorGUI.TextField(position, itemValue);
-		
-            position.x = position.xMax + 5;
-            position.width = 45;
-            if (UnityEngine.GUI.Button(position, "Info")) {
-            }
-		
-            return itemValue;
-        }
-        private void DrawEmpty() {
-            GUILayout.Label("No items in list.", EditorStyles.miniLabel);
-        }
-        #endregion
-
-
-    
         #region settings
 
 
@@ -438,7 +340,6 @@ namespace SweetSugar.Scripts.Editor
             GUILayout.EndHorizontal();
             GUILayout.Space(10);
 
-            bool oldFacebookEnable = lm.FacebookEnable;
             GUILayout.BeginHorizontal();
             GUILayout.Label("Facebook", EditorStyles.boldLabel, GUILayout.Width(150)); //1.6.1
             if (GUILayout.Button("Install", GUILayout.Width(70)))
@@ -515,13 +416,6 @@ namespace SweetSugar.Scripts.Editor
             //		if (oldFacebookEnable != lm.FacebookEnable) {//1.6.1
             //			SetScriptingDefineSymbols ();
             //		}
-            if (lm.FacebookEnable)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Space(20);
-                GUILayout.Label("menu Facebook-> Edit settings", GUILayout.Width(300));
-                GUILayout.EndHorizontal();
-            }
 
             GUILayout.Space(30);
             var lastRect = GUILayoutUtility.GetLastRect();
@@ -948,25 +842,6 @@ namespace SweetSugar.Scripts.Editor
             GUILayout.EndHorizontal();
         }
 
-        private void GUIMamalade()
-        {
-            GUILayout.BeginHorizontal();
-            {
-                GUILayout.Space(30);
-
-                GUILayout.Label("Marmalade",  GUILayout.Width(70));
-                bool s = false;
-                s = EditorGUILayout.Toggle(levelData.enableMarmalade, GUILayout.Width(50));
-                if (s != levelData.enableMarmalade)
-                {
-                    levelData.enableMarmalade = s;
-                    dirtyLevel = true;
-                    // SaveLevel();
-                }
-            }
-            GUILayout.EndHorizontal();
-        }
-
         private void GUINoRegen()
         {
             GUILayout.BeginHorizontal();
@@ -987,68 +862,10 @@ namespace SweetSugar.Scripts.Editor
             GUILayout.EndHorizontal();
         }
 
-        private void GUITarget()
-        {
-            GUILayout.BeginHorizontal();
-            {
-                GUILayout.Label("Target",GUILayout.ExpandWidth (false));
-                GUILayout.Space(110);
-//                target_settings = EditorGUILayout.Foldout(target_settings, "Target:");
-//                if (target_settings)
-                GUILayout.BeginVertical();
-                {
-                        int selectedTarget = levelData.GetTargetIndex();
-                        int newselectedTarget = EditorGUILayout.Popup(selectedTarget, levelData.GetTargetsNames(),
-                            GUILayout.Width(100),GUILayout.ExpandWidth (false));
-                        GUILayout.BeginVertical(GUILayout.ExpandWidth (false));
-                        {
-                            var subTargets = levelData.subTargetsContainers;
-                            for (int i = 0; i < subTargets.Count; i++)
-                            {
-                                var item = subTargets[i];
-                                if (item?.IsTargetSquare() ?? true) continue;
-                                int oldCount = item.GetCount();
-                                item.SetCount(EditorGUILayout.IntField(item.extraObject.name, item.GetCount(), GUILayout.ExpandWidth (false),GUILayout.MinWidth(30)));
-                                if (oldCount != item.GetCount()) dirtyLevel = true;
-                            }
-
-                            if (newselectedTarget != selectedTarget)
-                            {
-                                levelData.SetTarget(newselectedTarget);
-                                dirtyLevel = true;
-                            }
-                        }
-                        GUILayout.EndVertical(); 
-                }
-                GUILayout.EndVertical(); 
-
-            }
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            {
-                GUILayout.Label("Tutorial",GUILayout.ExpandWidth (false));
-                GUILayout.Space(100);
-                int newselectedTutorial = EditorGUILayout.Popup(levelData.selectedTutorial, GetTutorialNames(),GUILayout.Width(100),GUILayout.ExpandWidth (false));
-                if(levelData.selectedTutorial != newselectedTutorial)
-                {
-                    levelData.selectedTutorial = newselectedTutorial;
-                    dirtyLevel = true;
-                }
-            }
-            GUILayout.EndHorizontal();
-        }
+  
 
         string[] GetTutorialNames() => new[] {"Disabled","SIMPLE", ItemsTypes.HORIZONTAL_STRIPED.ToString(), ItemsTypes.PACKAGE.ToString(), ItemsTypes.TimeBomb.ToString()};
 
-        private bool HideAnotherTargetBlock(string blockName)
-        {
-            var targets = levelData.GetTargetsNames();
-            var currentTarget = levelData.target.name;
-            if (IsBlockTarget(blockName, targets) && !blockName.Contains(currentTarget) &&
-                (blockName.Contains("Jelly") || blockName.Contains("Sugar")))
-                return true;
-            return false;
-        }
 
         private bool IsBlockTarget(string blockName, string[] targets)
         {
@@ -1124,7 +941,6 @@ namespace SweetSugar.Scripts.Editor
                             UnityEngine.GUI.color = new Color(1, 1, 1, 1f);
                             foreach (SquareTypes squareTypeItem in EnumUtil.GetValues<SquareTypes>())
                             {
-                                if (HideAnotherTargetBlock(squareTypeItem.ToString())) continue;
                                 if (squareTypeItem == SquareTypes.NONE) continue;
                                 if (GUILayout.Button(
                                     new GUIContent(Square.GetSquareTexture(squareTypeItem), squareTypeItem.ToString()),
@@ -1352,11 +1168,6 @@ namespace SweetSugar.Scripts.Editor
         }
 
         private bool dirtyLevel;
-        private static Material mat;
-        private int color;
-        private Texture2D packageTexture;
-        private GUISkin customSkin;
-        private int selectedTutorial;
 
         private void SetSquareType(int col, int row)
         {

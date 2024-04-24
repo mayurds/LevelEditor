@@ -12,17 +12,13 @@ namespace SweetSugar.Scripts.TargetScripts.TargetSystem
     public class SubTargetContainer
     {
         ///using to keep count of targets
-        public GameObject targetPrefab;
         public int count;
         public int preCount;
-        public Object extraObject;
         public int color;
-        public SubTargetContainer(GameObject _target, int _count, Object _extraObject)
+        public SubTargetContainer( int _count)
         {
-            targetPrefab = _target;
             count = _count;
             preCount = count;
-            extraObject = _extraObject;
         }
 
         public void changeCount(int i)
@@ -42,17 +38,10 @@ namespace SweetSugar.Scripts.TargetScripts.TargetSystem
             count = i;
         }
 
-        public bool IsTargetSquare()
-        {
-            return targetPrefab.GetComponent<Square>() != null || targetPrefab.GetComponentInChildren<Square>() != null;
-        }
-
+      
         public SubTargetContainer DeepCopy()
         {
-            // SubTargetContainer other = (SubTargetContainer)this.MemberwiseClone();
-            var other = new SubTargetContainer(targetPrefab, count, extraObject);
-
-
+            var other = new SubTargetContainer( count);
             return other;
         }
     }

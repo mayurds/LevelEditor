@@ -28,7 +28,6 @@ namespace SweetSugar.Scripts.GUI
         {
             DisableImages();
             levelLoaded = false;
-            StartCoroutine(WaitForTarget());
             LevelManager.OnLevelLoaded += OnLevelLoaded;
             if (LevelManager.GetGameStatus() > GameState.PrepareGame)
                 OnLevelLoaded();
@@ -56,46 +55,10 @@ namespace SweetSugar.Scripts.GUI
             group = GetComponent<HorizontalLayoutGroup>();
             if (group != null)
             {
-                if (LevelManager.THIS.levelData.target != null && LevelManager.THIS.levelData.target.name == "JellyBlock")
-                { group.spacing = 50; /*description.gameObject.SetActive(true);*/ }
-                else
-                { group.spacing = 0; /*description.gameObject.SetActive(false);*/ }
-
             }
             levelLoaded = true;
         }
 
-        IEnumerator WaitForTarget()
-        {
-            yield return new WaitUntil(() => LevelManager.THIS.levelLoaded);
-            yield return new WaitUntil(() => LevelData.THIS.GetTargetSprites().Length > 0);
-
-            ClearTargets();
-            SetTargets();
-        }
-
-        void SetTargets()
-        {
-
-        var sprites = LevelManager.THIS.levelData.GetTargetSprites();
-        list[0].SetSprite(sprites?[0]);
-
-            if (sprites != null)
-            {
-                for (var i = 0; i < sprites.Length; i++)
-                {
-                    // var targetGUI = Instantiate(list[0].gameObject, gameObject.transform);
-                    // list.Add(targetGUI.GetComponent<TargetGUI>());
-                    list[i].SetSprite(sprites[i]);
-                    if (LevelManager.THIS.levelData.subTargetsContainers.Any(x => x.extraObject != null && x.extraObject.name == sprites[i].name))
-                        list[i].color = LevelManager.THIS.levelData.subTargetsContainers.First(x => x.extraObject.name == sprites[i].name).color;
-                    list[i].gameObject.SetActive(true);
-                }
-            }
-            // if (LevelManager.THIS.levelData.target.name == "JellyBlock")
-            // { list[0].gameObject.SetActive(true); description.gameObject.SetActive(true); }
-            // GetComponentInParent<TargetGUIGroup>().SetPadding();
-        }
 
         private void SetDescription(string descr)
         {

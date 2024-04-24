@@ -75,8 +75,6 @@ namespace SweetSugar.Scripts.Core
         public int ExtraFailedSecs = 30;
         //in-app products for purchasing
         public bool thrivingBlockDestroyed;
-        //variables for boost which place bonus candies on the field
-        public bool enableMarmalade => levelData.enableMarmalade;
         //empty boost reference for system
         //debug settings reference
         public DebugSettings DebugSettings;
@@ -112,13 +110,9 @@ namespace SweetSugar.Scripts.Core
         //level loaded, wait until true for some courotines
         public bool levelLoaded;
         //true if Facebook plugin installed
-        public bool FacebookEnable;
         //combine manager listener
-        public CombineManager combineManager;
         //true if search of matches has started
-        public bool findMatchesStarted;
         //true if need to check matches again
-        private bool checkMatchesAgain;
         //if true - start the level avoind the map for debug
         public bool testByPlay;
 
@@ -165,15 +159,7 @@ namespace SweetSugar.Scripts.Core
             }
         }
 
-        //Combine manager reference
-        public CombineManager CombineManager
-        {
-            get
-            {
-                if(combineManager == null)         combineManager = new CombineManager();
-                return combineManager;
-            }
-        }
+      
 
         //if true - pausing all falling animations
         public bool StopFall => _stopFall.Any();
@@ -221,7 +207,6 @@ namespace SweetSugar.Scripts.Core
         private void Start()
         {
             DebugSettings = Resources.Load<DebugSettings>("Scriptable/DebugSettings");
-            LeanTween.init( 800 );
 
         }
 
@@ -301,47 +286,7 @@ namespace SweetSugar.Scripts.Core
                 gameStatus = GameState.Playing;
             }
         }
-        /// Cloud effect animation for different direction levels
-        private IEnumerator IdleItemsDirection()
-        {
-            if (field.squaresArray.Select(i => i.direction).Distinct().Count() > 1)
-            {
-                while (true)
-                {
-                    yield return new WaitForSeconds(3);
-                    if (gameStatus == GameState.Playing && !findMatchesStarted)
-                    {
-
-                        // var orderedEnumerableCol = DirectionCloudEffect.GetItems();
-                        var orderedEnumerableCol = THIS.field.GetItems()
-                            .GroupBy(i => i.square.squaresGroup).ToList()
-                            .Select(x => new
-                            {
-                                items = x,
-                                Num = x.Max(i => i.square.orderInSequence),
-                                Count = x.Count(),
-                                x.Key
-                            }).OrderByDescending(i => i.Num).ToList();
-
-                        // Debug.WatchInstance(orderedEnumerableCol);
-                        foreach (var items in orderedEnumerableCol)
-                        {
-                            var animationFinished = false;
-                            foreach (var item in items.items)
-                            {
-                                if(item.destroying) continue;
-                                StartCoroutine(item.DirectionAnimation(() => { animationFinished = true; }));
-                            }
-
-                            yield return new WaitUntil(() => animationFinished);
-                        }
-                    }
-
-                    yield return new WaitForSeconds(1);
-                }
-            }
-        }
-
+   
         public Transform movesTransform;
         public int destLoopIterations;
         //Animations after win
@@ -374,17 +319,8 @@ namespace SweetSugar.Scripts.Core
         public IEnumerator FindMatchDelay()
         {
             yield return new WaitForSeconds(0.2f);
-            THIS.FindMatches();
         }
 
-        //start sync matches search then wait while items destroy and fall
-        public void FindMatches()
-        {
-            if (!findMatchesStarted)
-                StartCoroutine(FallingDown());
-            else
-                checkMatchesAgain = true;
-        }
 
         internal List<GameBlocker> _stopFall = new List<GameBlocker>();
         public int combo;
@@ -397,7 +333,6 @@ namespace SweetSugar.Scripts.Core
     
         private IEnumerator FallingDown()
         {
-            findMatchesStarted = true;
 //        Debug.Log("@@@ Next Move search matches @@@");
             THIS.thrivingBlockDestroyed = false;
             combo = 0;
@@ -415,7 +350,6 @@ namespace SweetSugar.Scripts.Core
             while (true)
             {
                 destLoopIterations++;
-                checkMatchesAgain = false;
 
                 var destroyItemsListed = field.GetItems().Where(i => i.destroyNext).ToList();
                 if (destroyItemsListed.Count > 0)
@@ -424,29 +358,9 @@ namespace SweetSugar.Scripts.Core
                 yield return new WaitWhile(()=>StopFall);
                 yield return new WaitWhileFall();
                 yield return new WaitWhileCollect();
-//            yield return new WaitWhileFallSide();
-                var combineCount = CombineManager.GetCombines(field);
-                if ((combineCount.Count <= 0 || !combineCount.SelectMany(i => i.items).Any()) && !field.DestroyingItemsExist() && !field.GetEmptySquares().Any() &&
-                    !checkMatchesAgain)
-                {
-                    break;
-                }
-
-                if(destLoopIterations > 10)
-                {
-                    foreach (var combine in combineCount)
-                    {
-                        if(combine.items.Any())
-                            combine.items.NextRandom().NextType = combine.nextType;
-                    }
-
-                    combineCount.SelectMany(i => i.items).ToList().ForEach(i => i.destroyNext = true);
-                }
+            
             }
 
-            //CheckItemsPositions();
-            findMatchesStarted = false;
-            checkMatchesAgain = false;
 
 //        Debug.Log("<-next turn->");
             if (gameStatus == GameState.Playing && !FindObjectsOfType<AnimateItems>().Any())

@@ -82,22 +82,10 @@ using Random = UnityEngine.Random;
                  if (i.sequence.All(x => !x.IsNone() && !x.undestroyable) && i.sequence.Any() && i.sequence.Any(x=>x.isEnterPoint))
                      i.linkedEnterSquare = true;
              }
-
              DirectionCloudEffect.SetGroupSquares(squaresArray);
              SetPivot();
              SetPosY(0);
              GenerateNewItems(false);
-
-             // CreateTestItems();
-
-             StartCoroutine(DeleteMatches());
-
-             if (LevelManager.THIS.enableMarmalade)
-                 CreateMarmalade();
-//        new OutlineBorder(fieldData.maxRows, fieldData.maxCols, this);
-             // LevelManager.This.gameStatus = GameState.WaitForPopup;
-
-             // SetPos(Vector2.zero);
          }
 
          /// <summary>
@@ -119,28 +107,6 @@ using Random = UnityEngine.Random;
 
          }
 
-
-         private void CreateTestItems()
-         {
-             // if (GetSquare(5, 5) == null) return;
-             GetSquare(3, 3).Item.colorableComponent.SetColor(0);
-             GetSquare(3, 4).Item.colorableComponent.SetColor(0);
-             GetSquare(4, 3).Item.colorableComponent.SetColor(0);
-             GetSquare(4, 4).Item.colorableComponent.SetColor(0);
-         }
-
-         /// <summary>
-         /// Creates marmalades on the field
-         /// </summary>
-         private void CreateMarmalade()
-         {
-             var items = GetItems(true);
-             items = items.Where(i => !i.tutorialItem).ToList();
-             items[Random.Range(0, items.Count())].SetType(ItemsTypes.MARMALADE);
-             var itemsFiltered = items.Where(i => i.currentType != ItemsTypes.MARMALADE && !i.tutorialItem).ToArray();
-             itemsFiltered[Random.Range(0, itemsFiltered.Count())].SetType(ItemsTypes.MARMALADE);
-
-         }
 
          private void SetPosY(int y)
          {
@@ -184,50 +150,7 @@ using Random = UnityEngine.Random;
              return pivot?.transform.position ?? Vector2.zero;
          }
 
-         private IEnumerator DeleteMatches()
-         {
-             // yield return new WaitForSeconds(0.5f);
-             //        var combs = GetMatches();
-             List<Combine> combs = new List<Combine>();
-             List<Combine> allFoundCombines = new List<Combine>();
-             List<Combine> bonusCombines = new List<Combine>();
-             do
-             {
-                 combs = LevelManager.THIS.CombineManager.GetCombines(this, out allFoundCombines);
-                 ChangeFoundCombines(combs);
-                 ChangeFoundCombines(allFoundCombines);
-                 combs = LevelManager.THIS.CombineManager.GetCombines(this, out allFoundCombines);
-                 bonusCombines.Clear();
-                 bonusCombines = bonusCombines.WhereNotNull().ToList();
-                 ChangeFoundCombines(bonusCombines);
-                 yield return new WaitForEndOfFrame();
-                    
-//            yield return new WaitForEndOfFrame();
-
-             } while (combs.Count > 0 || allFoundCombines.SelectMany(i=>i.items).Any() || bonusCombines.Any());
-             GetItems().ForEach(i => i.Hide(false));
-             yield return new WaitWhileFall(false);
-             LevelManager.THIS.gameStatus = GameState.WaitForPopup;
-         }
-
-         public void ChangeFoundCombines(List<Combine> allFoundCombines)
-         {
-             ChangeFoundCombines(allFoundCombines.Select(i=>i.items).ToList());
-         }
-         public void ChangeFoundCombines(List<List<Item>> allFoundCombines)
-         {
-             foreach (var comb in allFoundCombines)
-             {
-                 if(comb==null) continue;
-                 var colorOffset = 0;
-                 foreach (var item in comb)
-                 {
-                     if (item.tutorialItem) continue;
-                     item.GetComponent<IColorableComponent>().RandomizeColor();
-                     colorOffset++;
-                 }
-             }
-         }
+   
 
          public void GenerateNewItems(bool falling = true)
          {
@@ -248,22 +171,6 @@ using Random = UnityEngine.Random;
              }
          }
     
-         public void RegenItems(bool falling = true)
-         {
-             var squares = squaresArray;
-             foreach (var square in squares)
-             {
-                 if (square.IsNone() || !square.CanGoInto()) continue;
-                 if (!square.IsHaveSolidAbove())
-                 {
-                     if (square.Item != null && square.Item.currentType == ItemsTypes.NONE) //|| !falling && square.item?.currentType != ItemsTypes.SPIRAL)
-                     {
-                         square.Item.colorableComponent.RandomizeColor();
-                     }
-                 }
-             }
-         }
-
          private static void GenSimpleItem(bool falling, Square square)
          {
              square.GenItem(falling);
@@ -278,12 +185,6 @@ using Random = UnityEngine.Random;
              for (var index = 0; index < targetPrefabs.Count; index++)
              {
                  var targetPrefab = targetPrefabs[index];
-                 var firstOrDefault = IngredientsCountOnField.FirstOrDefault(i => i.name == targetPrefab.targetPrefab.name);
-                 int targetCount = LevelManager.THIS.levelData.targetObject.GetCount(targetPrefab.extraObject.name);
-                 if (firstOrDefault ==null && targetCount > 0 || firstOrDefault != null && targetCount > firstOrDefault.Count)
-                 {
-                     return targetPrefab.targetPrefab.name;
-                 }
              }
 
              return "";
@@ -533,28 +434,6 @@ using Random = UnityEngine.Random;
              return longDestroyable;
          }
 
-         public List<List<Item>> GetMatches(FindSeparating separating = FindSeparating.NONE, int matches = 3)
-         {
-             var newCombines = new List<List<Item>>();
-             countedSquares = new Hashtable();
-             countedSquares.Clear();
-             for (var col = 0; col < fieldData.maxCols; col++)
-             {
-                 for (var row = 0; row < fieldData.maxRows; row++)
-                 {
-                     if (GetSquare(col, row) != null)
-                     {
-                         if (!countedSquares.ContainsValue(GetSquare(col, row).Item))
-                         {
-                             var newCombine = GetSquare(col, row).FindMatchesAround(separating, matches, countedSquares);
-                             if (newCombine.Count >= matches)
-                                 newCombines.Add(newCombine);
-                         }
-                     }
-                 }
-             }
-             return newCombines;
-         }
 
          /// <summary>
          /// Get random items for win animation and boosts
@@ -709,13 +588,7 @@ using Random = UnityEngine.Random;
          /// </summary>
          /// <param name="color"></param>
          /// <returns></returns>
-         public Item[] GetItemsByColor(int color)
-         {
-             //Debug.Log(GetItems()?.Count);
-             //Debug.Log(GetItems()?.Where(i => i.color == color).Count());
-             return GetItems()?.Where(i => i.color == color).ToArray();
-         }
-
+   
 
          /// <summary>
          /// Get items without a neighbour

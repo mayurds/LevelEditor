@@ -16,7 +16,6 @@ namespace SweetSugar.Scripts.Level
         {
             levelData = new LevelData(Application.isPlaying, currentLevel);
             levelData = LoadlLevel(currentLevel, levelData).DeepCopyForPlay(currentLevel);
-            levelData.LoadTargetObject();
             return levelData;
         }
 
@@ -24,8 +23,6 @@ namespace SweetSugar.Scripts.Level
         {
             levelData = ScriptableLevelManager.LoadLevel(currentLevel);
             LevelData.THIS = levelData;
-            levelData.LoadTargetObject();
-
             return levelData;
         }
 

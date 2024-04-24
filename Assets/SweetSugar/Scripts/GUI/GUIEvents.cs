@@ -1,5 +1,4 @@
 ﻿using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Integrations;
 using SweetSugar.Scripts.System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,22 +10,14 @@ namespace SweetSugar.Scripts.GUI
 	/// </summary>
 	public class GUIEvents : MonoBehaviour {
 		public GameObject loading;
-		void Update () {
-			if (name == "FaceBook" || name == "Share" || name == "FaceBookLogout") {
-				if (!LevelManager.THIS.FacebookEnable)
-					gameObject.SetActive (false);
-			}
-		}
+	
 
 		public void Settings () {
 
 
 		}
 
-		public void Play () {
-			LeanTween.delayedCall(1, ()=>SceneManager.LoadScene("game"));
-		}
-
+	
 		public void Pause () {
 
 			if (LevelManager.THIS.gameStatus == GameState.Playing)

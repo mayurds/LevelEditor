@@ -27,32 +27,6 @@ namespace SweetSugar.Scripts.GUI
         DisableImages();
         var levelData = new LevelData(Application.isPlaying, LevelManager.THIS.currentLevel);
         levelData = LoadingManager.LoadForPlay(PlayerPrefs.GetInt("OpenLevel"), levelData);
-        var list = levelData.GetTargetSpritePrefab();
-        for (int i = 0; i < list.Length; i++)
-        {
-            images[i].sprite = list[i];
-            images[i].gameObject.SetActive(true);
-        }
-        // Debug.Log(list.Length);
-        // if (list.Length > 0)
-        // {
-        //     if (list?[0] != null)
-        //     {
-        //         image.sprite = list[0];
-        //         // image.SetNativeSize();
-        //     }
-        // }
-        // if (list.Length > 1)
-        // {
-        //     if (list[1] != null)
-        //     {
-        //         var obj = Instantiate(image.gameObject);
-        //         obj.transform.SetParent(image.transform.parent);
-        //         obj.transform.localScale = Vector3.one;
-        //         obj.GetComponent<Image>().sprite = list[1];
-        //         // obj.GetComponent<Image>().SetNativeSize();
-        //     }
-        // }
     }
 
         private void DisableImages()

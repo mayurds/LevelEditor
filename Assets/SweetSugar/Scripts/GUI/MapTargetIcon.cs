@@ -12,7 +12,6 @@ namespace SweetSugar.Scripts.GUI
     {
         private int num;
         public Sprite[] targetSprite;
-        private TargetContainer tar;
         private LIMIT limitType;
         void OnEnable()
         {

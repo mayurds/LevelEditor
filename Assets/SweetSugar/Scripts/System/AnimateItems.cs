@@ -14,12 +14,9 @@ namespace SweetSugar.Scripts.System
         public void InitAnimation(GameObject obj, Vector2 pos, Vector2 scale, Action callBack, Sprite sprite=null)
         {
             // item = CopyComp.Copy(obj.GetComponent<ISpriteRenderer>().GetSpriteRenderer(), item);
-            var colorableComponent = obj.GetComponent<IColorableComponent>();
             SpriteRenderer spr = null;
             if(!sprite)
             {
-                if (!colorableComponent) spr = obj.GetComponent<SpriteRenderer>();
-                else spr = obj.GetComponent<IColorableComponent>().directSpriteRenderer;
                 if (spr == null) spr = obj.GetComponentInChildren<SpriteRenderer>(); 
                 sprite = spr.sprite;
             }

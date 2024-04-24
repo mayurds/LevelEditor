@@ -23,7 +23,6 @@ namespace SweetSugar.Scripts.Items.Editor
             if (targetEditorObject == null)
             {
                 targetEditorObject = Resources.Load("TargetEditor", typeof(GameObject)) as GameObject;
-                item = targetEditorObject.GetComponent<TargetMono>().targets[0].prefabs[0].GetComponent<SpriteRenderer>().sprite.texture;
             }
 
             if (bonusItem == null)

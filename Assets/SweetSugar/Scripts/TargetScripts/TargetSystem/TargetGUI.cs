@@ -27,11 +27,6 @@ namespace SweetSugar.Scripts.TargetScripts.TargetSystem
 
         void OnEnable()
         {
-            if (LevelData.THIS?.target.name == "Stars")
-            {
-                gameObject.SetActive(false);
-                return;
-            }
             check.SetActive(false);
             uncheck.SetActive(false);
             StartCoroutine(Check());

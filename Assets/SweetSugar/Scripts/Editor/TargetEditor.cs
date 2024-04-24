@@ -10,7 +10,6 @@ namespace SweetSugar.Scripts.Editor
 public class TargetEditor : EditorWindow
 {
     private static TargetEditor window;
-    TargetEditorScriptable targetObject;
     private SerializedObject so;
     private ReorderableList list;
     private Vector2 scrollPos;
@@ -25,8 +24,6 @@ public class TargetEditor : EditorWindow
     }
     void OnEnable()
     {
-        targetObject = AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Resources/Levels/TargetEditorScriptable.asset", typeof(TargetEditorScriptable)) as TargetEditorScriptable;
-        so = new SerializedObject(targetObject);
         list = new ReorderableList( so.FindProperty("targets"));
     }
 
@@ -52,7 +49,6 @@ public class TargetEditor : EditorWindow
 
         void SaveSettings()
         {
-            EditorUtility.SetDirty(targetObject);
             AssetDatabase.SaveAssets();
         }
     }

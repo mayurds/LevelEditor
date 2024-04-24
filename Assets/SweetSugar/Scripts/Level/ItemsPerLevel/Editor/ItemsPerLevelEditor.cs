@@ -19,24 +19,6 @@ namespace SweetSugar.Scripts.Level.ItemsPerLevel.Editor
             GetWindow(typeof(ItemsPerLevelEditor));
         }
 
-        void OnGUI()
-        {
-            if (prefab)
-            {
-                GUILayout.BeginVertical();
-                {
-                    var sprs = prefab.GetComponent<IColorableComponent>().GetSpritesOrAdd(numLevel);
-                    for (var index = 0; index < sprs.Length; index++)
-                    {
-                        var spr = sprs[index];
-                        sprs[index] = (Sprite) EditorGUILayout.ObjectField(spr, typeof(Sprite), GUILayout.Width(50), GUILayout.Height(50));
-                        if (sprs[index] != spr)
-                            PrefabUtility.SavePrefabAsset(prefab);
-                    }
-                }
-                GUILayout.EndVertical();
-            }
-            else Close();
-        }
+
     }
 }

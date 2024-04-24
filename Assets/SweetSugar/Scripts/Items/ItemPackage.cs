@@ -43,8 +43,6 @@ namespace SweetSugar.Scripts.Items
 
             gameObject.AddComponent<GameBlocker>();
             item1.destroying = true;
-            if (LevelManager.THIS.DebugSettings.DestroyLog)
-                DebugLogKeeper.Log(" pre destroy " + " type " + GetItem.currentType + GetItem.GetInstanceID() + " " + item1?.GetInstanceID() + " : " + item2?.GetInstanceID(), DebugLogKeeper.LogType.Destroying);
             GetParentItem().GetComponent<ItemDestroyAnimation>().DestroyPackage(item1);
         }
 

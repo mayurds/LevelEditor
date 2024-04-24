@@ -15,7 +15,6 @@ namespace SweetSugar.Scripts.Level
         {
             public int levelNum;
             public List<FieldData> fields = new List<FieldData>();
-            [SerializeField]        public TargetContainer target;
             [SerializeField]        public Target targetObject;
             public LIMIT limitType;
             public int limit = 25;

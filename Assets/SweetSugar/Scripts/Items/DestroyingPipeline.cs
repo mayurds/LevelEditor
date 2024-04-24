@@ -27,14 +27,7 @@ namespace SweetSugar.Scripts.Items
 
         public void DestroyItems(List<Item> items, Delays delays, Action callback)
         {
-            if (LevelManager.THIS.DebugSettings.DestroyLog)
-            {
-                foreach (var item in items)
-                {
-                    DebugLogKeeper.Log("Add to pipeline " + item, DebugLogKeeper.LogType.Destroying);
-
-                }
-            }
+           
             var bunch = new DestroyBunch();
             bunch.items = items.ToList();
             bunch.callback = callback;

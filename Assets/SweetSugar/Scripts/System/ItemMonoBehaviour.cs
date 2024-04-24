@@ -32,16 +32,11 @@ namespace SweetSugar.Scripts.System
                 yield return new WaitUntil(()=>changeTypeFinished);
             }
 
-            if (LevelManager.THIS.DebugSettings.DestroyLog)
-                DebugLogKeeper.Log(name + " dontDestroyOnThisMove " + item.dontDestroyOnThisMove + " dontDestroyForThisCombine " + gameObject.GetComponent<Item>()
-                                       .dontDestroyForThisCombine,  DebugLogKeeper.LogType.Destroying);
             if (item.dontDestroyOnThisMove || gameObject.GetComponent<Item>().dontDestroyForThisCombine)
             {
                 GetComponent<Item>().StopDestroy();
                 yield break;
             }
-            if (LevelManager.THIS.DebugSettings.DestroyLog)
-                DebugLogKeeper.Log(gameObject.GetInstanceID() + " destroyed " + item.name + " " + item.GetInstanceID(), DebugLogKeeper.LogType.Destroying);
             OnDestroyItem(item);
             ObjectPooler.Instance.PutBack(gameObject);
             yield return new WaitForSeconds(0);

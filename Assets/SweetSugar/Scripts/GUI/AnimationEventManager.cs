@@ -344,7 +344,6 @@ namespace SweetSugar.Scripts.GUI
         public void Again()
         {
             GameObject gm = new GameObject();
-            gm.AddComponent<RestartLevel>();
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
         }

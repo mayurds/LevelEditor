@@ -31,7 +31,6 @@ namespace SweetSugar.Scripts.Items
             GetParentItem().destroying = true;
             if (item2.currentType == ItemsTypes.NONE)
             {
-                DestroyColor(item2.color);
                 item2.DestroyItem();
             }
             else if (item2.currentType == ItemsTypes.HORIZONTAL_STRIPED || item2.currentType == ItemsTypes.VERTICAL_STRIPED)
@@ -70,8 +69,6 @@ namespace SweetSugar.Scripts.Items
                     Check(item1, item2);
                 }
                 // GetParentItem().StopDestroy();
-                if(explodedItem) DestroyColor(explodedItem.color);
-                else DestroyColor(Random.Range(0,LevelManager.THIS.levelData.colorLimit-1));
 
                 return;
             }
@@ -85,55 +82,20 @@ namespace SweetSugar.Scripts.Items
         private IEnumerator SetTypeByColor(Item item2)
         {
             //		SetTypeByColor(item2.color, item2.currentType);
-            var items = LevelManager.THIS.field.GetItemsByColor(item2.color).Where(i => !i.Equals(GetParentItem()) && i.currentType == ItemsTypes.NONE).ToArray();
             var nextType = item2.currentType;
             bool loopFinished = false;
             GameObject itemMarmaladeTarget = null;
             itemMarmaladeTarget = new GameObject();
             item2.DestroyItem();
-            StartCoroutine(IterateItems(items, item =>
-            {
-                if (nextType == ItemsTypes.HORIZONTAL_STRIPED || nextType == ItemsTypes.VERTICAL_STRIPED)
-                    item.GetComponent<Item>().NextType = (ItemsTypes)Random.Range(4, 6);
-                else
-                    item.GetComponent<Item>().NextType = nextType;
-                item.marmaladeTarget = itemMarmaladeTarget;
-                item.GetComponent<Item>().ChangeType(null, false);
-//            item.Explodable = false;
-                CreateLightning(transform.position, item.transform.position);
-            }, () => { loopFinished = true;  Destroy(itemMarmaladeTarget);}));
+          
             yield return new WaitUntil(() => loopFinished);
-            if(item2.currentType != ItemsTypes.MARMALADE)
-                DestroyColor(item2.color);
-            else
-            {
-                LevelManager.THIS.FindMatches();
                 SmoothDestroy();
-            }
             //		var list = LevelManager.This.field.GetItems().Where(i => i.currentType == nextType).ToList();
 
             //		yield return new WaitWhileDestroyPipeline(list, new Delays() { afterevery = new WaitForSecCustom() { s = 0.1f } });
         }
 
         #endregion
-
-        private void DestroyColor(int p)
-        {
-
-            var items = LevelManager.THIS.field.GetItemsByColor(p).Where(i => !i.Equals(GetParentItem())).ToArray();
-            StartCoroutine(IterateItems(items, item =>
-            {
-                CreateLightning(transform.position, item.transform.position);
-                item.DestroyItem(true, true, this, true);
-            }, () =>
-            {
-                LevelManager.THIS.FindMatches();
-                SmoothDestroy();
-
-            }));
-//        HideSprites(true);
-
-        }
 
         private IEnumerator IterateItems(Item[] items, Action<Item> iterateItem, Action onFinished = null)
         {
@@ -179,7 +141,6 @@ namespace SweetSugar.Scripts.Items
                 foreach (var a in list)
                 {
                     a.globalExplEffect = true;
-                    if (a.currentType == ItemsTypes.MARMALADE) a.GetComponent<ItemMarmalade>().noMarmaladeLaunch = true;
                     CreateLightning(transform.position, a.transform.position);
                     if(jellySpread)
                         a.square?.SetType(SquareTypes.JellyBlock, 1, SquareTypes.NONE, 1);

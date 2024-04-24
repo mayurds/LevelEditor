@@ -21,15 +21,15 @@ MonoBehaviour:
       maxCols: 3
       noRegenLevel: 0
       levelSquares:
-      - obstacle: 8
+      - obstacle: 5
         position: {x: 0, y: 0}
-      - obstacle: 3
+      - obstacle: 5
         position: {x: 1, y: 0}
-      - obstacle: 4
+      - obstacle: 2
         position: {x: 2, y: 0}
-      - obstacle: 0
+      - obstacle: 6
         position: {x: 0, y: 1}
-      - obstacle: 0
+      - obstacle: 6
         position: {x: 1, y: 1}
       - obstacle: 0
         position: {x: 2, y: 1}
@@ -64,14 +64,6 @@ MonoBehaviour:
       - obstacle: 0
         position: {x: 2, y: 2}
       bombTimer: 15
-    target:
-      name: SugarSquare
-      Description: Destroy sugar squares
-      descriptionLocalizationRefrence: 59
-      FailedDescription: You didn't destroy the sugar squares
-      failedLocalizationRefrence: 60
-      prefabs:
-      - {fileID: 1055345148094608, guid: 4ebed1d82b94548d0ab47103e3f205e5, type: 3}
     targetIndex: 2
     limitType: 0
     ingrCountTarget: 0000000000000000
@@ -80,12 +72,9 @@ MonoBehaviour:
     star1: 100
     star2: 600
     star3: 1200
-    enableMarmalade: 0
     selectedTutorial: 1
     currentSublevelIndex: 0
     subTargetsContainers:
-    - targetPrefab: {fileID: 1533976084100574, guid: 4ebed1d82b94548d0ab47103e3f205e5, type: 3}
-      count: 0
+    - count: 0
       preCount: 0
-      extraObject: {fileID: 0}
       color: 0

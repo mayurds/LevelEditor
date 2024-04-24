@@ -102,7 +102,6 @@ namespace SweetSugar.Scripts.System.Pool
 
         public void PutBack(GameObject obj)
         {
-            if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(obj + " pooled", DebugLogKeeper.LogType.Falling );
             obj.SetActive(false);
 //        Destroy(obj);
             Item item = obj.GetComponent<Item>();
@@ -148,7 +147,6 @@ namespace SweetSugar.Scripts.System.Pool
                     }
                 }
             }
-            if (LevelManager.THIS.DebugSettings.FallingLog) DebugLogKeeper.Log(obj + " unpooled", DebugLogKeeper.LogType.Falling );
 
             if (obj != null)
             {

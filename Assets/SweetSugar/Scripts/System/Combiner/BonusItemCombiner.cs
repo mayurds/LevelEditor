@@ -67,45 +67,7 @@ namespace SweetSugar.Scripts.System.Combiner
             return row * maxCols + col;
         }
 
-        public ItemsTypes GetBonusCombine(Combine combine, out ItemTemplate[] foundItems, ItemsTypes prioritiseItem = ItemsTypes.NONE)
-        {
-            if (bonusCombinesPatterns.Count < bonusCombineListCount) FillPatterns();
-            foundItems = null;
-            var matrix = ConvertCombine(combine);
-            var compare = SimplifyArray(matrix).matrix.ToArray();
-            Show2DArray(compare.ToArray(), "compare origin");
-
-            var baseNodePosition = GetBaseNode(compare);
-
-            var types = new List<ItemsTypes>();
-
-            foreach (var typePattern in bonusCombinesPatterns)
-            {
-                foreach (var m in typePattern.matrices)
-                {
-                    var pattern = m.DeepCopy().matrix;
-                    if (pattern.Any(i => i.position.x > 0 && i.position.y > 0))
-                    {
-                        var offset = baseNodePosition - m.nodeItem;
-                        pattern = pattern.ForEachY(i => i.position += offset).ToList();
-                    }
-                    Show2DArray(pattern.ToArray(), "pattern ");
-                    if (!IsCombineFound(compare, pattern.ToArray(), typePattern, ref types, out foundItems))
-                        continue;
-                    Show2DArray(compare.ToArray(), "compare found");
-                    Show2DArray(pattern.ToArray(), "pattern found");
-
-                    ItemsTypes itemsTypes = GetCombineType(prioritiseItem, types);
-                    if (_debugSettings.BonusCombinesShowLog) DebugLogKeeper.Log(itemsTypes + " detected", DebugLogKeeper.LogType.BonusAppearance);
-                    return itemsTypes;
-                }
-            }
-            var type = GetCombineType(prioritiseItem, types);
-
-            // Debug.Log(type + " detected");
-            return type;
-        }
-
+   
         private static Vector2 GetBaseNode(ItemTemplate[] compare)
         {
             var list1 = compare.GroupBy(i => i.position.y);
@@ -326,28 +288,6 @@ namespace SweetSugar.Scripts.System.Combiner
             return new Vector2Int(Convert.ToInt32(array.Where(i => i.item).Min(i => i.position.x)), Convert.ToInt32(array.Where(i => i.item).Min(i => i.position.y)));
         }
 
-        ItemTemplate[] ConvertCombine(Combine combine)
-        {
-            var leftTopPos = new Vector2(combine.items.Min(i => i.square.col), combine.items.Min(i => i.square.row));
-
-            var matrix = new ItemTemplate[maxCols * maxRows];
-
-            for (var col = 0; col < maxCols; col++)
-            {
-                for (var row = 0; row < maxRows; row++)
-                {
-                    matrix[GetPositionArray(col, row)] = GetNewItemTemplate(col, row, false);
-                    var item = combine.items.Find(i => (i.square.GetPosition() - leftTopPos) == new Vector2(col, row));
-                    if (item != null)
-                    {
-                        matrix[GetPositionArray(col, row)] = GetNewItemTemplate(col, row, true);
-                        matrix[GetPositionArray(col, row)].itemRef = item;
-                    }
-                }
-            }
-
-            return matrix;
-        }
 
         private ItemTemplate GetNewItemTemplate(int col, int row, bool empty)
         {
@@ -369,9 +309,6 @@ namespace SweetSugar.Scripts.System.Combiner
                 }
                 r += "\n";
             }
-            if(!showNow)
-                DebugLogKeeper.Log(r, DebugLogKeeper.LogType.BonusAppearance);
-            else
                 Debug.Log(r);
         }
 
@@ -400,70 +337,6 @@ namespace SweetSugar.Scripts.System.Combiner
                 return other;
             }
 
-        }
-    
-        public List<Combine> FindBonusCombine(FieldBoard field, ItemsTypes itemsTypes=ItemsTypes.NONE)
-        {
-            List<Combine> combines = new List<Combine>();
-            var combinesPatterns = bonusCombinesPatterns;
-            if (itemsTypes != ItemsTypes.NONE) combinesPatterns = bonusCombinesPatterns.Where(i => i.itemType == itemsTypes).ToList();
-            foreach (var typePattern in combinesPatterns)
-            {
-                foreach (var pattern in typePattern.matrices)
-                {
-                    var rightBottomPosPattern = GetMaxPosition(pattern.matrix.ToArray()) + Vector2Int.one;
-                    var segments = SplitFieldSegments(field, rightBottomPosPattern);
-                    foreach (var segment in segments)
-                    {
-                        var matrix = ConvertCombine(segment);
-                        var compare = SimplifyArray(matrix);
-                        var types = new List<ItemsTypes>();
-                        ItemTemplate[] foundItems;
-                        if (!IsCombineFound(compare.matrix.ToArray(),pattern.matrix.ToArray(), typePattern, ref types, out foundItems))
-                            continue;
-                        else
-                        {
-                            segment.nextType = types.FirstOrDefault();
-                            combines.Add(segment);
-                            return combines;
-                        }
-                    
-//                    if(GetBonusCombine(segment)!= ItemsTypes.NONE)
-//                        combines.Add(segment);
-                    }
-                }
-            }
-            return combines;
-        }
-
-        /// <summary>
-        /// Split field to appropriate rect fragments
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="rightBottomPosPattern"></param>
-        /// <returns></returns>
-        private static List<Combine> SplitFieldSegments(FieldBoard field, Vector2Int rightBottomPosPattern)
-        {
-            List<Combine> segments = new List<Combine>();
-            for (var row = 0; row < field.fieldData.maxRows; row++)
-            {
-                for (var col = 0; col < field.fieldData.maxCols; col++)
-                {
-                    var items = field
-                        .GetFieldSeqment(new RectInt(col, row, col + rightBottomPosPattern.x, row + rightBottomPosPattern.y))
-                        .WhereNotNull().Select(i => i.Item).WhereNotNull().ToList();
-                    var splitByColors = items.GroupBy(i => i.color);
-                    foreach (var color in splitByColors)
-                    {
-                        var combine = new Combine {items = color.ToList(), color = color.Key};
-                        segments.Add(combine);
-                    }
-                    col += rightBottomPosPattern.x;
-                }
-
-                row += rightBottomPosPattern.y;
-            }
-            return segments;
         }
     }
 }
