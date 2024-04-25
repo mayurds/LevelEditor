@@ -6,7 +6,6 @@ using System.Reflection;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
 using SweetSugar.Scripts.GUI;
-using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using UnityEditor;
@@ -825,7 +824,6 @@ namespace SweetSugar.Scripts.Editor
   
   
 
-        string[] GetTutorialNames() => new[] {"Disabled","SIMPLE", ItemsTypes.HORIZONTAL_STRIPED.ToString(), ItemsTypes.PACKAGE.ToString(), ItemsTypes.TimeBomb.ToString()};
 
 
         private bool IsBlockTarget(string blockName, string[] targets)

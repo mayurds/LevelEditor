@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.System;
 using SweetSugar.Scripts.System.Pool;
 using UnityEngine;
@@ -81,7 +80,6 @@ using Random = UnityEngine.Random;
              }
              SetPivot();
              SetPosY(0);
-             GenerateNewItems(false);
          }
 
          /// <summary>
@@ -148,50 +146,9 @@ using Random = UnityEngine.Random;
 
    
 
-         public void GenerateNewItems(bool falling = true)
-         {
-             var prepareLevel = !falling;
-             var squares = squaresArray;
-             foreach (var square in squares)
-             {
-                 if (square.IsNone() || !square.CanGoInto()) continue;
-                 if (!square.IsHaveSolidAbove() || prepareLevel)
-                 {
-                     if (square.Item == null) //|| !falling && square.item?.currentType != ItemsTypes.SPIRAL)
-                     {
-                         var squareBlock = fieldData.levelSquares[square.row * fieldData.maxCols + square.col];
-                         if (square.Item == null) 
-                             GenSimpleItem(falling, square);
-                     }
-                 }
-             }
-         }
     
-         private static void GenSimpleItem(bool falling, Square square)
-         {
-             square.GenItem(falling);
-         }
-    
-      
 
-         public List<Item.Waypoint> GetWaypoints(Square startSquare, Square destSquare, List<Square> list = null)
-         {
-             if (destSquare.Equals(startSquare) || startSquare == null)
-                 return list.Select(i => new Item.Waypoint(i.transform.position, i)).ToList();
-             var nextSquare = startSquare.GetNextSquare();
-             list = list ?? new List<Square>();
-             if (!list.Any()) list.Add(startSquare);
-             if (nextSquare?.IsFree() ?? false)
-             {
-                 list.Add(nextSquare);
-                 GetWaypoints(nextSquare, destSquare, list);
-             }
 
-             return list.Select(i => new Item.Waypoint(i.transform.position, i)).ToList();
-
-         }
-
-  
 
 
          /// <summary>
@@ -378,104 +335,8 @@ using Random = UnityEngine.Random;
              return squaresArray[row * fieldData.maxCols + col];
          }
 
-         /// <summary>
-         /// Get random items for win animation and boosts
-         /// </summary>
-         /// <param name="count">count of items</param>
-         /// <returns>list of items</returns>
-         public List<Item> GetRandomItems(int count)
-         {
-             var list = GetItems(true);
-
-             var list2 = new List<Item>();
-             while (list2.Count < Mathf.Clamp(count, 0, GetItems(true).Count()))
-             {
-                 // try
-                 // {
-                 if (!list.Any()) return list;
-                 var newItem = list[Random.Range(0, list.Count)];
-                 if (list2.IndexOf(newItem) < 0)
-                 {
-                     list2.Add(newItem);
-                 }
-                 // }
-                 // catch (Exception ex)
-                 // {
-                 //     gameStatus = GameState.Win;//TODO: check win conditions
-                 // }
-             }
-             return list2;
-         }
-
-         /// <summary>
-         /// Get items by parameters
-         /// </summary>
-         /// <param name="onlySimple">only simple items</param>
-         /// <param name="exceptItems">except items</param>
-         /// <param name="nonDestroying">only items currently shouldn't be destroy</param>
-         /// <returns></returns>
-         public List<Item> GetItems(bool onlySimple = false, Item[] exceptItems = null, bool nonDestroying = true)
-         {
-             if (exceptItems == null) exceptItems = new Item[] { };
-
-             var items = squaresArray.Where(i => i?.Item != null).Select(i => i.Item).Except(exceptItems);
-             if (onlySimple)
-                 items = items?.Where(i => i.currentType == ItemsTypes.NONE && i.NextType == ItemsTypes.NONE);
-             if (nonDestroying)
-                 items = items?.Where(i => !i.destroying);
-             return items.ToList();
-         }
 
 
-         /// <summary>
-         /// Get items from bottom order
-         /// </summary>
-         /// <returns></returns>
-         public List<Item> GetItemsFromBottomOrder()
-         {
-             // return GetItems(false, null, false).OrderByDescending(i => i.square.row).ToList();
-             var list = GetSquareSequence();
-             var items = new List<Item>();
-             foreach (var seq in list)
-             {
-                 var order = 0;
-                 foreach (var sq in seq)
-                 {
-                     if (sq.Item != null)
-                     {
-                         sq.Item.orderInSequence = order;
-                         items.Add(sq.Item);
-                     }
-                     order++;
-                 }
-             }
-
-             var excludedItems = GetItems().Except(items);
-             foreach (var item in excludedItems)
-             {
-                 items.Add(item);
-             }
-             return items.ToList();
-         }
-
-   
-         /// <summary>
-         /// Get all bonus items like striped, package
-         /// </summary>
-         /// <returns></returns>
-         public List<Item> GetAllExtaItems()
-         {
-             var list = new List<Item>();
-             foreach (var square in squaresArray)
-             {
-                 if (square.Item != null && square.Item.currentType != ItemsTypes.NONE && square.Item.Combinable)
-                 {
-                     list.Add(square.Item);
-                 }
-             }
-
-             return list;
-         }
 
          /// <summary>
          /// Get squares of particular type
@@ -489,14 +350,6 @@ using Random = UnityEngine.Random;
              return /*squaresArray.Count(item => item.type == squareType) + */squaresArray.WhereNotNull().SelectMany(i => i.subSquares).Count(item => item.type == squareType);
          }
 
-         /// <summary>
-         /// Get squares without items
-         /// </summary>
-         /// <returns></returns>
-         public Square[] GetEmptySquares()
-         {
-             return squaresArray.Where(i => i.IsFree() && i.Item == null && !i.IsHaveSolidAbove() && i.linkedEnterSquare && (i.enterSquare.isEnterPoint)).ToArray();
-         }
 
          /// <summary>
          /// Get top square in a column
@@ -515,14 +368,7 @@ using Random = UnityEngine.Random;
          /// <returns></returns>
    
 
-         /// <summary>
-         /// Get items without a neighbour
-         /// </summary>
-         /// <returns></returns>
-         public Item[] GetLonelyItemsOrCage()
-         {
-             return squaresArray.Where(i => i.Item != null).Where(i => !i.GetAllNeghborsCross().Any() || !i.CanGoOut()).Select(i => i.Item).ToArray();
-         }
+        
 
          public FieldBoard DeepCopy()
          {

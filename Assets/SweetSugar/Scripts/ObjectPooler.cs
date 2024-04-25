@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Items;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -97,62 +96,7 @@ namespace SweetSugar.Scripts.System.Pool
                 item.gameObject.SetActive(false);
         }
 
-        public void PutBack(GameObject obj)
-        {
-            obj.SetActive(false);
-//        Destroy(obj);
-            Item item = obj.GetComponent<Item>();
-            if (item != null)
-            {
-                if(item.transform.childCount>0)
-                    item.transform.GetChild(0).localScale = Vector3.one;
-            }
-        }
-
-        public GameObject GetPooledObject(string tag, bool active = true, bool canBeActive = false)
-        {
-            ClearNullElements();
-
-            PoolBehaviour obj = null;
-            for (int i = 0; i < pooledObjects.Count; i++)
-            {
-                if (pooledObjects[i] == null) continue;
-                if ((!pooledObjects[i].gameObject.activeSelf || canBeActive) && pooledObjects[i].name == tag)
-                {
-                    Item item = pooledObjects[i].GetComponent<Item>();
-                    if(item && item.canBePooled )
-                        obj = pooledObjects[i];
-                    else if(!item )
-                        obj = pooledObjects[i];
-                    if(obj) break;
-                }
-            }
-
-            if (itemsToPool == null) LoadFromScriptable();
-            if (!obj)
-            {
-                foreach (var item in itemsToPool)
-                {
-                    if (item != null && item.objectToPool == null) continue;
-                    if (item.objectToPool.name == tag)
-                    {
-                        if (item.shouldExpand)
-                        {
-                            obj = CreatePooledObject(item);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (obj != null)
-            {
-                obj.gameObject.SetActive(active);
-                return obj.gameObject;
-            }
-
-            return null;
-        }
+      
 
         private PoolBehaviour CreatePooledObject(ObjectPoolItem item)
         {

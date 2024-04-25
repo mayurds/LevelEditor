@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Blocks;
-using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using UnityEngine;
@@ -42,9 +41,7 @@ namespace SweetSugar.Scripts.Core
         //square width for border placement
         public float squareWidth = 1.2f;
         //item which was dragged recently 
-        public Item lastDraggedItem;
         //item which was switched succesfully recently 
-        public Item lastSwitchedItem;
         //makes scores visible in the game
         public GameObject popupScore;
         //current game level
@@ -259,24 +256,7 @@ namespace SweetSugar.Scripts.Core
 
      
     
-        public void DestroyItems(bool withoutEffects = false)
-        {
-            var items = field.GetItems();
-            foreach (var item in items)
-            {
-                if (item != null)
-                {
-                    if (item.GetComponent<Item>().currentType != ItemsTypes.INGREDIENT &&
-                        item.GetComponent<Item>().currentType == ItemsTypes.NONE)
-                    {
-                        if (!withoutEffects)
-                            item.GetComponent<Item>().DestroyItem();
-                        else
-                            item.GetComponent<Item>().anim.SetTrigger("disappear");
-                    }
-                }
-            }
-        }
+   
     
         #endregion
 
@@ -292,34 +272,7 @@ namespace SweetSugar.Scripts.Core
         [HideInInspector]
         public bool collectIngredients;
 
-        private Item lastTouchedItem;
     
-        private IEnumerator FallingDown()
-        {
-//        Debug.Log("@@@ Next Move search matches @@@");
-            THIS.thrivingBlockDestroyed = false;
-            combo = 0;
-            var it = field.GetItems();
-            for (var i = 0; i < it.Count; i++)
-            {
-                var item = it[i];
-                if (item != null)
-                {
-                    item.anim.StopPlayback();
-                }
-            }
-
-            destLoopIterations = 0;
-            while (true)
-            {
-                destLoopIterations++;
-
-                var destroyItemsListed = field.GetItems().Where(i => i.destroyNext).ToList();
-            
-            }
-
-
-        }
         /// <summary>
         /// Get square by position
         /// </summary>
@@ -356,27 +309,6 @@ namespace SweetSugar.Scripts.Core
             return itemsList;
         }
         /// Get bunch of items by row number
-        public List<Item> GetRow(int row)
-        {
-            var itemsList = new List<Item>();
-            for (var col = 0; col < levelData.maxCols; col++)
-            {
-                itemsList.Add(GetSquare(col, row, true).Item);
-            }
-
-            return itemsList.WhereNotNull().ToList();
-        }
-        /// Get bunch of items by column number
-        public List<Item> GetColumn(int col)
-        {
-            var itemsList = new List<Item>();
-            for (var row = 0; row < levelData.maxRows; row++)
-            {
-                itemsList.Add(GetSquare(col, row, true).Item);
-            }
-
-            return itemsList.WhereNotNull().ToList();
-        }
         /// <summary>
         /// Get squares around the square
         /// </summary>
@@ -398,39 +330,9 @@ namespace SweetSugar.Scripts.Core
             return itemsList;
         }
 
-        /// <summary>
-        /// get 9 items around the square
-        /// </summary>
-        /// <param name="square"></param>
-        /// <returns></returns>
-        public List<Item> GetItemsAround9(Square square)
-        {
-            var itemsList = GetItemsAround8(square);
-            itemsList.Add(square.Item);
-            return itemsList;
-        }
+     
 
         /// get 8 items around the square
-        public List<Item> GetItemsAround8(Square square)
-        {
-            var col = square.col;
-            var row = square.row;
-            var itemsList = new List<Item>();
-            for (var r = row - 1; r <= row + 1; r++)
-            {
-                for (var c = col - 1; c <= col + 1; c++)
-                {
-                    var pos = GetSquare(c, r, true).transform.position;
-                    RaycastHit2D[] result = new RaycastHit2D[3];
-                    Physics2D.LinecastNonAlloc(square.transform.position, pos, result,1<< LayerMask.NameToLayer("Item"));
-                    var hit = result.Where(i => i.transform).OrderBy(i => (i.transform.position - pos).magnitude).FirstOrDefault();
-                    if(hit && hit.transform)
-                        itemsList.Add(hit.transform.GetComponent<Item>());
-                }
-            }
-
-            return itemsList;
-        }
 
         public void LoadLevel(int currentLevel)
         {

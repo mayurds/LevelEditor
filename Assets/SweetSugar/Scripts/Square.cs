@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using SweetSugar.Scripts.System.Pool;
@@ -39,16 +38,6 @@ namespace SweetSugar.Scripts.Blocks
         [Header("Score for destroying")]
         public int score;
         /// Item occupies this square
-        public Item item;
-        public Item Item
-        {
-            get { return item; }
-            set
-            {
-                item = value;
-                if (item == null && isEnterPoint && LevelManager.GetGameStatus() != GameState.RegenLevel) StartCoroutine(CheckNullItem());
-            }
-        }
         /// position on the field
         public int row;
         public int col;
@@ -126,70 +115,7 @@ namespace SweetSugar.Scripts.Blocks
         /// Check is the square is empty
         /// </summary>
         /// <returns></returns>
-        IEnumerator CheckNullItem()
-        {
-            while (item == null)
-            {
-                if (!IsHaveSolidAbove() && !IsHaveItemsAbove() && isEnterPoint && item == null)
-                    GenItem();
-
-                else if (IsHaveDestroybleObstacle())
-                    break;
-                yield return new WaitForEndOfFrame();
-            }
-        }
-
-        /// <summary>
-        /// Generate new item
-        /// </summary>
-        /// <returns>The item.</returns>
-        /// <param name="falling">If set to <c>true</c> prepare for falling animation.</param>
-        public Item GenItem(bool falling = true, ItemsTypes itemType = ItemsTypes.NONE, int color = -1)
-        {
-            if (IsNone() && !CanGoInto())
-                return null;
-            GameObject item = null;
-            if (itemType == ItemsTypes.NONE)
-            {
-                if(!item)
-                    item = ObjectPooler.Instance.GetPooledObject("Item");
-            }
-            else
-            {
-                item = ObjectPooler.Instance.GetPooledObject(itemType.ToString());
-                item?.GetComponent<Item>().anim?.SetTrigger("bonus_appear");
-            }
-            if (item == null)
-            {
-                Debug.LogError("there is no " + itemType + " in pool ");
-            }
-            item.transform.localScale = Vector2.one * 0.42f;
-            Item itemComponent = item.GetComponent<Item>();
-            itemComponent.square = this;
-            // item.GetComponent<IColorableComponent>().RandomizeColor();
-            itemComponent.field = field;
-            itemComponent.needFall = falling;
-            if(!falling)
-            {
-                item.transform.position = (Vector3) ((Vector2) transform.position) + Vector3.back * 0.2f;
-
-            }
-            if (LevelManager.THIS.gameStatus != GameState.Playing && LevelManager.THIS.gameStatus != GameState.Tutorial)
-                Item = itemComponent;
-            else if (!IsHaveFallingItemsAbove())
-                Item = itemComponent;
-            //		this.item.falling = falling;
-            if (falling)
-            {
-                Vector3 startPos = GetReverseDirection();
-                item.transform.position = transform.position + startPos * field.squareHeight + Vector3.back * 0.2f;
-                itemComponent.JustCreatedItem = true;
-
-            }
-
-            itemComponent.needFall = falling;
-            return itemComponent;
-        }
+   
         private bool IsTypeExist(SquareTypes _type)
         {
             return subSquares.Count(i => i.type == _type) > 0;
@@ -198,14 +124,6 @@ namespace SweetSugar.Scripts.Blocks
         /// <summary>
         /// generate spiral item
         /// </summary>
-        void GenSpiral()
-        {
-            LevelManager.OnLevelLoaded += () =>
-            {
-                if (Item != null) Item.transform.position = transform.position;
-            };
-            GenItem(false, ItemsTypes.SPIRAL);
-        }
         /// <summary>
         /// check is which direction is restricted
         /// </summary>
@@ -289,21 +207,6 @@ namespace SweetSugar.Scripts.Blocks
         /// Get item above the square by flow
         /// </summary>
         /// <returns></returns>
-        public Item GetItemAbove()
-        {
-            if (isEnterPoint) return null;
-            var sq = sequence;//field.GetCurrentSequence(this);
-            var list = sq.Where(i => i.orderInSequence > orderInSequence).OrderBy(i => i.orderInSequence);
-            //		var list = GetSeqBeforeFromThis();
-            foreach (var square in list)
-            {
-                if (square.IsFree() && square.Item)
-                    return square.Item;
-                if (!square.IsFree())
-                    return null;
-            }
-            return null;
-        }
         /// <summary>
         /// Get reverse direction
         /// </summary>
@@ -320,25 +223,7 @@ namespace SweetSugar.Scripts.Blocks
 
 
     
-        /// <summary>
-        /// Get next square with Item 
-        /// </summary>
-        /// <returns></returns>
-        public Square GetNextSquareRecursively(Square originSquare)
-        {
-            var sq = GetNextSquare();
-            if (sq != null)
-            {
-                if (sq.IsNone())
-                    return this;
-                if (sq.Item != null || !sq.CanGoInto() || (Vector2.Distance(sq.GetPosition(), GetPosition())>=2 && originSquare.orderInSequence-sq.orderInSequence>1 ))
-                    return this;
-                sq = sq.GetNextSquareRecursively(originSquare);
-            }
-            else
-                sq = this;
-            return sq;
-        }
+ 
         /// <summary>
         /// true if square disabled in editor
         /// </summary>
@@ -427,21 +312,9 @@ namespace SweetSugar.Scripts.Blocks
             else return;
             if (IsUndestroyable())
                 return;
-            if (GetSubSquare().CanGoInto())
-            {
-                var sqList = GetAllNeghborsCross();
-                foreach (var sq in sqList)
-                {
-                    if (!sq.GetSubSquare().CanGoInto() || (sq.Item?.currentType == ItemsTypes.SPIRAL && Item?.currentType != ItemsTypes.SPIRAL))
-                        sq.DestroyBlock();
-                }
-            }
+       
 
-            if (Item?.currentType == ItemsTypes.SPIRAL)
-            {
-                Item.DestroyItem();
-            }
-
+     
             if (subSquares.Count > 0)
             {
                 var subSquare = GetSubSquare();
@@ -458,8 +331,6 @@ namespace SweetSugar.Scripts.Blocks
                     type = SquareTypes.EmptySquare;
 
             }
-
-            if (IsFree() && Item == null) Item = null;
         }
         /// <summary>
         /// Get sub-square (i.e. layered obstacles)
@@ -578,50 +449,7 @@ namespace SweetSugar.Scripts.Blocks
             return seq.Any(square => square != this && (square.GetSubSquare().CanGoOut() == false || square.GetSubSquare().CanGoInto() == false ||
                                                         IsUndestroyable() || square.IsNone()));
         }
-        /// <summary>
-        /// Have square item above
-        /// </summary>
-        /// <returns></returns>
-        public bool IsHaveItemsAbove()
-        {
-            if (isEnterPoint) return false;
-            var seq = sequenceBeforeThisSquare;
-            foreach (var square in seq)
-            {
-                if (square.Item ?? false)
-                    return true;
-            }
-            return false;
-        }
-        /// <summary>
-        /// Have square falling item above
-        /// </summary>
-        /// <returns></returns>
-        public bool IsHaveFallingItemsAbove()
-        {
-            if (isEnterPoint) return false;
-            var seq = sequenceBeforeThisSquare;
-            foreach (var square in seq)
-            {
-                if (square.Item && !square.Item.falling && !square.Item.needFall)
-                    return true;
-            }
-            return false;
-        }
-        /// Have square falling item above
-        public bool IsItemAbove()
-        {
-            if (isEnterPoint) return false;
-            var seq = sequenceBeforeThisSquare;
-            foreach (var square in seq)
-            {
-                if (!square.IsFree())
-                    return false;
-                if (square.Item)
-                    return true;
-            }
-            return false;
-        }
+   
 
         public Sprite GetSprite()
         {
@@ -704,7 +532,6 @@ namespace SweetSugar.Scripts.Blocks
         public Square DeepCopy()
         {
             var other = (Square)MemberwiseClone();
-            other.Item = Item.DeepCopy();
             return other;
         }
         
@@ -714,6 +541,5 @@ namespace SweetSugar.Scripts.Blocks
             set => marmaladeTarget = value;
         }
         public GameObject GetGameObject => gameObject;
-        public Item GetItem => Item;
     }
 }
