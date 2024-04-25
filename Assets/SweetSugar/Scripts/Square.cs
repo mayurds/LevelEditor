@@ -34,7 +34,7 @@ namespace SweetSugar.Scripts.Blocks
     /// <summary>
     /// Handles square behaviour like destroying, generating item if the square empty, determines items directions, and obstacles behaviour
     /// </summary>
-    public class Square : MonoBehaviour, IField
+    public class Square : MonoBehaviour
     {
         [Header("Score for destroying")]
         public int score;
@@ -86,7 +86,6 @@ namespace SweetSugar.Scripts.Blocks
         private void Awake()//init some objects
         {
             GetInstanceID();
-            gameObject.AddComponent<ItemDebugInspector>();
             border = Resources.Load<GameObject>("Border");
         }
 

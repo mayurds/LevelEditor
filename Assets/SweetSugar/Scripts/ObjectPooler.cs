@@ -33,7 +33,6 @@ namespace SweetSugar.Scripts.System.Pool
         public string rootPoolName = DefaultRootObjectPoolName;
         public List<PoolBehaviour> pooledObjects = new List<PoolBehaviour>();
         private List<ObjectPoolItem> itemsToPool;
-        private PoolerScriptable PoolSettings;
 
 
         void OnEnable()
@@ -44,8 +43,6 @@ namespace SweetSugar.Scripts.System.Pool
 
         private void LoadFromScriptable()
         {
-            PoolSettings = Resources.Load("Scriptable/PoolSettings") as PoolerScriptable;
-            itemsToPool = PoolSettings.itemsToPool;
         }
 
         private void Start()

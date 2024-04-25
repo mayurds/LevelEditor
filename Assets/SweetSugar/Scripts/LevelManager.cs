@@ -5,7 +5,6 @@ using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Items;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
-using SweetSugar.Scripts.System.Orientation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -73,7 +72,6 @@ namespace SweetSugar.Scripts.Core
         public bool thrivingBlockDestroyed;
         //empty boost reference for system
         //debug settings reference
-        public DebugSettings DebugSettings;
         //score gain on this game
         public GameObject Level;
         //Gameobject reference
@@ -87,7 +85,6 @@ namespace SweetSugar.Scripts.Core
         public GameObject FailedWord;
         //in game boost reference
         //reference to orientation handler
-        public OrientationGameCameraHandle orientationGameCameraHandle;
 
         //level loaded, wait until true for some courotines
         public bool levelLoaded;
@@ -127,7 +124,6 @@ namespace SweetSugar.Scripts.Core
                 {
                     case GameState.PrepareGame://preparing and initializing  the game
                         LoadLevel(1);
-                        CrosssceneData.passLevelCounter++;
                         fieldBoards = new List<FieldBoard>();
                         CurrentSubLevel = 1;
                         OnEnterGame?.Invoke();
@@ -152,14 +148,6 @@ namespace SweetSugar.Scripts.Core
         }
         //menu play enabled invokes event
     
-        //Switch sub level to next 
-        private void ChangeSubLevel()
-        {
-            CurrentSubLevel++;
-            OrientationGameCameraHandle.CameraParameters cameraParameters = orientationGameCameraHandle.GetCameraParameters();
-            Vector2 cameraCenter = orientationGameCameraHandle.GetCenterOffset();
-            StartCoroutine(AnimateField(field.GetPosition() + cameraCenter, cameraParameters.size));
-        }
 
         #endregion
         //Lock boosts
@@ -183,7 +171,6 @@ namespace SweetSugar.Scripts.Core
         // Use this for initialization
         private void Start()
         {
-            DebugSettings = Resources.Load<DebugSettings>("Scriptable/DebugSettings");
 
         }
 
@@ -332,11 +319,6 @@ namespace SweetSugar.Scripts.Core
             }
 
 
-//        Debug.Log("<-next turn->");
-            if (gameStatus == GameState.Playing && !FindObjectsOfType<AnimateItems>().Any())
-            {
-                OnTurnEnd?.Invoke();
-            }
         }
         /// <summary>
         /// Get square by position

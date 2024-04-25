@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SweetSugar.Scripts.System.Combiner;
 using UnityEngine;
 using Random = System.Random;
 
@@ -46,10 +45,7 @@ namespace SweetSugar.Scripts.System
         }
 
 
-        public static ItemTemplate GetElement(this ItemTemplate[] seq, int x, int y)
-        {
-            return seq.First(i => i.position == new Vector2(x, y));
-        }
+ 
     
         public static T ElementAtOrDefault<T>(this IList<T> list, int index, T @default)
         {

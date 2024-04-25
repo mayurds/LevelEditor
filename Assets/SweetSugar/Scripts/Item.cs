@@ -6,7 +6,6 @@ using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
-using SweetSugar.Scripts.System.Combiner;
 using SweetSugar.Scripts.System.Pool;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -33,7 +32,7 @@ namespace SweetSugar.Scripts.Items
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(Animator))]
 
-    public class Item : ItemMonoBehaviour, IField
+    public class Item : ItemMonoBehaviour
     {
         public int instanceID;
         [Header("Item can MATCH with other items")]
@@ -218,7 +217,6 @@ namespace SweetSugar.Scripts.Items
             defaultTransformPosition = itemAnimTransform.localPosition;
             defaultTransformScale = itemAnimTransform.localScale;
             defaultTransformRotation = itemAnimTransform.localRotation;
-            gameObject.AddComponent<ItemDebugInspector>();
         }
 
         // Use this for initialization
