@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SweetSugar.Scripts.Blocks;
-using SweetSugar.Scripts.Core;
 using UnityEngine;
 
 namespace SweetSugar.Scripts.Level
@@ -37,7 +35,7 @@ namespace SweetSugar.Scripts.Level
             levelNum = currentLevel;
             Name = "Level " + levelNum;
         }
-  
+
         public SquareBlocks GetBlock(int row, int col)
         {
             return GetField().levelSquares[row * GetField().maxCols + col];
@@ -57,8 +55,8 @@ namespace SweetSugar.Scripts.Level
             FieldData field = fields.Last();
             fields.Remove(field);
         }
-  
-  
+
+
         public LevelData DeepCopy(int level)
         {
             var other = (LevelData)MemberwiseClone();
@@ -116,4 +114,17 @@ namespace SweetSugar.Scripts.Level
             return other;
         }
     }
+
+    public enum LIMIT
+    {
+        MOVES,
+        TIME
+    }
+
+    public enum SquareTypes
+    {
+        NONE,
+        EmptySquare
+    }
+
 }
