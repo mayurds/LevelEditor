@@ -28,7 +28,7 @@ using UnityEngine;
             currentSublevelIndex = index;
             return fields[index];
         }
-        public LevelData(bool isPlaying, int currentLevel)
+        public LevelData(int currentLevel)
         {
             levelNum = currentLevel;
             Name = "Level " + levelNum;

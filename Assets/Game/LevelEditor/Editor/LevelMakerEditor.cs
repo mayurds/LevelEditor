@@ -231,7 +231,6 @@ using UnityEngine;
 
         private void GUISettings()
         {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();//TODO: move all game settings to scriptabble
             GUILayout.Label("Game settings:", EditorStyles.boldLabel, GUILayout.Width(150));
             GUILayout.BeginHorizontal();
           
@@ -288,7 +287,6 @@ using UnityEngine;
             dirtyLevel = true;
             SaveLevel(levelNumber);
             if (EditorSceneManager.GetActiveScene().name != "game") EditorSceneManager.OpenScene("Assets/SweetSugar/Scenes/game.unity");
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
             PlayerPrefs.SetInt("OpenLevelTest", levelNumber);
             PlayerPrefs.SetInt("OpenLevel", levelNumber);
             PlayerPrefs.Save();

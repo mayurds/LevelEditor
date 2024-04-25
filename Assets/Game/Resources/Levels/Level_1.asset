@@ -17,27 +17,41 @@ MonoBehaviour:
     levelNum: 1
     fields:
     - subLevel: 1
-      maxRows: 3
-      maxCols: 3
+      maxRows: 4
+      maxCols: 4
       levelSquares:
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 0, y: 0}
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 1, y: 0}
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 2, y: 0}
-      - obstacle: 1
+      - obstacle: 0
+        position: {x: 3, y: 0}
+      - obstacle: 0
         position: {x: 0, y: 1}
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 1, y: 1}
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 2, y: 1}
-      - obstacle: 1
+      - obstacle: 0
+        position: {x: 3, y: 1}
+      - obstacle: 0
         position: {x: 0, y: 2}
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 1, y: 2}
-      - obstacle: 1
+      - obstacle: 0
         position: {x: 2, y: 2}
+      - obstacle: 0
+        position: {x: 3, y: 2}
+      - obstacle: 0
+        position: {x: 0, y: 3}
+      - obstacle: 0
+        position: {x: 1, y: 3}
+      - obstacle: 0
+        position: {x: 2, y: 3}
+      - obstacle: 0
+        position: {x: 3, y: 3}
     - subLevel: 0
       maxRows: 3
       maxCols: 3
