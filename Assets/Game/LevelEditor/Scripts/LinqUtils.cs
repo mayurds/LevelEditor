@@ -4,8 +4,6 @@ using System.Linq;
 using UnityEngine;
 using Random = System.Random;
 
-namespace SweetSugar.Scripts.System
-{
     public static class LinqUtils
     {
         public static bool AllNull<T>(this IEnumerable<T> seq)
@@ -75,4 +73,3 @@ namespace SweetSugar.Scripts.System
             }
         }
     }
-}

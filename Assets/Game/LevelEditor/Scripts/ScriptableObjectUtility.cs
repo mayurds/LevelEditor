@@ -1,8 +1,6 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace SweetSugar.Scripts.System
-{
     public static class ScriptableObjectUtility
     {
         /// <summary>
@@ -25,4 +23,3 @@ namespace SweetSugar.Scripts.System
         }
 #endif
     }
-}

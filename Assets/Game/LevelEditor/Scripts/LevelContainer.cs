@@ -1,7 +1,5 @@
 using UnityEngine;
 
-namespace SweetSugar.Scripts.Level
-{
     /// <summary>
     /// Level scriptable file. Resources/Levels/
     /// </summary>
@@ -15,4 +13,3 @@ namespace SweetSugar.Scripts.Level
             this.levelData = levelData;
         }
     }
-}

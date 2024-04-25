@@ -1,15 +1,10 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Reflection;
-using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.Level;
-using SweetSugar.Scripts.System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace SweetSugar.Scripts.Editor
-{
     [InitializeOnLoad]
     public class LevelMakerEditor : EditorWindow
     {
@@ -239,10 +234,7 @@ namespace SweetSugar.Scripts.Editor
             LevelManager lm = Camera.main.GetComponent<LevelManager>();//TODO: move all game settings to scriptabble
             GUILayout.Label("Game settings:", EditorStyles.boldLabel, GUILayout.Width(150));
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reset to default", GUILayout.Width(150)))
-            {
-                ResetSettings();
-            }
+          
 
             if (GUILayout.Button("Clear player prefs", GUILayout.Width(150)))
             {
@@ -282,36 +274,11 @@ namespace SweetSugar.Scripts.Editor
 
 
             failed_settings_show = EditorGUILayout.Foldout(failed_settings_show, "Failed settings:");
-            if (failed_settings_show)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Space(30);
-                GUILayout.BeginVertical();
-
-                lm.FailedCost =
-                    EditorGUILayout.IntField(new GUIContent("Cost of continue", "Cost of continue after failed"),
-                        lm.FailedCost, GUILayout.Width(200), GUILayout.MaxWidth(200));
-                lm.ExtraFailedMoves = EditorGUILayout.IntField(new GUIContent("Extra moves", "Extra moves after continue"),
-                    lm.ExtraFailedMoves, GUILayout.Width(200), GUILayout.MaxWidth(200));
-                lm.ExtraFailedSecs =
-                    EditorGUILayout.IntField(new GUIContent("Extra seconds", "Extra seconds after continue"),
-                        lm.ExtraFailedSecs, GUILayout.Width(200), GUILayout.MaxWidth(200));
-                GUILayout.EndVertical();
-                GUILayout.EndHorizontal();
-            }
 
             GUILayout.Space(20);
         }
 
-        private void ResetSettings()
-        {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
-
-            lm.FailedCost = 12;
-            lm.ExtraFailedMoves = 5;
-            lm.ExtraFailedSecs = 30;
-            EditorUtility.SetDirty(lm);
-        }
+      
 
         #endregion
         #region leveleditor
@@ -907,4 +874,3 @@ namespace SweetSugar.Scripts.Editor
 
         #endregion
     }
-}

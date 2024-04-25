@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SweetSugar.Scripts.System
-{
     public static class EnumUtil
     {
         public static IEnumerable<T> GetValues<T>()
@@ -11,5 +9,4 @@ namespace SweetSugar.Scripts.System
             return Enum.GetValues(typeof(T)).Cast<T>();
         }
     }
-}
 

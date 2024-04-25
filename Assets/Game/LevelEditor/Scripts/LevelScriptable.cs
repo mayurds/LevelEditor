@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using SweetSugar.Scripts.Core;
 using UnityEngine;
 
-namespace SweetSugar.Scripts.Level
-{
     public class LevelScriptable : ScriptableObject
     {
         public List<LevelData> levels = new List<LevelData>();
@@ -28,4 +25,3 @@ namespace SweetSugar.Scripts.Level
 
         }
     }
-}

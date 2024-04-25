@@ -1,10 +1,7 @@
 using System;
 using System.IO;
-using SweetSugar.Scripts.Level;
 using UnityEngine;
 using UnityEditor;
-namespace SweetSugar.Scripts.System
-{
     public static class ScriptableLevelManager
     {
         #if UNITY_EDITOR
@@ -56,4 +53,3 @@ namespace SweetSugar.Scripts.System
             return levelData;
         }
     }
-}

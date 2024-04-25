@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace SweetSugar.Scripts.Level
-{
     [Serializable]
     public class LevelData
     {
@@ -127,4 +125,3 @@ namespace SweetSugar.Scripts.Level
         EmptySquare
     }
 
-}

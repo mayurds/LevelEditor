@@ -1,12 +1,6 @@
 ﻿using System.IO;
-using SweetSugar.Scripts.System;
 using UnityEngine;
 
-namespace SweetSugar.Scripts.Level
-{
-    /// <summary>
-    /// Loading level 
-    /// </summary>
     public static class LoadingManager
     {
         private static LevelData levelData;
@@ -32,5 +26,4 @@ namespace SweetSugar.Scripts.Level
             return Resources.LoadAll<LevelContainer>("Levels").Length;
         }
     }
-}
 
