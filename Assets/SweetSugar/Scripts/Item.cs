@@ -874,8 +874,6 @@ namespace SweetSugar.Scripts.Items
                 }
             }
         
-            LevelManager.Score += scoreForItem;
-            LevelManager.THIS.CheckStars();
             Destroy(itemAnimTransform.GetComponent<Animator>());
             yield return new WaitForFixedUpdate();
         }

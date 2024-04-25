@@ -140,33 +140,12 @@ namespace SweetSugar.Scripts.GUI
         /// </summary>
         public void OnFinished()
         {
-            if (name == "MenuComplete")
-            {
-                StartCoroutine(MenuComplete());
-                StartCoroutine(MenuCompleteScoring());
-            }
-            if (name == "MenuPlay")
-            {
-
-            }
             if (name == "MenuPause")
             {
                 if (LevelManager.THIS.gameStatus == GameState.Playing)
                     LevelManager.THIS.gameStatus = GameState.Pause;
             }
 
-            if (name == "MenuFailed")
-            {
-                if (LevelManager.Score < LevelManager.THIS.levelData.star1)
-                {
-                    TargetCheck(false, 2);
-                }
-                else
-                {
-                    TargetCheck(true, 2);
-                }
-
-            }
             if (name == "PrePlay")
             {
                 CloseMenu();
@@ -187,19 +166,6 @@ namespace SweetSugar.Scripts.GUI
             //     gameObject.SetActive(false);
 
         }
-
-        void TargetCheck(bool check, int n = 1)
-        {
-            var TargetCheck = transform.Find("Image/TargetCheck" + n);
-            var TargetUnCheck = transform.Find("Image/TargetUnCheck" + n);
-            TargetCheck.gameObject.SetActive(check);
-            TargetUnCheck.gameObject.SetActive(!check);
-        }
-
-        /// <summary>
-        /// Shows rewarded ad button in Prefailed popup 
-        /// </summary>
-        [UsedImplicitly]
         public void WaitForGiveUp()
         {
             if (name == "PreFailed" && LevelManager.THIS.gameStatus != GameState.Playing)
@@ -220,45 +186,11 @@ namespace SweetSugar.Scripts.GUI
         /// <summary>
         /// Complete popup animation
         /// </summary>
-        IEnumerator MenuComplete()
-        {
-            for (var i = 1; i <= LevelManager.THIS.stars; i++)
-            {
-                //  SoundBase.Instance.audio.PlayOneShot( SoundBase.Instance.scoringStar );
-                transform.Find("Image").Find("Star" + i).gameObject.SetActive(true);
-                yield return new WaitForSeconds(0.5f);
-            }
-        }
-
-        /// <summary>
-        /// Complete popup animation
-        /// </summary>
-        IEnumerator MenuCompleteScoring()
-        {
-            var scores = transform.Find("Image").Find("Score").GetComponent<TextMeshProUGUI>();
-            for (var i = 0; i <= LevelManager.Score; i += 500)
-            {
-                scores.text = "" + i;
-                // SoundBase.Instance.audio.PlayOneShot( SoundBase.Instance.scoring );
-                yield return new WaitForSeconds(0.00001f);
-            }
-            scores.text = "" + LevelManager.Score;
-        }
-
-        /// <summary>
-        /// SHows info popup
-        /// </summary>
         public void Info()
         {
             OpneMenu(gameObject);
         }
 
-
-
-        public void PlaySoundButton()
-        {
-
-        }
 
         public void OpneMenu(GameObject menu)
         {

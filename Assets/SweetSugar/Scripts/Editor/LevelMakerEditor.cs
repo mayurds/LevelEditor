@@ -76,7 +76,7 @@ namespace SweetSugar.Scripts.Editor
         {
             GetWindow(typeof(LevelMakerEditor));
         }
-
+        public Texture Texture1;
         private void OnFocus()
         {
             levelScriptable = Resources.Load("Levels/LevelScriptable") as LevelScriptable;
@@ -90,6 +90,8 @@ namespace SweetSugar.Scripts.Editor
                     levelData.GetField(subLevelNumber - 1).maxCols = 9;
                 Initialize();
             }
+
+            Texture1 = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow.png", typeof(Texture));
             arrows[0] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow.png",typeof(Texture));
             arrows[1] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_left.png",typeof(Texture));
             arrows[2] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_right.png",typeof(Texture));
@@ -523,7 +525,6 @@ namespace SweetSugar.Scripts.Editor
         private void ResetSettings()
         {
             LevelManager lm = Camera.main.GetComponent<LevelManager>();
-            lm.showPopupScores = false;
 
             lm.FailedCost = 12;
             lm.ExtraFailedMoves = 5;
@@ -904,7 +905,7 @@ namespace SweetSugar.Scripts.Editor
                             {
                                 if (squareTypeItem == SquareTypes.NONE) continue;
                                 if (GUILayout.Button(
-                                    new GUIContent(Square.GetSquareTexture(squareTypeItem), squareTypeItem.ToString()),
+                                    new GUIContent(Texture1, squareTypeItem.ToString()),
                                     GUILayout.Width(50), GUILayout.Height(50)))
 
                                     squareType = squareTypeItem;

@@ -548,7 +548,6 @@ namespace SweetSugar.Scripts.Blocks
                 var subSquare = GetSubSquare();
                 if (type == SquareTypes.JellyBlock) return;
            
-                LevelManager.THIS.ShowPopupScore(subSquare.score, transform.position, 0);
 
                 subSquares.Remove(subSquare);
                 Destroy(subSquare.gameObject);
@@ -749,18 +748,8 @@ namespace SweetSugar.Scripts.Blocks
             return layers;
         }
 
-        public static Texture2D GetSquareTexture(SquareTypes sqType)
-        {
-            return GetBlockPrefab(sqType)?.First().GetComponent<SpriteRenderer>()?.sprite?.texture;
-        }
 
-        public static List<Texture2D> GetSquareTextures(SquareBlocks sqBlock)
-        {
-            var listObstacles = GetBlockPrefab(sqBlock.obstacle);
-            var resultList = new List<Texture2D>();
 
-            return resultList;
-        }
 
         public Sprite GetSprite()
         {

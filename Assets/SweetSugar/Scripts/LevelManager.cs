@@ -74,17 +74,7 @@ namespace SweetSugar.Scripts.Core
         //empty boost reference for system
         //debug settings reference
         public DebugSettings DebugSettings;
-        //activate boost in game
         //score gain on this game
-        public static int Score;
-        //stars gain on this game
-        public int stars;
-        //striped effect reference
-        public GameObject stripesEffect;
-        //show popup score on field
-        public bool showPopupScores;
-        //popup score color
-        //Level gameobject reference
         public GameObject Level;
         //Gameobject reference
         //Gameobject reference
@@ -99,10 +89,6 @@ namespace SweetSugar.Scripts.Core
         //reference to orientation handler
         public OrientationGameCameraHandle orientationGameCameraHandle;
 
-        //blocking to drag items for a time
-        public int moveID;
-        //value for regeneration, items with falling or not
-        public bool onlyFalling;
         //level loaded, wait until true for some courotines
         public bool levelLoaded;
         //true if Facebook plugin installed
@@ -142,8 +128,6 @@ namespace SweetSugar.Scripts.Core
                     case GameState.PrepareGame://preparing and initializing  the game
                         LoadLevel(1);
                         CrosssceneData.passLevelCounter++;
-                        stars = 0;
-                        moveID = 0;
                         fieldBoards = new List<FieldBoard>();
                         CurrentSubLevel = 1;
                         OnEnterGame?.Invoke();
@@ -348,12 +332,6 @@ namespace SweetSugar.Scripts.Core
                 destLoopIterations++;
 
                 var destroyItemsListed = field.GetItems().Where(i => i.destroyNext).ToList();
-                if (destroyItemsListed.Count > 0)
-                    yield return new WaitWhileDestroyPipeline(destroyItemsListed, new Delays());
-                yield return new WaitWhileDestroying();
-                yield return new WaitWhile(()=>StopFall);
-                yield return new WaitWhileFall();
-                yield return new WaitWhileCollect();
             
             }
 
@@ -476,57 +454,6 @@ namespace SweetSugar.Scripts.Core
             return itemsList;
         }
 
-        //striped effect
-        public void StripedShow(GameObject obj, bool horrizontal)
-        {
-            var effect = Instantiate(stripesEffect, obj.transform.position, Quaternion.identity);
-            if (!horrizontal)
-                effect.transform.Rotate(Vector3.back, 90);
-            Destroy(effect, 1);
-        }
-
-        //popup score, to use - enable "Popup score" in editor
-        public void ShowPopupScore(int value, Vector3 pos, int color)
-        {
-            // UpdateBar();
-            if (showPopupScores)
-            {
-                var parent = GameObject.Find("CanvasScore").transform;
-                var poptxt = Instantiate(popupScore, pos, Quaternion.identity);
-                poptxt.transform.GetComponentInChildren<Text>().text = "" + value;
-
-                poptxt.transform.SetParent(parent);
-                //   poptxt.transform.position += Vector3.right * 1;
-                poptxt.transform.localScale = Vector3.one / 1.5f;
-                Destroy(poptxt, 0.3f);
-            }
-        }
-
-        /// <summary>
-        /// check gained stars
-        /// </summary>
-        public void CheckStars()
-        {
-            if (Score >= levelData.star1 && stars <= 0)
-            {
-                stars = 1;
-            }
-
-            if (Score >= levelData.star2 && stars <= 1)
-            {
-                stars = 2;
-            }
-
-            if (Score >= levelData.star3 && stars <= 2)
-            {
-                stars = 3;
-            }
-        }
-
-        /// <summary>
-        /// load level from 
-        /// </summary>
-        /// <param name="currentLevel"></param>
         public void LoadLevel(int currentLevel)
         {
             levelLoaded = false;

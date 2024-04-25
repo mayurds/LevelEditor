@@ -184,49 +184,6 @@ LightingSettings:
   m_PVRFilteringAtrousPositionSigmaDirect: 0.5
   m_PVRFilteringAtrousPositionSigmaIndirect: 2
   m_PVRFilteringAtrousPositionSigmaAO: 1
---- !u!1 &507287605
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 507287607}
-  - component: {fileID: 507287606}
-  m_Layer: 0
-  m_Name: EventsListener
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &507287606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 507287605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 849ab51da008d4622b9c3b6d08428266, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &507287607
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 507287605}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &511786103
 GameObject:
   m_ObjectHideFlags: 0
@@ -241,7 +198,6 @@ GameObject:
   - component: {fileID: 511786104}
   - component: {fileID: 511786110}
   - component: {fileID: 511786112}
-  - component: {fileID: 511786114}
   - component: {fileID: 511786115}
   - component: {fileID: 511786106}
   m_Layer: 0
@@ -466,17 +422,12 @@ MonoBehaviour:
   ExtraFailedSecs: 30
   thrivingBlockDestroyed: 0
   DebugSettings: {fileID: 0}
-  stars: 0
-  stripesEffect: {fileID: 100804, guid: c1d86e442930a7b40835a0fbad225fbd, type: 3}
-  showPopupScores: 0
   Level: {fileID: 1375642408}
   FieldsParent: {fileID: 1307959118}
   NoMoreMatches: {fileID: 0}
   CompleteWord: {fileID: 0}
   FailedWord: {fileID: 0}
   orientationGameCameraHandle: {fileID: 0}
-  moveID: 0
-  onlyFalling: 0
   levelLoaded: 0
   testByPlay: 0
   fieldBoards: []
@@ -521,18 +472,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   waitAfterFall: 0
   collectIngredients: 0
---- !u!114 &511786114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 511786103}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65f2b7153ad364b11a3e4de558c6da05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &511786115
 MonoBehaviour:
   m_ObjectHideFlags: 0
