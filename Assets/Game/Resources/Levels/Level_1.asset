@@ -66,4 +66,4 @@ MonoBehaviour:
     star1: 100
     star2: 600
     star3: 1200
-    currentSublevelIndex: 1
+    currentSublevelIndex: 0
