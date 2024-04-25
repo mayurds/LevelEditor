@@ -131,8 +131,6 @@ namespace SweetSugar.Scripts.Core
                 _field.transform.position = fieldPos + Vector3.right * (i * 15);
                 var fboard = _field.GetComponent<FieldBoard>();
 
-                fboard.CreateField();
-                latestFieldPos = fboard.GetPosition();
 
                 i++;
             }
@@ -154,7 +152,6 @@ namespace SweetSugar.Scripts.Core
                 {
                     var _field = Instantiate(FieldBoardPrefab);
                     var fboard = _field.GetComponent<FieldBoard>();
-                    fboard.fieldData = fieldData;
                     fieldBoards.Add(fboard);
                 }
             }
