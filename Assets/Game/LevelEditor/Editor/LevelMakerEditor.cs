@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using SweetSugar.Scripts.Blocks;
 using SweetSugar.Scripts.Core;
-using SweetSugar.Scripts.GUI;
 using SweetSugar.Scripts.Level;
 using SweetSugar.Scripts.System;
 using UnityEditor;
@@ -42,23 +41,15 @@ namespace SweetSugar.Scripts.Editor
         private bool update;
         private static int selected;
         private string[] toolbarStrings = { "Editor", "Settings", "Shop", "In-apps", "Ads", "GUI", "Rate", "About" };
-        private string[] sectionsString = { "Blocks", "Items", "Directions", "Teleports" };
 
         private static LevelMakerEditor window;
         private bool life_settings_show;
-        private bool score_settings;
         private bool boost_show;
         private bool failed_settings_show;
         private bool gems_shop_show;
-        private bool target_description_show;
-        string levelPath = "Assets/SweetSugar/Resources/Levels/";
+        string levelPath = "Assets/Game/Resources/Levels/";
 
-        private bool enableGoogleAdsProcessing;
-        private bool enableChartboostAdsProcessing;
         private LevelData levelData;
-        private Texture[] arrows = new Texture[6];
-        private Texture[] teleports = new Texture[2];
-        private Texture[] arrows_enter = new Texture[4];
         private LevelScriptable levelScriptable;
 
         [MenuItem("Sweet Sugar/Game editor and settings")]
@@ -90,22 +81,6 @@ namespace SweetSugar.Scripts.Editor
             }
 
             Texture1 = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow.png", typeof(Texture));
-            arrows[0] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow.png",typeof(Texture));
-            arrows[1] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_left.png",typeof(Texture));
-            arrows[2] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_right.png",typeof(Texture));
-            arrows[3] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_up.png",typeof(Texture));
-            arrows[4] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/circle arrow.png",typeof(Texture));
-            arrows[5] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/circle arrows.png",typeof(Texture));
-
-            teleports[0] =
-                (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/teleport_icon1.png",typeof(Texture));
-            teleports[1] =(Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/teleport_icon2.png",typeof(Texture));
-
-            arrows_enter[0] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_red.png",typeof(Texture));
-            arrows_enter[1] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_red_left.png",typeof(Texture));
-            arrows_enter[2] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_red_right.png",typeof(Texture));
-            arrows_enter[3] = (Texture)AssetDatabase.LoadAssetAtPath("Assets/SweetSugar/Textures_png/EditorSprites/arrow_red_up.png",typeof(Texture));
-
 
         }
 
@@ -117,16 +92,13 @@ namespace SweetSugar.Scripts.Editor
 
         private void Initialize()
         {
-            var shader = Shader.Find("Hidden/Internal-Colored");
             subLevelNumberTotal = GetSubLevelsCount();
             if (levelNumber < 1)
                 levelNumber = 1;
             life_settings_show = true;
-            score_settings = true;
             boost_show = true;
             failed_settings_show = true;
             gems_shop_show = true;
-            target_description_show = true;
             Resources.LoadAll("Items");
         }
 
@@ -212,11 +184,7 @@ namespace SweetSugar.Scripts.Editor
                 GUILayout.Space(10);
                 CheckSeparateLevels();
             }
-            else if (selected == 2)
-            {
-                if (EditorSceneManager.GetActiveScene().name == "game")
-                    GUIShops();
-            }
+
 
             UnityEngine.GUI.EndScrollView();
             if (UnityEngine.GUI.changed && !EditorApplication.isPlaying)
@@ -239,31 +207,6 @@ namespace SweetSugar.Scripts.Editor
 
         #region GUIDialogs
 
-        private void GUIDialogs()
-        {
-            GUILayout.Label("GUI elements:", EditorStyles.boldLabel, GUILayout.Width(150));
-            GUILayout.Space(10);
-            ShowMenuButton("Menu Play", "MenuPlay");
-            ShowMenuButton("Menu Complete", "MenuComplete");
-            ShowMenuButton("Menu Failed", "MenuFailed");
-            ShowMenuButton("PreFailed", "PreFailed");
-//        ShowMenuButton("Pause", "MenuPause");
-            ShowMenuButton("Boost Shop", "BoostShop");
-            ShowMenuButton("Live Shop", "LiveShop");
-            ShowMenuButton("Gems Shop", "GemsShop");
-//        ShowMenuButton("Boost Info", "BoostInfo");
-            ShowMenuButton("Settings", "Settings");
-            ShowMenuButton("Reward", "Reward");
-//        ShowMenuButton("Tutorial", "Tutorial");
-        }
-
-        private void ShowMenuButton(string label, string name)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, EditorStyles.label, GUILayout.Width(100));
-
-            GUILayout.EndHorizontal();
-        }
 
         public static void SetSearchFilter(string filter, int filterMode)
         {
@@ -310,13 +253,7 @@ namespace SweetSugar.Scripts.Editor
                 PlayerPrefs.Save();
                 Debug.Log("Player prefs cleared");
             }
-            if (GUILayout.Button("Open all levels", new GUILayoutOption[] { GUILayout.Width(150) }))
-            {
-                for (int i = 1; i < 1000; i++)
-                {
-                    SaveLevelStarsCount(i, 3);
-                }
-            }
+     
             GUILayout.EndHorizontal();
             GUILayout.Space(10);
 
@@ -339,155 +276,6 @@ namespace SweetSugar.Scripts.Editor
             }
 
             GUILayout.EndHorizontal();
-
-#if GAMESPARKS
-            GUILayout.BeginHorizontal();
-            {
-                GUILayout.Space(150);
-//                if (GUILayout.Button("Create game", GUILayout.Width(100)))
-//                {
-//                    GamesparksConfiguration window = CreateInstance<GamesparksConfiguration>();
-//                    window.position = new Rect(Screen.width / 2, Screen.height / 2, 250, 200);
-//                    window.ShowPopup();
-//                }
-
-            }
-            GUILayout.EndHorizontal();
-#endif
-//#if FACEBOOK
-//        share_settings = EditorGUILayout.Foldout(share_settings, "Share settings:");
-//        if (share_settings)
-//        {
-//            GUILayout.BeginHorizontal();
-//            GUILayout.Space(30);
-//            GUILayout.BeginVertical();
-//            {
-//                lm.androidSharingPath =
-// EditorGUILayout.TextField("Android path", lm.androidSharingPath, GUILayout.MaxWidth(500));
-//                lm.iosSharingPath =
-// EditorGUILayout.TextField("iOS path", lm.iosSharingPath, GUILayout.MaxWidth(500));
-//            }
-//            GUILayout.EndVertical();
-//            GUILayout.EndHorizontal();
-//
-//            GUILayout.Space(10);
-//        }
-//#endif
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Leadboard Gamesparks", EditorStyles.boldLabel, GUILayout.Width(150)); //1.6.1
-            if (GUILayout.Button("Install", GUILayout.Width(70)))
-            {
-                Application.OpenURL("https://docs.gamesparks.com/sdk-center/unity.html");
-            }
-
-            if (GUILayout.Button("Account", GUILayout.Width(70)))
-            {
-                Application.OpenURL("https://portal.gamesparks.net");
-            }
-
-            if (GUILayout.Button("How to setup", GUILayout.Width(120)))
-            {
-                Application.OpenURL("https://docs.google.com/document/d/1JcQfiiD2ALz6v_i9UIcG93INWZKC7z6FHXH_u6w9A8E");
-            }
-
-            GUILayout.EndHorizontal();
-
-
-            //		if (oldFacebookEnable != lm.FacebookEnable) {//1.6.1
-            //			SetScriptingDefineSymbols ();
-            //		}
-
-            GUILayout.Space(30);
-            var lastRect = GUILayoutUtility.GetLastRect();
-            lm.fallingCurve = EditorGUI.CurveField(new Rect(lastRect.x + 3, lastRect.y + 30, position.width - 50, 25), "Falling curve", lm.fallingCurve);
-            GUILayout.Space(30);
-
-            lm.waitAfterFall = EditorGUILayout.FloatField("Delay after fall", lm.waitAfterFall, GUILayout.Width(50),
-                GUILayout.MaxWidth(200));
-            GUILayout.Space(10);
-
-//        score_settings = EditorGUILayout.Foldout(score_settings, "Score settings:");
-//        if (score_settings)
-//        {
-//            GUILayout.Space(10);
-//            GUILayout.BeginHorizontal();
-//            GUILayout.Space(30);
-//            GUILayout.BeginVertical();
-//            lm.scoreForItem = EditorGUILayout.IntField("Score for item", lm.scoreForItem, GUILayout.Width(50),
-//                GUILayout.MaxWidth(200));
-//            lm.scoreForBlock = EditorGUILayout.IntField("Score for block", lm.scoreForBlock, GUILayout.Width(50),
-//                GUILayout.MaxWidth(200));
-//            lm.scoreForWireBlock = EditorGUILayout.IntField("Score for wire block", lm.scoreForWireBlock,
-//                GUILayout.Width(50), GUILayout.MaxWidth(200));
-//            lm.scoreForSolidBlock = EditorGUILayout.IntField("Score for solid block", lm.scoreForSolidBlock,
-//                GUILayout.Width(50), GUILayout.MaxWidth(200));
-//            lm.scoreForThrivingBlock = EditorGUILayout.IntField("Score for thriving block", lm.scoreForThrivingBlock,
-//                GUILayout.Width(50), GUILayout.MaxWidth(200));
-//            GUILayout.Space(10);
-//
-//            lm.showPopupScores = EditorGUILayout.Toggle("Show popup scores", lm.showPopupScores, GUILayout.Width(50),
-//                GUILayout.MaxWidth(200));
-//            GUILayout.Space(10);
-//
-//            lm.scoresColors[0] = EditorGUILayout.ColorField("Score color item 1", lm.scoresColors[0],
-//                GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColors[1] = EditorGUILayout.ColorField("Score color item 2", lm.scoresColors[1],
-//                GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColors[2] = EditorGUILayout.ColorField("Score color item 3", lm.scoresColors[2],
-//                GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColors[3] = EditorGUILayout.ColorField("Score color item 4", lm.scoresColors[3],
-//                GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColors[4] = EditorGUILayout.ColorField("Score color item 5", lm.scoresColors[4],
-//                GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColors[5] = EditorGUILayout.ColorField("Score color item 6", lm.scoresColors[5],
-//                GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            GUILayout.Space(10);
-//
-//            lm.scoresColorsOutline[0] = EditorGUILayout.ColorField("Score color outline item 1",
-//                lm.scoresColorsOutline[0], GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColorsOutline[1] = EditorGUILayout.ColorField("Score color outline item 2",
-//                lm.scoresColorsOutline[1], GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColorsOutline[2] = EditorGUILayout.ColorField("Score color outline item 3",
-//                lm.scoresColorsOutline[2], GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColorsOutline[3] = EditorGUILayout.ColorField("Score color outline item 4",
-//                lm.scoresColorsOutline[3], GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColorsOutline[4] = EditorGUILayout.ColorField("Score color outline item 5",
-//                lm.scoresColorsOutline[4], GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            lm.scoresColorsOutline[5] = EditorGUILayout.ColorField("Score color outline item 6",
-//                lm.scoresColorsOutline[5], GUILayout.Width(200), GUILayout.MaxWidth(200));
-//            GUILayout.EndVertical();
-//            GUILayout.EndHorizontal();
-//        }
-//
-//        GUILayout.Space(20);
-
-            life_settings_show = EditorGUILayout.Foldout(life_settings_show, "Lifes settings:");
-            if (life_settings_show)
-            {
-                GUILayout.Space(10);
-                GUILayout.BeginHorizontal();
-                GUILayout.Space(30);
-                GUILayout.BeginVertical();
-
-
-                GUILayout.Space(10);
-
-                GUILayout.Label("Total time for refill lifes:", EditorStyles.label);
-                GUILayout.BeginHorizontal();
-                GUILayout.Space(30);
-                GUILayout.Label("Hour", EditorStyles.label, GUILayout.Width(50));
-                GUILayout.Label("Min", EditorStyles.label, GUILayout.Width(50));
-                GUILayout.Label("Sec", EditorStyles.label, GUILayout.Width(50));
-                GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
-                GUILayout.Space(30);
-                GUILayout.EndHorizontal();
-                GUILayout.Space(10);
-
-
-                GUILayout.EndVertical();
-                GUILayout.EndHorizontal();
-            }
 
             GUILayout.Space(20);
 
@@ -516,8 +304,6 @@ namespace SweetSugar.Scripts.Editor
             }
 
             GUILayout.Space(20);
-
-            //  EditorUtility.SetDirty(lm);
         }
 
         private void ResetSettings()
@@ -531,37 +317,6 @@ namespace SweetSugar.Scripts.Editor
         }
 
         #endregion
-        public void SaveLevelStarsCount(int level, int starsCount)
-        {
-            Debug.Log(string.Format("Stars count {0} of level {1} saved.", starsCount, level));
-            PlayerPrefs.SetInt(GetLevelKey(level), starsCount);
-        }
-    
-        private string GetLevelKey(int number)
-        {
-            return string.Format("Level.{0:000}.StarsCount", number);
-        }
-        #region shop
-
-        private void GUIShops()
-        {
-            LevelManager lm = Camera.main.GetComponent<LevelManager>();
-
-            GUILayout.Label("Shop settings:", EditorStyles.boldLabel, GUILayout.Width(150));
-
-
-            GUILayout.Space(10);
-            gems_shop_show = EditorGUILayout.Foldout(gems_shop_show, "Gems shop settings:");
-           
-
-            GUILayout.Space(10);
-            boost_show = EditorGUILayout.Foldout(boost_show, "Boosts shop settings:");
-        }
-
-  
-
-        #endregion
-
         #region leveleditor
 
         private void TestLevel(bool playNow = true, bool testByPlay = true)
@@ -854,25 +609,6 @@ namespace SweetSugar.Scripts.Editor
             return 0;
         }
 
-
-
-        private Texture GetArrowByAngle(float angle)
-        {
-            return arrows[(int)(angle % 90)];
-        }
-
-        private Texture GetArrowByVector(Vector2 direction, bool enterPoint)
-        {
-            var arr = arrows;
-            if (enterPoint) arr = arrows_enter;
-            if (direction == Vector2.up)
-                return arr[3];
-            if (direction == Vector2.left)
-                return arr[1];
-            if (direction == Vector2.right)
-                return arr[2];
-            return arr[0];
-        }
 
 
   

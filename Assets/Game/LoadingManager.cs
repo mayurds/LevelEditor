@@ -10,7 +10,7 @@ namespace SweetSugar.Scripts.Level
     public static class LoadingManager
     {
         private static LevelData levelData;
-        static string levelPath = "Assets/SweetSugar/Resources/Levels/";
+        static string levelPath = "Assets/Game/Resources/Levels/";
 
         public static LevelData LoadForPlay(int currentLevel, LevelData levelData)
         {

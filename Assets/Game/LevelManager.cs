@@ -17,16 +17,6 @@ namespace SweetSugar.Scripts.Core
         RegenLevel,
         Tutorial,
         Pause,
-        Playing,
-        PreFailed,
-        GameOver,
-        ChangeSubLevel,
-        PreWinAnimations,
-        Win,
-        WaitForPopup,
-        WaitAfterClose,
-        BlockedGame,
-        BombFailed
     }
 
     /// <summary>
@@ -67,8 +57,6 @@ namespace SweetSugar.Scripts.Core
         public int ExtraFailedSecs = 30;
         //in-app products for purchasing
         public bool thrivingBlockDestroyed;
-        //empty boost reference for system
-        //debug settings reference
         //score gain on this game
         public GameObject Level;
         //Gameobject reference
@@ -80,34 +68,7 @@ namespace SweetSugar.Scripts.Core
         public GameObject CompleteWord;
         //Gameobject reference
         public GameObject FailedWord;
-        //in game boost reference
-        //reference to orientation handler
-
-        //level loaded, wait until true for some courotines
         public bool levelLoaded;
-        //true if Facebook plugin installed
-        //combine manager listener
-        //true if search of matches has started
-        //true if need to check matches again
-        //if true - start the level avoind the map for debug
-        public bool testByPlay;
-
-        //game events
-        #region EVENTS
-
-        public delegate void GameStateEvents();
-        public static event GameStateEvents OnMapState;
-        public static event GameStateEvents OnEnterGame;
-        public static event GameStateEvents OnLevelLoaded;
-        public static event GameStateEvents OnWaitForTutorial;
-        public static event GameStateEvents OnMenuPlay;
-        public static event GameStateEvents OnSublevelChanged;
-        public static event GameStateEvents OnMenuComplete;
-        public static event GameStateEvents OnStartPlay;
-        public static event GameStateEvents OnWin;
-        public static event GameStateEvents OnLose;
-        public static event GameStateEvents OnTurnEnd;
-        public static event GameStateEvents OnCombo;
 
         //current game state
         private GameState GameStatus;
@@ -119,14 +80,12 @@ namespace SweetSugar.Scripts.Core
                 GameStatus = value;
                 switch (value)
                 {
-                    case GameState.PrepareGame://preparing and initializing  the game
+                    case GameState.PrepareGame:
                         LoadLevel(1);
                         fieldBoards = new List<FieldBoard>();
                         CurrentSubLevel = 1;
-                        OnEnterGame?.Invoke();
                         GenerateLevel();
                         levelLoaded = true;
-                        OnLevelLoaded?.Invoke();
                         break;
                 }
             }
@@ -145,15 +104,9 @@ namespace SweetSugar.Scripts.Core
         }
         //menu play enabled invokes event
     
-
-        #endregion
-        //Lock boosts
-       
-        //Load the level from "OpenLevel" player pref
  
         private void OnEnable()
         {
-       
             gameStatus = GameState.PrepareGame;
         }
         //enable map
@@ -161,20 +114,8 @@ namespace SweetSugar.Scripts.Core
         private void Awake()
         {
             THIS = this;
-            testByPlay = false;
-//        testByPlay = true;//enable to instant level run
         }
 
-        // Use this for initialization
-        private void Start()
-        {
-
-        }
-
-        private void PrepareGame()
-        {
-         
-        }
 
         public List<FieldBoard> fieldBoards = new List<FieldBoard>();
         public GameObject FieldBoardPrefab;
@@ -204,78 +145,11 @@ namespace SweetSugar.Scripts.Core
             transform.position = latestFieldPos + Vector3.right * 10 + Vector3.back * 10;
         }
 
-        private bool animStarted;
-        /// <summary>
-        /// move camera to the field
-        /// </summary>
-        /// <param name="destPos">position of the field</param>
-        /// <param name="cameraParametersSize">camera size</param>
-        /// <returns></returns>
-        private IEnumerator AnimateField(Vector3 destPos, float cameraParametersSize)
-        {
-            var _camera = GetComponent<Camera>();
-            if(animStarted) yield break;
-            animStarted = true;
-            var duration = 2f;
-            var speed = 10f;
-            var startPos = transform.position;
-            var distance = Vector2.Distance(startPos, destPos);
-            var time = distance / speed;
-            var curveX = new AnimationCurve(new Keyframe(0, startPos.x), new Keyframe(time, destPos.x));
-            var startTime = Time.time;
-            float distCovered = 0;
-            while (distCovered < distance)
-            {
-                distCovered = (Time.time - startTime) * speed;
-                transform.localPosition = new Vector3(curveX.Evaluate(Time.time - startTime), transform.position.y, 0);
-                _camera.orthographicSize = Mathf.Lerp(_camera.orthographicSize, cameraParametersSize, Time.deltaTime*5);
-                yield return new WaitForFixedUpdate();
-            }
-
-            _camera.orthographicSize = cameraParametersSize;
-            transform.position = destPos;
-            yield return new WaitForSeconds(0.5f);
-            animStarted = false;
-            GameStart();
-        }
-
-        //game start
-        private void GameStart()
-        {
-            {
-                OnSublevelChanged?.Invoke();
-                gameStatus = GameState.Playing;
-            }
-        }
+ 
    
         public Transform movesTransform;
         public int destLoopIterations;
-        //Animations after win
-        #region RegenerateLevel
-  
-
-     
-    
-   
-    
-        #endregion
-
-        public IEnumerator FindMatchDelay()
-        {
-            yield return new WaitForSeconds(0.2f);
-        }
-
-
-        public int combo;
-        public AnimationCurve fallingCurve = AnimationCurve.Linear(0, 0, 1, 0);
-        public float waitAfterFall = 0.02f;
-        [HideInInspector]
-        public bool collectIngredients;
-
-    
-        /// <summary>
-        /// Get square by position
-        /// </summary>
+       
         public Square GetSquare(int col, int row, bool safe = false)
         {
             return field.GetSquare(col, row, safe);

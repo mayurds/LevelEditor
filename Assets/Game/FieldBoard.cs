@@ -60,24 +60,13 @@ using Random = UnityEngine.Random;
                      chessColor = !chessColor;
                  }
              }
-             foreach (var i in squaresArray.ToList())
-             { 
-                 i.SetBorderDirection();
-                 if(!i.IsNone())
-                     i.SetOutline();
-             }
+     
              enterPoints = squaresArray.Count(i => i.isEnterPoint);
              foreach (var i in squaresArray.ToList())
              {
                  // i.SetMask(); 
              }
-             SetOrderInSequence();
-             foreach (var i in squaresArray.ToList())
-             {
-                 i.sequenceBeforeThisSquare = i.GetSeqBeforeFromThis();
-                 if (i.sequence.All(x => !x.IsNone() && !x.undestroyable) && i.sequence.Any() && i.sequence.Any(x=>x.isEnterPoint))
-                     i.linkedEnterSquare = true;
-             }
+         
              SetPivot();
              SetPosY(0);
          }
@@ -85,22 +74,7 @@ using Random = UnityEngine.Random;
          /// <summary>
          /// Set order for the squares sequience 
          /// </summary>
-         private void SetOrderInSequence()
-         {
-             var list = GetSquareSequence();
-             foreach (var seq in list)
-             {
-                 var order = 0;
-                 foreach (var sq in seq)
-                 {
-                     sq.orderInSequence = order;
-                     sq.sequence = seq;
-                     order++;
-                 }
-             }
-
-         }
-
+        
 
          private void SetPosY(int y)
          {
@@ -152,69 +126,6 @@ using Random = UnityEngine.Random;
 
 
          /// <summary>
-         /// Get squares sequence from first to end
-         /// </summary>
-         /// <returns></returns>
-         public List<List<Square>> GetSquareSequence()
-         {
-             var enterSquares = squaresArray.Where(i => i.isEnterPoint);
-             var listofSequences = ListofSequences(enterSquares);
-             var l = listofSequences.SelectMany(i => i);
-             var squaresNotJoinEnter = squaresArray.Where(i => !l.Contains(i));
-             var topSquares = new List<Square>();
-        
-        
-             listofSequences.AddRange( ListofSequences(topSquares));
-             return listofSequences;
-         }
-
-         /// <summary>
-         /// Get list of all squares sequences
-         /// </summary>
-         /// <param name="enterSquares"></param>
-         /// <returns></returns>
-         private List<List<Square>> ListofSequences(IEnumerable<Square> enterSquares)
-         {
-             var listofSequences = new List<List<Square>>();
-             foreach (var enterSquare in enterSquares)
-             {
-                 var sequence = new List<Square>();
-                 sequence.Add(enterSquare);
-                 sequence = GetSquareSequenceStep(sequence);
-                 sequence.Reverse();
-                 listofSequences.Add(sequence);
-             }
-
-             return listofSequences;
-         }
-
-         /// <summary>
-         /// Get square sequece
-         /// </summary>
-         /// <param name="sequence"></param>
-         /// <returns></returns>
-         private List<Square> GetSquareSequenceStep(List<Square> sequence)
-         {
-             var nextSquare = sequence.LastOrDefault().GetNextSquare();
-             if (nextSquare != null && !nextSquare.IsNone())
-             {
-                 sequence.Add(nextSquare);
-                 sequence = GetSquareSequenceStep(sequence);
-             }
-             return sequence;
-         }
-
-         /// <summary>
-         /// Get sequence of the square
-         /// </summary>
-         /// <param name="square"></param>
-         /// <returns></returns>
-         public List<Square> GetCurrentSequence(Square square)
-         {
-             return GetSquareSequence().Where(i => i.Any(x => x == square)).SelectMany(i => i).ToList();
-         }
-
-         /// <summary>
          /// Create a square
          /// </summary>
          /// <param name="col">column</param>
@@ -240,16 +151,7 @@ using Random = UnityEngine.Random;
 
          }
 
-         /// <summary>
-         /// Get bottom row
-         /// </summary>
-         /// <returns>returns list of squares</returns>
-         public List<Square> GetBottomRow()
-         {
-             var itemsList = GetSquareSequence().Select(i => i.FirstOrDefault()).Where(i => i.type != SquareTypes.NONE).ToList();
-             return itemsList;
-         }
-
+      
          /// <summary>
          /// Get field rect
          /// </summary>
@@ -287,20 +189,7 @@ using Random = UnityEngine.Random;
              return squaresArray.Where(i => !i.IsNone()).GroupBy(i => i.col).Select(i => new { Sq = i.OrderBy(x => x.row).First() }).Select(i => i.Sq).ToList();
          }
 
-         public List<Square> GetSimpleItemsInRow(int count)
-         {
-
-             var list = squaresArray
-                 .Where(i => i.GetSubSquare().IsFree())
-                 .Where(y => y.GetVerticalNeghbors().Count(z => z.IsFree()) == 2)
-                 .Select(x => new { Index = x.row, Value = x })
-                 .GroupBy(i => i.Index)
-                 .Select(i => i.Select(x => x.Value).Take(count).ToList())
-                 .ToArray();
-
-             var v1 = list.GetValue(Random.Range(0, list.Length)) as List<Square>;
-             return v1;
-         }
+  
 
          public List<Square> GetSquares(bool withUndestroyble = false)
          {
