@@ -189,96 +189,13 @@ namespace SweetSugar.Scripts.Blocks
             }
 
             itemComponent.needFall = falling;
-//        if ((!nextSquare?.IsFree() ?? false) || Item == itemComponent)
-            itemComponent.StartFallingTo(itemComponent.GenerateWaypoints(this));
-//            itemComponent.StartFalling();
             return itemComponent;
         }
-        /// <summary>
-        /// Generates ingredient
-        /// </summary>
-        /// <returns></returns>
-    
-
-
-      
-    
-        /// <summary>
-        /// change square type
-        /// </summary>
-        /// <param name="sqBlock"></param>
-   
-        public void SetType(SquareTypes _type, int sqLayer, SquareTypes obstacleType, int obLayer)
-        {
-            var prefabs = GetBlockPrefab(_type);
-            if (type != _type && !IsTypeExist(_type))
-            {
-                for (var i = 0; i < sqLayer; i++)
-                {
-                    var prefab = prefabs[i];
-                    if (prefab != null && _type != SquareTypes.EmptySquare && _type != SquareTypes.NONE)
-                    {
-                        var b = Instantiate(prefab);
-                        b.transform.SetParent(transform);
-                        b.GetComponent<Square>().field = field;
-                        b.transform.localScale = Vector2.one;
-                        b.transform.localPosition = new Vector3(0, 0, -0.01f);
-                        b.GetComponent<SpriteRenderer>().sortingOrder = 0 + i + GetComponent<SpriteRenderer>().sortingOrder;
-                        if (_type != SquareTypes.JellyBlock)
-                            subSquares.Add(b.GetComponent<Square>());
-                        else
-                            subSquares.Insert(0, b.GetComponent<Square>());
-                        type = GetSubSquare().type;
-                    }
-                }
-            }
-
-            if (obstacleType != SquareTypes.NONE)
-                CreateObstacle(obstacleType, obLayer);
-        }
-
-        /// <summary>
-        /// Is type exist among sub-squares
-        /// </summary>
-        /// <param name="_type"></param>
-        /// <returns></returns>
         private bool IsTypeExist(SquareTypes _type)
         {
             return subSquares.Count(i => i.type == _type) > 0;
         }
-        /// <summary>
-        /// create obstacle on the square
-        /// </summary>
-        /// <param name="obstacleType"></param>
-        /// <param name="obLayer"></param>
-        public void CreateObstacle(SquareTypes obstacleType, int obLayer)
-        {
-            if (obstacleType == SquareTypes.SpiralBlock)
-            {
-                GenSpiral();
-                return;
-            }
-            var prefabs = GetBlockPrefab(obstacleType);
-            for (var i = 0; i < obLayer; i++)
-            {
-                var prefab = prefabs[i];
-                var b = Instantiate(prefab);
-                b.transform.SetParent(transform);
-                Square square = b.GetComponent<Square>();
-                square.field = field;
-                square.mainSquqre = this;
-                b.transform.localPosition = new Vector3(0, 0, -0.5f);
-                b.transform.localScale = Vector2.one;
-                // if (prefab != null && obstacleType == SquareTypes.ThrivingBlock)
-                //     Destroy(prefab.gameObject);
-                if (obstacleType != SquareTypes.JellyBlock)
-                    subSquares.Add(b.GetComponent<Square>());
-                else
-                    subSquares.Insert(0, b.GetComponent<Square>());
-                type = GetSubSquare().type;
-                undestroyable = square.undestroyable;
-            }
-        }
+     
         /// <summary>
         /// generate spiral item
         /// </summary>
@@ -403,24 +320,7 @@ namespace SweetSugar.Scripts.Blocks
         }
 
 
-        public void CheckFallOut()
-        {
-            if (LevelManager.THIS.StopFall) return;
-            if (Item != null && CanGoOut())
-            {
-                var nxtSq = Vector2.Distance(this.transform.position,Item.transform.position)>0.3f ? this: GetNextSquareRecursively(this);//GetNextSquareRecursively();
-                if (nxtSq)
-                {
-                    if (nxtSq.CanGoInto())
-                    {
-                        if (nxtSq.Item == null)
-                        {
-                            Item.ReplaceCurrentSquareToFalling(nxtSq);
-                        }
-                    }
-                }
-            }
-        }
+    
         /// <summary>
         /// Get next square with Item 
         /// </summary>
@@ -723,33 +623,6 @@ namespace SweetSugar.Scripts.Blocks
             }
             return false;
         }
-        /// <summary>
-        /// Methods for the editor
-        /// </summary>
-        /// <param name="sqType"></param>
-        /// <returns></returns>
-        public static GameObject[] GetBlockPrefab(SquareTypes sqType)
-        {
-            var list = new List<GameObject>();
-            var item1 = Resources.Load("Blocks/" + sqType) as GameObject;
-            if (item1?.GetComponent<LayeredBlock>() != null)
-                list.AddRange(item1.GetComponent<LayeredBlock>().layers.Select(i => i.gameObject));
-
-            if (list.Count() == 0 && item1 != null) list.Add(item1);
-            return list.ToArray();
-        }
-
-        public static int GetLayersCount(SquareTypes sqType)
-        {
-            var layers = 1;
-            var item1 = Resources.Load("Blocks/" + sqType) as GameObject;
-            layers = item1?.GetComponent<LayeredBlock>()?.layers?.Length ?? 0;
-            if (layers == 0) layers = 1;
-            return layers;
-        }
-
-
-
 
         public Sprite GetSprite()
         {

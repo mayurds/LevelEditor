@@ -20,48 +20,6 @@ namespace SweetSugar.Scripts.System.Combiner
         private DebugSettings _debugSettings;
         private int bonusCombineListCount;
 
-        public BonusItemCombiner()
-        {
-            _debugSettings = Resources.Load("Scriptable/DebugSettings") as DebugSettings;
-            FillPatterns();
-        }
-
-        private void FillPatterns()
-        {
-            bonusCombinesPatterns.Clear();
-            var bonusCombineList = Resources.FindObjectsOfTypeAll(typeof(ItemCombineBehaviour)) as ItemCombineBehaviour[];
-            bonusCombineList = bonusCombineList.Where(i => i.matrix.All(x => x.items.Any(y => y.item))).ToArray();
-            bonusCombineListCount = bonusCombineList.Length;
-            var groupCombine = bonusCombineList.GroupBy(i => new { i.priority, i.itemType }).OrderBy(i => i.Key.priority).Select(i => new { ItemType = i.Key, Matrix = i.Select(x => x.matrix).First() }).ToArray();
-            foreach (var item in groupCombine)
-            {
-                foreach (var matrix in item.Matrix)
-                {
-                    var typeMatrix = new TypeMatrix();
-                    var matricesPatterns = RotatePatternMatrices(matrix.items, item.ItemType.itemType);
-
-                    for (var i = 0; i < matricesPatterns.Count(); i++)
-                    {
-                        var matrixPattern = matricesPatterns[i];
-                        matrixPattern = SimplifyArray(matrixPattern.matrix.ToArray());
-                        matrixPattern.nodeItem = GetBaseNode(matrixPattern.matrix.ToArray());
-                        matricesPatterns[i] = matrixPattern;
-                        if(item.ItemType.ToString().Contains("MARMALADE"))
-                        {
-                            Show2DArray(matrixPattern.matrix.ToArray(), "rotated");
-                        
-                        }
-                    }
-                    typeMatrix.itemType = item.ItemType.itemType;
-                    typeMatrix.matrices = matricesPatterns;
-                    bonusCombinesPatterns.Add(typeMatrix);
-                }
-
-            }
-
-            bonusCombineListCount = bonusCombinesPatterns.Count;
-        }
-
         int GetPositionArray(int col, int row)
         {
             return row * maxCols + col;

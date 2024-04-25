@@ -204,9 +204,6 @@ namespace SweetSugar.Scripts.Items
             if(currentType == ItemsTypes.NONE && LevelManager.THIS.levelData.limitType == LIMIT.TIME ){
                 if(Random.Range(0, 20) == 1 ){
                     plusTimeObj = Instantiate(plusTime, transform.position, Quaternion.identity, transform);
-                    BindSortingOrder bindSortingOrder = plusTimeObj.transform.GetChild(0).GetComponent<BindSortingOrder>();
-                    bindSortingOrder.sourceObject = GetSpriteRenderer();
-                    bindSortingOrder.destObjectSR = plusTimeObj.GetComponent<SpriteRenderer>();
                 }
             }
         }
@@ -387,13 +384,7 @@ namespace SweetSugar.Scripts.Items
             bool isMulticolor = list.Any(i=>i.currentType == ItemsTypes.MULTICOLOR);
             if (item1.currentType != ItemsTypes.NONE && item2.currentType != ItemsTypes.NONE || isMulticolor)
             {
-                if(!isMulticolor)
-                    gameObject.AddComponent<GameBlocker>();
                 Vector2 middlePos = item2.transform.position + (item1.transform.position - item2.transform.position).normalized * 0.5f;
-                list = list.OrderBy(i => i.GetComponent<ItemCombineBehaviour>()?.priority?? 100).ToArray();
-                item1 = list.First();
-                item2 = list.Last();
-                item1.sprRenderer.FirstOrDefault().sortingOrder = 3;
             }
         }
 
@@ -421,66 +412,10 @@ namespace SweetSugar.Scripts.Items
         {
             return Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
-        /// <summary>
-        /// change square link and start fall
-        /// </summary>
-        /// <param name="_square"></param>
-        public void ReplaceCurrentSquareToFalling(Square _square)
-        {
-            //        Debug.Log(instanceID + " replace square from " + square.GetPosition() +" to " + _square.GetPosition() );
-            _square.Item = this;
-            square.Item = null;
-            previousSquare = square;
-            square = _square;
-            needFall = true;
-            if (!justCreatedItem)
-                StartFalling();
-        }
+      
 
-        /// <summary>
-        /// checking square below and start fall if square is empty
-        /// </summary>
-        public void CheckSquareBelow()
-        {
-            if (!falling)
-                square.CheckFallOut();
-            if (!needFall && !falling) CheckNearEmptySquares();
-        }
-
-        /// <summary>
-        /// start falling animation
-        /// </summary>
-        public void StartFalling()
-        {
-            StartFallingTo(GenerateWaypoints(square));
-        }
-
-        public void StartFallingTo(List<Waypoint> generateWaypoints)
-        {
-//        if (LevelManager.THIS.StopFall) return;
-            if (!falling && needFall && fallingID == 0)
-            {
-                falling = true;
-
-                StartCoroutine(FallingCor(generateWaypoints, true));
-            }
-        }
-
-        /// <summary>
-        /// start falling diagonally
-        /// </summary>
-        private void StartFallingSides()
-        {
-            if (falling || !needFall || destroying || fallingID > 0) return;
-            var waypoints = new List<Waypoint>
-            {
-                new Waypoint(transform.position, null),
-                new Waypoint(square.transform.position, null)
-            };
-            falling = true;
-
-            StartCoroutine(FallingCor(waypoints, true));
-        }
+ 
+  
 
         public List<Waypoint> GenerateWaypoints(Square targetSquare)
         {
@@ -501,144 +436,6 @@ namespace SweetSugar.Scripts.Items
         private Vector3 defaultTransformScale;
         private Quaternion defaultTransformRotation;
 
-        ///falling item animation
-        private IEnumerator FallingCor(List<Waypoint> waypoints, bool animate, Action callback = null)
-        {
-            if (fallingID > 0) yield break;
-            fallingID++;
-            falling = true;
-            needFall = false;
-            var destPos = waypoints.LastOrDefault().destPosition + Vector3.back * 0.2f;
-            var startTime = Time.time;
-            var startPos = transform.position;
-            var distance = Vector2.Distance(startPos, waypoints.FirstOrDefault().destPosition);
-            float speed = LevelManager.THIS.fallingCurve.Evaluate(0);
-            int sideFall = 2;
-//        if (waypoints.Count() > 1 && waypoints[0].destPosition.x != waypoints[1].destPosition.x && waypoints[0].destPosition.y != waypoints[1].destPosition.y)
-//            sideFall = 2;
-            if (LevelManager.THIS.gameStatus == GameState.PreWinAnimations)
-                speed = 10;
-            var pauseTime = Time.time;
-            float totalPauseTime = 0.0f;
-            var fallStopped = false;
-
-            yield return new WaitWhile(() => LevelManager.THIS.StopFall);
-
-            var startTimeGlobal = Time.time;
-
-            for (var i = 0; i < waypoints.Count; i++)
-            {
-                var waypoint = waypoints[i];
-                destPos = waypoint.destPosition + Vector3.back * 0.2f;
-                startPos = transform.position;
-                distance = Vector2.Distance(startPos, destPos);
-                if (distance < 0.2f) continue;
-                startTime = Time.time;
-                float fracJourney = 0;
-                while (fracJourney < .9f)
-                {
-                    if(LevelManager.THIS.StopFall)
-                    {
-                        fallStopped = true;
-                        pauseTime = Time.time;
-                    }
-                    yield return new WaitWhile(() => LevelManager.THIS.StopFall);
-                    if(fallStopped && !LevelManager.THIS.StopFall)
-                    {
-                        fallStopped = false;
-                        totalPauseTime += Time.time - pauseTime;
-                        startTime += totalPauseTime;
-                        startTimeGlobal += totalPauseTime;
-                    }
-
-                    speed = LevelManager.THIS.fallingCurve.Evaluate(Time.time - startTimeGlobal ) * sideFall;
-                    var direction = (destPos - startPos).normalized;
-                    RaycastHit2D[] raycastHits = new RaycastHit2D[2];
-                    Physics2D.RaycastNonAlloc(transform.position + direction*-.5f, direction, raycastHits,.8f, 1 << LayerMask.NameToLayer("Item"));
-                    RaycastHit2D hit2D = raycastHits.FirstOrDefault(x=>x.transform != transform);
-                    if(!hit2D || !hit2D.transform.GetComponent<Item>().falling 
-                              || ((Vector2)destPos-(Vector2)startPos).normalized != ((Vector2)square.transform.position-(Vector2)startPos).normalized
-                              || ((Vector2)destPos-(Vector2)startPos).normalized != square.direction
-                              || !ShouldSkipItem(hit2D))
-                    {
-                        var distCovered = (Time.time - startTime) * speed;
-                        fracJourney = distCovered / distance;
-                        transform.position = Vector2.Lerp(startPos, destPos, fracJourney);
-                    }
-                    else if(ShouldSkipItem(hit2D))
-                    {
-                        startPos = transform.position;    
-                        startTimeGlobal = Time.time;
-                        startTime = Time.time;
-                    }
-
-                    if (fracJourney < 1)
-                        yield return new WaitForEndOfFrame();
-                    if (waypoint.instant && Vector2.Distance(square.transform.position, transform.position)>2)
-                    {
-                        Vector3 pos = square.GetReverseDirection();
-                        transform.position = destPos + pos * field.squareHeight + Vector3.back * 0.2f;
-                        JustCreatedItem = true;
-                        falling = false;
-                        needFall = true;
-                        fallingID = 0;
-                        List<Waypoint> list = new List<Waypoint> {new Waypoint(square.transform.position, square)};
-                        StartFallingTo(list);
-                        yield break;
-//                    break;
-                    }
-                    if (fracJourney >= 0.5f)
-                    {
-                        var squareNew = square.GetNextSquare();
-                        if (squareNew != null && squareNew.Item == null && squareNew.IsFree())
-                        {
-                            JustCreatedItem = false;
-                            square.Item = null;
-                            squareNew.Item = this;
-                            square = squareNew;
-                            waypoints.Add(new Waypoint(squareNew.transform.position + Vector3.back * 0.2f, squareNew));
-                            destPos = waypoint.destPosition + Vector3.back * 0.2f;
-                            distance = Vector2.Distance(startPos, destPos);
-                        }
-                    }
-
-                }
-            }
-
-            JustCreatedItem = false;
-            if (previousSquare?.Item == this) previousSquare.Item = null;
-            destPos = waypoints.LastOrDefault().destPosition + Vector3.back * 0.2f;
-            if (!waypoints.Any()) destPos = square.transform.position + Vector3.back * 0.2f;
-
-            anim.SetTrigger("stop");
-//        transform.position = destPos;// square.transform.position;
-            if (distance > 0.5f && animate)
-            {
-            }
-
-            //        transform.position = Square1.transform.position + Vector3.back * 0.2f;
-
-            fallingID = 0;
-            // Invoke("StopFallFinished", 0.2f);
-            StopFallFinished();
-            yield return new WaitWhile(() => falling);
-            yield return new WaitForSeconds(LevelManager.THIS.waitAfterFall);
-            CheckSquareBelow();
-            if (callback != null) callback();
-            transform.position = destPos;// square.transform.position;
-            if (!needFall)
-            {
-                ResetAnimTransform();
-
-                yield return new WaitForSeconds(0.2f);
-                OnStopFall();
-            }
-        }
-        /// <summary>
-        ///  Compare collided items, item with bigger magnitude should fall first
-        /// </summary>
-        /// <param name="hit2D"></param>
-        /// <returns></returns>
         private bool ShouldSkipItem(RaycastHit2D hit2D)
         {
             return (hit2D.transform.GetComponent<Item>().square.transform.position - transform.position).magnitude > (square.transform.position-transform.position).magnitude 
@@ -682,7 +479,6 @@ namespace SweetSugar.Scripts.Items
         public void CheckNearEmptySquares()
         {
             var nearEmptySquareDetected = false;
-            if (!square.CanGoOut() || LevelManager.THIS.StopFall) return;
             // if (square.nextSquare && square.nextSquare.Item && (square.nextSquare.Item.falling || square.nextSquare.Item.needFall || square.nextSquare.Item.destroying)) return;
             Vector2 lookingDirection1 = new Vector2(1, 1);
             float dirAngle = Vector2.Angle(Vector2.down, square.direction);
@@ -731,7 +527,6 @@ namespace SweetSugar.Scripts.Items
                     checkingSquare.Item = this;
                     square = checkingSquare;
                     needFall = true;
-                    StartFallingSides();
                     nearEmptySquareDetected = true;
                 }
             }

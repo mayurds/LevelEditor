@@ -141,9 +141,6 @@ namespace SweetSugar.Scripts.Core
 
       
 
-        //if true - pausing all falling animations
-        public bool StopFall => _stopFall.Any();
-        //returns last sub-level of this level
         private int GetLastSubLevel()
         {
             return fieldBoards.Count;
@@ -302,7 +299,6 @@ namespace SweetSugar.Scripts.Core
         }
 
 
-        internal List<GameBlocker> _stopFall = new List<GameBlocker>();
         public int combo;
         public AnimationCurve fallingCurve = AnimationCurve.Linear(0, 0, 1, 0);
         public float waitAfterFall = 0.02f;
