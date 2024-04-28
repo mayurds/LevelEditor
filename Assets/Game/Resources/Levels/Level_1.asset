@@ -17,41 +17,83 @@ MonoBehaviour:
     levelNum: 1
     fields:
     - subLevel: 1
-      maxRows: 4
-      maxCols: 4
+      maxRows: 3
+      maxCols: 3
       levelSquares:
       - obstacle: 0
-        position: {x: 0, y: 0}
+        position: {x: -5.196152, y: 0}
       - obstacle: 0
-        position: {x: 1, y: 0}
+        position: {x: -4.330127, y: 1.5}
       - obstacle: 0
-        position: {x: 2, y: 0}
+        position: {x: -3.4641016, y: 3}
       - obstacle: 0
-        position: {x: 3, y: 0}
+        position: {x: -2.598076, y: 4.5}
       - obstacle: 0
-        position: {x: 0, y: 1}
+        position: {x: -4.330127, y: -1.5}
       - obstacle: 0
-        position: {x: 1, y: 1}
+        position: {x: -3.4641016, y: 0}
       - obstacle: 0
-        position: {x: 2, y: 1}
+        position: {x: -2.598076, y: 1.5}
       - obstacle: 0
-        position: {x: 3, y: 1}
+        position: {x: -1.7320508, y: 3}
       - obstacle: 0
-        position: {x: 0, y: 2}
+        position: {x: -0.8660254, y: 4.5}
       - obstacle: 0
-        position: {x: 1, y: 2}
+        position: {x: -3.4641016, y: -3}
       - obstacle: 0
-        position: {x: 2, y: 2}
+        position: {x: -2.598076, y: -1.5}
       - obstacle: 0
-        position: {x: 3, y: 2}
+        position: {x: -1.7320508, y: 0}
+      - obstacle: 0
+        position: {x: -0.8660254, y: 1.5}
       - obstacle: 0
         position: {x: 0, y: 3}
       - obstacle: 0
-        position: {x: 1, y: 3}
+        position: {x: 0.8660254, y: 4.5}
       - obstacle: 0
-        position: {x: 2, y: 3}
+        position: {x: -2.598076, y: -4.5}
       - obstacle: 0
-        position: {x: 3, y: 3}
+        position: {x: -1.7320508, y: -3}
+      - obstacle: 0
+        position: {x: -0.8660254, y: -1.5}
+      - obstacle: 0
+        position: {x: 0, y: 0}
+      - obstacle: 0
+        position: {x: 0.8660254, y: 1.5}
+      - obstacle: 0
+        position: {x: 1.7320508, y: 3}
+      - obstacle: 0
+        position: {x: 2.598076, y: 4.5}
+      - obstacle: 0
+        position: {x: -0.8660254, y: -4.5}
+      - obstacle: 0
+        position: {x: 0, y: -3}
+      - obstacle: 0
+        position: {x: 0.8660254, y: -1.5}
+      - obstacle: 0
+        position: {x: 1.7320508, y: 0}
+      - obstacle: 0
+        position: {x: 2.598076, y: 1.5}
+      - obstacle: 0
+        position: {x: 3.4641016, y: 3}
+      - obstacle: 0
+        position: {x: 0.8660254, y: -4.5}
+      - obstacle: 0
+        position: {x: 1.7320508, y: -3}
+      - obstacle: 0
+        position: {x: 2.598076, y: -1.5}
+      - obstacle: 0
+        position: {x: 3.4641016, y: 0}
+      - obstacle: 0
+        position: {x: 4.330127, y: 1.5}
+      - obstacle: 0
+        position: {x: 2.598076, y: -4.5}
+      - obstacle: 0
+        position: {x: 3.4641016, y: -3}
+      - obstacle: 0
+        position: {x: 4.330127, y: -1.5}
+      - obstacle: 0
+        position: {x: 5.196152, y: 0}
     - subLevel: 0
       maxRows: 3
       maxCols: 3
@@ -74,10 +116,6 @@ MonoBehaviour:
         position: {x: 1, y: 2}
       - obstacle: 1
         position: {x: 2, y: 2}
-    limitType: 0
-    limit: 31
-    colorLimit: 5
-    star1: 100
-    star2: 600
-    star3: 1200
+    gridDirection: 1
+    gridType: 1
     currentSublevelIndex: 0

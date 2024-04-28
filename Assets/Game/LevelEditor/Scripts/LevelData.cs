@@ -10,12 +10,8 @@ using UnityEngine;
         public static LevelData THIS;
         public int levelNum;
         public List<FieldData> fields = new List<FieldData>();
-        public LIMIT limitType;
-        public int limit = 25;
-        public int colorLimit = 5;
-        public int star1 = 100;
-        public int star2 = 300;
-        public int star3 = 500;
+        public GridDirection gridDirection;
+        public GridType gridType;
         public int maxRows { get { return GetField().maxRows; } set { GetField().maxRows = value; } }
         public int maxCols { get { return GetField().maxCols; } set { GetField().maxCols = value; } }
         public int currentSublevelIndex;
@@ -23,6 +19,7 @@ using UnityEngine;
         {
             return fields[currentSublevelIndex];
         }
+
         public FieldData GetField(int index)
         {
             currentSublevelIndex = index;
@@ -86,7 +83,11 @@ using UnityEngine;
         public int maxCols;
         public SquareBlocks[] levelSquares = new SquareBlocks[81];
         internal int row;
-        public FieldData DeepCopy()
+    public SquareBlocks GetHex(Vector2 pos)
+    {
+        return levelSquares.First(f => f.position == pos);
+    }
+    public FieldData DeepCopy()
         {
             var other = (FieldData)MemberwiseClone();
             other.levelSquares = new SquareBlocks[levelSquares.Length];
@@ -105,7 +106,7 @@ using UnityEngine;
     public class SquareBlocks
     {
         public SquareTypes obstacle;
-        public Vector2Int position;
+        public Vector2 position;
         public SquareBlocks DeepCopy()
         {
             var other = (SquareBlocks)MemberwiseClone();
@@ -113,11 +114,6 @@ using UnityEngine;
         }
     }
 
-    public enum LIMIT
-    {
-        MOVES,
-        TIME
-    }
 
     public enum SquareTypes
     {
@@ -125,3 +121,14 @@ using UnityEngine;
         EmptySquare
     }
 
+public enum GridDirection
+{
+    XY,
+    XZ
+}
+
+public enum GridType
+{
+    Square,
+    Hex
+}

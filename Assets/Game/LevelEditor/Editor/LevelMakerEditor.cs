@@ -35,10 +35,6 @@ using UnityEngine;
         private string[] toolbarStrings = { "Editor", "Settings", "Shop", "In-apps", "Ads", "GUI", "Rate", "About" };
 
         private static LevelMakerEditor window;
-        private bool life_settings_show;
-        private bool boost_show;
-        private bool failed_settings_show;
-        private bool gems_shop_show;
         string levelPath = "Assets/Game/Resources/Levels/";
 
         private LevelData levelData;
@@ -58,10 +54,13 @@ using UnityEngine;
             GetWindow(typeof(LevelMakerEditor));
         }
         public Texture Texture1;
-        private void OnFocus()
+    public Texture hexTex;
+    private void OnFocus()
         {
             levelScriptable = Resources.Load("Levels/LevelScriptable") as LevelScriptable;
-            LoadLevel(levelNumber);
+
+        hexTex = Resources.Load("Graphics/Hex") as Texture;
+        LoadLevel(levelNumber);
 
             if (levelData != null)
             {
@@ -87,10 +86,6 @@ using UnityEngine;
             subLevelNumberTotal = GetSubLevelsCount();
             if (levelNumber < 1)
                 levelNumber = 1;
-            life_settings_show = true;
-            boost_show = true;
-            failed_settings_show = true;
-            gems_shop_show = true;
             Resources.LoadAll("Items");
         }
 
@@ -103,13 +98,49 @@ using UnityEngine;
             {
                 SquareBlocks sqBlocks = new SquareBlocks();
                 sqBlocks.obstacle = SquareTypes.NONE;
-
+                
                 levelData.GetField(subLevelNumber - 1).levelSquares[i] = sqBlocks;
             }
-            ResetDirection();
+        }
+    private void InitializeSubHexlevel()
+    {
+        int mapSize = Mathf.Max(levelData.GetField(subLevelNumber - 1).maxCols, levelData.GetField(subLevelNumber - 1).maxRows);
+        int totalCount = 0;
+        Vector2 ogpos = new Vector2(200, 300);
+        for (int q = -mapSize; q <= mapSize; q++)
+        {
+            int r1 = Mathf.Max(-mapSize, -q - mapSize);
+            int r2 = Mathf.Min(mapSize, -q + mapSize);
+            for (int r = r1; r <= r2; r++)
+            {
+                totalCount++;
+            }
         }
 
-        private void OnGUI()
+        levelData.GetField(subLevelNumber - 1).levelSquares = new SquareBlocks[totalCount];
+        for (int i = 0; i < levelData.GetField(subLevelNumber - 1).levelSquares.Length; i++)
+        {
+            SquareBlocks sqBlocks = new SquareBlocks();
+            sqBlocks.obstacle = SquareTypes.NONE;
+            levelData.GetField(subLevelNumber - 1).levelSquares[i] = sqBlocks;
+        }
+        totalCount = 0;
+        for (int q = -mapSize; q <= mapSize; q++)
+        {
+            int r1 = Mathf.Max(-mapSize, -q - mapSize);
+            int r2 = Mathf.Min(mapSize, -q + mapSize);
+            for (int r = r1; r <= r2; r++)
+            {
+                ogpos.x = 1 * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
+                ogpos.y = 1 * 3.0f / 2.0f * r;
+                SquareBlocks squareBlock = levelData.GetField().levelSquares[totalCount];
+                squareBlock.position = ogpos;
+                totalCount++;
+            }
+        }
+    }
+
+    private void OnGUI()
         {
 //        GUI.skin = customSkin;
             if (!levelData.fields.Any())
@@ -117,7 +148,6 @@ using UnityEngine;
                 OnFocus();
                 return;
             }
-
             //		if (!gotFocus) return;
             UnityEngine.GUI.changed = false;
 
@@ -140,39 +170,33 @@ using UnityEngine;
             {
                 if (levelData != null)
                 {
-                    //                if (EditorSceneManager.GetActiveScene().name == "game")
-                    {
-                        GUILevelSelector();
-                        GUILayout.Space(10);
-
-
-                        GUILimit();
-                        GUILayout.Space(10);
-
-                        GUIColorLimit();
-                        GUILayout.Space(10);
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Space(70);
-                        GUILayout.EndHorizontal();
-                        GUILayout.Space(10);
-                        GUIStars();
-                        GUILayout.Space(10);
-                        GUILayout.Space(10);
-                        GUILevelSize();
-                        GUILayout.Space(10);
-                        GUILayout.Space(10);
-                            GUIBlocks();
-                            GUILayout.Space(10);
-                        GUIGameField();
-                    }
-                    //                else
-                    //                    GUIShowWarning();
+                    GUILevelSelector();
+                    GUILayout.Space(10);
+                    GUILimit();
+                    GUILayout.Space(10);
+                    GUILayout.Space(10);
+                    GUILayout.Space(10);
+                    GUILayout.Space(10);
+                    GUILevelSize();
+                    GUILayout.Space(10);
+                    GUILayout.Space(10);
+                GUIBlocks();
+                if (levelData.gridType == GridType.Square)
+                {
+                    GUIGameField();
+                }
+                else
+                {
+                 
+                    GUIHexBlocks();
+                }
+         
+                    GUILayout.Space(10);
+               
                 }
             }
             else if (selected == 1)
             {
-                    GUISettings();
-            
                 GUILayout.Space(10);
                 CheckSeparateLevels();
             }
@@ -195,93 +219,8 @@ using UnityEngine;
             }
         }
 
-  
-
-        #region GUIDialogs
-
-
-        public static void SetSearchFilter(string filter, int filterMode)
-        {
-            SearchableEditorWindow[] windows =
-                (SearchableEditorWindow[])Resources.FindObjectsOfTypeAll(typeof(SearchableEditorWindow));
-            SearchableEditorWindow hierarchy = null;
-            foreach (SearchableEditorWindow window in windows)
-            {
-                if (window.GetType().ToString() == "UnityEditor.SceneHierarchyWindow")
-                {
-                    hierarchy = window;
-                    break;
-                }
-            }
-
-            if (hierarchy == null)
-                return;
-
-            MethodInfo setSearchType =
-                typeof(SearchableEditorWindow).GetMethod("SetSearchFilter", BindingFlags.NonPublic | BindingFlags.Instance);
-            object[] parameters = { filter, filterMode, false };
-
-            setSearchType.Invoke(hierarchy, parameters);
-        }
-
-        #endregion
-
-        #region settings
-
-
-        private void GUISettings()
-        {
-            GUILayout.Label("Game settings:", EditorStyles.boldLabel, GUILayout.Width(150));
-            GUILayout.BeginHorizontal();
-          
-
-            if (GUILayout.Button("Clear player prefs", GUILayout.Width(150)))
-            {
-                PlayerPrefs.DeleteAll();
-                PlayerPrefs.Save();
-                Debug.Log("Player prefs cleared");
-            }
-     
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Facebook", EditorStyles.boldLabel, GUILayout.Width(150)); //1.6.1
-            if (GUILayout.Button("Install", GUILayout.Width(70)))
-            {
-                Application.OpenURL("https://developers.facebook.com/docs/unity/downloads");
-            }
-
-            if (GUILayout.Button("Account", GUILayout.Width(70)))
-            {
-                Application.OpenURL("https://developers.facebook.com");
-            }
-
-            if (GUILayout.Button("How to setup", GUILayout.Width(120)))
-            {
-                Application.OpenURL(
-                    "https://docs.google.com/document/d/1bTNdM3VSg8qu9nWwO7o7WeywMPhVLVl8E_O0gMIVIw0/edit?usp=sharing");
-            }
-
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(20);
-
-            GUILayout.Space(20);
-
-            GUILayout.Space(20);
-
-
-            failed_settings_show = EditorGUILayout.Foldout(failed_settings_show, "Failed settings:");
-
-            GUILayout.Space(20);
-        }
-
       
-
-        #endregion
         #region leveleditor
-
         private void TestLevel(bool playNow = true, bool testByPlay = true)
         {
             dirtyLevel = true;
@@ -299,8 +238,6 @@ using UnityEngine;
                     EditorApplication.isPlaying = true;
             }
         }
-
-
         private void GUILevelSelector()
         {
             GUILayout.BeginHorizontal();
@@ -315,7 +252,6 @@ using UnityEngine;
                     dirtyLevel = true;
                     SaveLevel(levelNumber);
                 }
-
             }
             GUILayout.EndHorizontal();
 
@@ -357,11 +293,8 @@ using UnityEngine;
             GUILayout.EndHorizontal();
             GUILayout.Space(5);
 
-            //Sub Level
-
             GUILayout.BeginHorizontal();
             {
-//            GUILayout.Space(60);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Sub Level", GUILayout.Width(80));
                 GUILayout.Space(70);
@@ -422,9 +355,19 @@ using UnityEngine;
                 levelData.GetField(subLevelNumber - 1).maxCols = 11;
             if (oldValue != levelData.GetField(subLevelNumber - 1).maxRows + levelData.GetField(subLevelNumber - 1).maxCols)
             {
-                Initialize();
-                InitializeSublevel();
-                dirtyLevel = true;
+            Initialize();
+            switch (levelData.gridType)
+            {
+                case GridType.Square:
+                    InitializeSublevel();
+                    break;
+                case GridType.Hex:
+                    InitializeSubHexlevel();
+                    break;
+            }
+
+            SaveLevel(levelNumber);
+            dirtyLevel = true;
                 // SaveLevel();
             }
 
@@ -432,150 +375,42 @@ using UnityEngine;
 
         private void GUILimit()
         {
-            GUILayout.BeginHorizontal();
-            {
 
-                GUILayout.Label("Limit", EditorStyles.label, GUILayout.Width(50));
-                GUILayout.Space(100);
-                LIMIT limitTypeSave = levelData.limitType;
-                int oldLimit = levelData.limit;
-                levelData.limitType = (LIMIT)EditorGUILayout.EnumPopup(levelData.limitType, GUILayout.Width(93));
-                if (levelData.limitType == LIMIT.MOVES)
-                    levelData.limit = EditorGUILayout.IntField(levelData.limit, GUILayout.Width(50));
-                else
+        GUILayout.BeginHorizontal();
+        {
+
+            GUILayout.Label("GridDirection", EditorStyles.label, GUILayout.Width(50));
+            GUILayout.Space(100);
+            levelData.gridDirection = (GridDirection)EditorGUILayout.EnumPopup(levelData.gridDirection, GUILayout.Width(93));
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label("Grid Type", EditorStyles.label, GUILayout.Width(50));
+            GUILayout.Space(100);
+            levelData.gridType = (GridType)EditorGUILayout.EnumPopup(levelData.gridType, GUILayout.Width(93));
+            if(gridType != levelData.gridType)
+            {
+                gridType = levelData.gridType;
+                dirtyLevel = true;
+                Initialize();
+                switch (gridType)
                 {
-                    GUILayout.BeginHorizontal();
-                    int limitMin = EditorGUILayout.IntField(levelData.limit / 60, GUILayout.Width(30));
-                    GUILayout.Label(":", GUILayout.Width(10));
-                    int limitSec =
-                        EditorGUILayout.IntField(levelData.limit - (levelData.limit / 60) * 60, GUILayout.Width(30));
-                    levelData.limit = limitMin * 60 + limitSec;
-                    GUILayout.EndHorizontal();
+                    case GridType.Square:
+                        InitializeSublevel();
+                        break;
+                    case GridType.Hex:
+                        InitializeSubHexlevel();
+                        break;
                 }
-
-                if (levelData.limit <= 0)
-                    levelData.limit = 1;
-                if (limitTypeSave != levelData.limitType || oldLimit != levelData.limit)
-                    dirtyLevel = true;
-                // 	SaveLevel();
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        private void GUIColorLimit()
-        {
-            GUILayout.BeginHorizontal();
-
-            int saveInt = levelData.colorLimit;
-            GUILayout.Label("Color limit", EditorStyles.label, GUILayout.Width(100));
-            GUILayout.Space(50);
-            levelData.colorLimit = (int)GUILayout.HorizontalSlider(levelData.colorLimit, 3, 6, GUILayout.Width(100));
-            levelData.colorLimit = EditorGUILayout.IntField("", levelData.colorLimit, GUILayout.Width(50));
-            if (levelData.colorLimit < 3)
-                levelData.colorLimit = 3;
-            if (levelData.colorLimit > 6)
-                levelData.colorLimit = 6;
-
-            GUILayout.EndHorizontal();
-
-            if (saveInt != levelData.colorLimit)
-            {
-                dirtyLevel = true;
-                // SaveLevel();
+                SaveLevel(levelNumber);
             }
         }
+        GUILayout.EndHorizontal();
 
-
-        private void GUIStars()
-        {
-            GUILayout.BeginHorizontal();
-//        GUILayout.Space(35);
-
-            //GUILayout.BeginVertical();
-
-            GUILayout.Label("Stars", GUILayout.Width(30));
-
-            GUILayout.Space(120);
-            GUILayout.BeginHorizontal();
-            int s = 0;
-            s = EditorGUILayout.IntField("", levelData.star1, GUILayout.Width(50));
-            if (s != levelData.star1)
-            {
-                levelData.star1 = s;
-                dirtyLevel = true;
-                // SaveLevel();
-            }
-
-            if (levelData.star1 <= 0)
-                levelData.star1 = 100;
-            s = EditorGUILayout.IntField("", levelData.star2, GUILayout.Width(50));
-            if (s != levelData.star2)
-            {
-                levelData.star2 = s;
-                dirtyLevel = true;
-                // SaveLevel();
-            }
-
-            if (levelData.star2 < levelData.star1)
-                levelData.star2 = levelData.star1 + 10;
-            s = EditorGUILayout.IntField("", levelData.star3, GUILayout.Width(50));
-            if (s != levelData.star3)
-            {
-                levelData.star3 = s;
-                dirtyLevel = true;
-                // SaveLevel();
-            }
-
-            if (levelData.star3 < levelData.star2)
-            {
-                levelData.star3 = levelData.star2 + 10;
-                dirtyLevel = true;
-                // SaveLevel();
-            }
-
-            GUILayout.EndHorizontal();
-            //GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-        }
-
-  
-  
-
-
-
-        private bool IsBlockTarget(string blockName, string[] targets)
-        {
-            var list = targets.Where(i => blockName.Contains(i));
-            return list.Count() > 0;
-        }
-
-     
-
-        private void ResetDirection()
-        {
-            var squares = levelData.GetField(subLevelNumber - 1).levelSquares;
-         
-
-            dirtyLevel = true;
-        }
-
-
-        private int GetIndexByDirection(Vector2 direction)
-        {
-            if (direction == Vector2.right)
-                return 3;
-            if (direction == Vector2.left)
-                return 1;
-            if (direction == Vector2.up)
-                return 2;
-            return 0;
-        }
-
-
-
-  
-
-        private void GUIBlocks()
+    }
+    GridType gridType;
+    private void GUIBlocks()
         {
             GUILayout.BeginHorizontal();
             {
@@ -614,11 +449,7 @@ using UnityEngine;
                                 squareType = SquareTypes.NONE;
                             }
 
-                            if (GUILayout.Button(new GUIContent("Fill+", "Fill with selected block, second click change or clear filling"), GUILayout.Width(50),
-                                GUILayout.Height(50)))
-                            {
-                                FillLevel();
-                            }
+                           
                         }
                         GUILayout.EndHorizontal();
                     }
@@ -639,30 +470,6 @@ using UnityEngine;
             dirtyLevel = true;
         }
 
-        private void FillLevel()
-        {
-            for (int i = 0; i < levelData.GetField(subLevelNumber - 1).levelSquares.Length; i++)
-            {
-                var squareBlocks = levelData.GetField(subLevelNumber - 1).levelSquares[i];
-                var tempType = squareType;
-                if (
-                    (squareBlocks.obstacle == squareType))
-                {
-                    var sqPos = squareBlocks.position;
-                    squareType = SquareTypes.EmptySquare;
-                    SetSquareType(sqPos.x, sqPos.y);
-                    squareType = tempType;
-
-                }
-                else if ( (squareBlocks.obstacle == squareType))
-                {
-                    var sqPos = squareBlocks.position;
-                    SetSquareType(sqPos.x, sqPos.y);
-                }
-            }
-
-            dirtyLevel = true;
-        }
 
         private SquareBlocks squareBlockSelected; //for teleport linking
 
@@ -826,10 +633,10 @@ using UnityEngine;
 
         private bool dirtyLevel;
 
-        private void SetSquareType(int col, int row)
+        private void SetSquareType(float col, float row)
         {
             dirtyLevel = true;
-            SquareBlocks squareBlock = levelData.GetBlock(row, col);
+            SquareBlocks squareBlock = levelData.GetBlock((int) row, (int)col);
 
             squareBlock.obstacle = squareType;
             SaveLevel(levelNumber);
@@ -870,5 +677,40 @@ using UnityEngine;
             return false;
         }
 
-        #endregion
+    #endregion
+    private void GUIHexBlocks()
+    {
+ 
+        Vector2 pos = new Vector2(200, 300);
+        Vector2 ogpos = new Vector2(200, 300);
+
+        int mapSize = Mathf.Max(levelData.GetField(subLevelNumber - 1).maxCols, levelData.GetField(subLevelNumber - 1).maxRows);
+        int hexRadius = 1 * 30;
+        for (int q = -mapSize; q <= mapSize; q++)
+        {
+            int r1 = Mathf.Max(-mapSize, -q - mapSize);
+            int r2 = Mathf.Min(mapSize, -q + mapSize);
+            for (int r = r1; r <= r2; r++)
+            {
+                pos.x = hexRadius * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
+                pos.y = hexRadius * 3.0f / 2.0f * r;
+                ogpos.x = 1 * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
+                ogpos.y = 1 * 3.0f / 2.0f * r;
+
+                SquareBlocks squareBlock = levelData.GetField().GetHex(ogpos);
+                squareBlock.position = ogpos;
+                Rect buttonrect = new Rect(pos + new Vector2(200 + (4 * hexRadius) , 450 + (5 * hexRadius)), new Vector2(50, 50));
+                GUI.color = new Color(44f / 255f, 44f / 255f, 44f / 255f, 1);
+                GUI.DrawTexture(buttonrect, hexTex);
+                GUILayout.BeginArea(buttonrect);
+                GUI.color = new Color(0,0,0,0);
+
+                if (GUILayout.Button(hexTex, new GUILayoutOption[] { GUILayout.Width(50), GUILayout.Height(50) }))
+                {
+                    Debug.Log(r + " " + r2);
+                }
+               GUILayout.EndArea();
+            }
+        }
     }
+}
