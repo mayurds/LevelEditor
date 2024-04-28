@@ -106,7 +106,7 @@ using UnityEngine;
     {
         int mapSize = Mathf.Max(levelData.GetField(subLevelNumber - 1).maxCols, levelData.GetField(subLevelNumber - 1).maxRows);
         int totalCount = 0;
-        Vector2 ogpos = new Vector2(200, 300);
+        Vector2 ogpos = new Vector2(0, 0);
         for (int q = -mapSize; q <= mapSize; q++)
         {
             int r1 = Mathf.Max(-mapSize, -q - mapSize);
@@ -131,30 +131,29 @@ using UnityEngine;
             int r2 = Mathf.Min(mapSize, -q + mapSize);
             for (int r = r1; r <= r2; r++)
             {
-                ogpos.x = 1 * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
-                ogpos.y = 1 * 3.0f / 2.0f * r;
+                ogpos.x = 1f * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
+                ogpos.y = 1f * 3.0f / 2.0f * r;
+           //     tile.index = new CubeIndex(q, r, -q - r);
                 SquareBlocks squareBlock = levelData.GetField().levelSquares[totalCount];
+                squareBlock.tileIndex = new Vector3Int(q, r, -q - r);
                 squareBlock.position = ogpos;
                 totalCount++;
             }
         }
     }
-
+ 
     private void OnGUI()
         {
-//        GUI.skin = customSkin;
             if (!levelData.fields.Any())
             {
                 OnFocus();
                 return;
             }
-            //		if (!gotFocus) return;
             UnityEngine.GUI.changed = false;
 
      
             GUILayout.Space(20);
             GUILayout.BeginHorizontal();
-//        GUILayout.Space(30);
             int oldSelected = selected;
             selected = GUILayout.Toolbar(selected, toolbarStrings, GUILayout.Width(450));
             GUILayout.EndHorizontal();
@@ -214,7 +213,7 @@ using UnityEngine;
                 var ls = Resources.Load("Levels/LevelScriptable") as LevelScriptable;
                 for (int i = 0; i < ls.levels.Count(); i++)
                 {
-                    ScriptableLevelManager.CreateFileLevel( i+1, ls.levels[i]);
+                    LevelUtils.CreateFileLevel( i+1, ls.levels[i]);
                 }
             }
         }
@@ -526,8 +525,8 @@ using UnityEngine;
             SaveLevel(levelNumber);
             levelNumber = GetLastLevel()+1;
             SubLevelNumber = 1;
-            ScriptableLevelManager.CreateFileLevel(levelNumber, levelData);
-            levelData = ScriptableLevelManager.LoadLevel(levelNumber);
+            LevelUtils.CreateFileLevel(levelNumber, levelData);
+            levelData = LevelUtils.LoadLevel(levelNumber);
             Initialize();
             ClearLevel();
             SaveLevel(levelNumber);
@@ -536,7 +535,7 @@ using UnityEngine;
 
         private int GetLastLevel()
         {
-            int lastLevel = LoadingManager.GetLastLevelNum();
+            int lastLevel = LevelUtils.GetLastLevelNum();
             if(lastLevel == 0) lastLevel = levelScriptable.levels.Count;
             return lastLevel;
         }
@@ -655,7 +654,7 @@ using UnityEngine;
                 levelScriptable.levels.Add(levelData);
             else
                 levelScriptable.levels[_levelNumber - 1] = levelData.DeepCopy(_levelNumber);
-            ScriptableLevelManager.SaveLevel(levelPath, _levelNumber, levelData);
+            LevelUtils.SaveLevel(levelPath, _levelNumber, levelData);
 
 //        EditorUtility.SetDirty(levelScriptable);
 //        AssetDatabase.SaveAssets();
@@ -663,7 +662,7 @@ using UnityEngine;
 
         private bool LoadLevel(int currentLevel)
         {
-            levelData = LoadingManager.LoadlLevel(currentLevel, levelData);
+            levelData = LevelUtils.LoadlLevel(currentLevel, levelData);
             squareBlockSelected = null;
             // PlayerPrefs.SetInt("OpenLevelTest", currentLevel);
             // PlayerPrefs.Save();
@@ -696,9 +695,11 @@ using UnityEngine;
                 pos.y = hexRadius * 3.0f / 2.0f * r;
                 ogpos.x = 1 * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
                 ogpos.y = 1 * 3.0f / 2.0f * r;
-
-                SquareBlocks squareBlock = levelData.GetField().GetHex(ogpos);
-                squareBlock.position = ogpos;
+                if(levelData.GetField().GetHex(ogpos) != null)
+                {
+                    SquareBlocks squareBlock = levelData.GetField().GetHex(new Vector3Int(q, r, -q - r));
+                    squareBlock.position = ogpos;
+                }    
                 Rect buttonrect = new Rect(pos + new Vector2(200 + (4 * hexRadius) , 450 + (5 * hexRadius)), new Vector2(50, 50));
                 GUI.color = new Color(44f / 255f, 44f / 255f, 44f / 255f, 1);
                 GUI.DrawTexture(buttonrect, hexTex);
@@ -707,10 +708,20 @@ using UnityEngine;
 
                 if (GUILayout.Button(hexTex, new GUILayoutOption[] { GUILayout.Width(50), GUILayout.Height(50) }))
                 {
-                    Debug.Log(r + " " + r2);
+                    
+                    SetHexType(new Vector3Int(q, r, -q - r));
                 }
-               GUILayout.EndArea();
+                GUILayout.EndArea();
             }
         }
+       
+    }
+    private void SetHexType(Vector3Int vector3Int)
+    {
+        dirtyLevel = true;
+        SquareBlocks squareBlock = levelData.GetBlock(subLevelNumber - 1,vector3Int);
+        squareBlock.obstacle = squareType;
+        SaveLevel(levelNumber);
+        update = true;
     }
 }

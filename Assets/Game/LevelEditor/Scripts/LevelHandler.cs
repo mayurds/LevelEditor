@@ -6,7 +6,7 @@ public class LevelHandler : MonoBehaviour
     public LevelData levelData;
     private void OnEnable()
     {
-        levelData = LoadingManager.LoadForPlay(currentLevel);
+        levelData = LevelUtils.LoadForPlay(currentLevel);
         if (levelData.fields.Count > 0)
         {
             LevelField levelfield = new GameObject().AddComponent<LevelField>();

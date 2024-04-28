@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelField : MonoBehaviour
@@ -22,25 +20,25 @@ public class LevelField : MonoBehaviour
                 transform.position = Vector3.zero;
                 break;
             case GridType.Hex:
-                for (int k = 0; k < fieldData.levelSquares.Length; k++)
+                Vector2 pos = new Vector2(0, 0);
+                int mapSize = Mathf.Max(fieldData.maxCols, fieldData.maxRows);
+                float hexRadius = 0.5f;
+                for (int q = -mapSize; q <= mapSize; q++)
                 {
-                    SquareBlocks squareBlock = fieldData.levelSquares[k];
-                    GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    switch (levelData.gridDirection)
+                    int r1 = Mathf.Max(-mapSize, -q - mapSize);
+                    int r2 = Mathf.Min(mapSize, -q + mapSize);
+                    for (int r = r1; r <= r2; r++)
                     {
-                        case GridDirection.XY:
-                            gameObject.transform.position = new Vector3(squareBlock.position.x, squareBlock.position.y,0 );
-                            break;
-                        case GridDirection.XZ:
-                            gameObject.transform.position = new Vector3(squareBlock.position.x, 0, squareBlock.position.y);
-                            break;
+                        pos.x = hexRadius * Mathf.Sqrt(3.0f) * (q + r / 2.0f);
+                        pos.y = hexRadius * 3.0f / 2.0f * r;
+                        SquareBlocks squareBlock = levelData.GetField(subLevel).GetHex(new Vector3Int(q, r, -q - r));
+                        GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        gameObject.name = squareBlock.obstacle.ToString();
+                        gameObject.transform.position = new Vector3(pos.x,0 ,pos.y);
                     }
-                    gameObject.transform.parent = transform;
                 }
-               /// transform.position = Vector3.zero;
                 break;
         }
- 
     }
     Vector3 GetCenterPosition(int col, int row)
     {

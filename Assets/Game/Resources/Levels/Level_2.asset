@@ -22,196 +22,282 @@ MonoBehaviour:
       levelSquares:
       - obstacle: 0
         position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 1, y: 0}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 2, y: 0}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 3, y: 0}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 0, y: 1}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 1, y: 1}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 2, y: 1}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 3, y: 1}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 0, y: 2}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 1, y: 2}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 2, y: 2}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 3, y: 2}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 0, y: 3}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 1, y: 3}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 2, y: 3}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
-        position: {x: 3, y: 3}
+        position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
     - subLevel: 0
       maxRows: 5
       maxCols: 5
       levelSquares:
       - obstacle: 0
         position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
     - subLevel: 0
       maxRows: 7
       maxCols: 7
       levelSquares:
       - obstacle: 0
         position: {x: 0, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 0}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 1}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 2}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 3}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 4}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 5}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 0, y: 6}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 1, y: 6}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 2, y: 6}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 3, y: 6}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 4, y: 6}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 5, y: 6}
+        tileIndex: {x: 0, y: 0, z: 0}
       - obstacle: 0
         position: {x: 6, y: 6}
-    limitType: 0
-    limit: 25
-    colorLimit: 5
-    star1: 200
-    star2: 900
-    star3: 1430
+        tileIndex: {x: 0, y: 0, z: 0}
+    gridDirection: 0
+    gridType: 0
     currentSublevelIndex: 0
